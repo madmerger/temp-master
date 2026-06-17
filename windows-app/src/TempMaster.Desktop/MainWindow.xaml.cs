@@ -97,13 +97,14 @@ public partial class MainWindow : Window
 
     private async Task LoadHistoriesAsync(IReadOnlyList<MeterDevice> meters)
     {
+        var timeScale = _timeScale;
         foreach (var meter in meters)
         {
             try
             {
-                var history = await _api.GetHistoryAsync(meter.DeviceId, _timeScale);
+                var history = await _api.GetHistoryAsync(meter.DeviceId, timeScale);
                 if (_cards.TryGetValue(meter.DeviceId, out var card))
-                    card.SetHistory(history.History, _timeScale);
+                    card.SetHistory(history.History, timeScale);
             }
             catch
             {
