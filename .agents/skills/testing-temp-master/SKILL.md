@@ -35,10 +35,10 @@ echo "SWITCHBOT_SECRET=${SWITCHBOT_SECRET}" >> .env
 
 ### 3. Symlink frontend static files
 
-The Dockerfile copies `switchbot-frontend-legacy/` to `switchbot-backend/static/`, but locally this directory doesn't exist. You must create a symlink:
+The Dockerfile copies `switchbot-frontend/` to `switchbot-backend/static/`, but locally this directory doesn't exist. You must create a symlink:
 
 ```bash
-ln -s $(pwd)/switchbot-dashboard/switchbot-frontend-legacy switchbot-dashboard/switchbot-backend/static
+ln -s $(pwd)/switchbot-dashboard/switchbot-frontend switchbot-dashboard/switchbot-backend/static
 ```
 
 **Important:** The static directory check in `main.py` happens at module import time (`STATIC_DIR = Path(__file__).resolve().parent.parent / "static"`). If you create the symlink after starting the server, you must restart the server.
@@ -57,7 +57,7 @@ The frontend is served at `http://localhost:8000/` and the API docs at `http://l
 ### Branding Verification
 - Page title (`<title>` tag): should say "Temp Master Dashboard"
 - Navbar brand: should say "Temp Master Dashboard"
-- Footer: should say "Temp Master Dashboard v1.0 (Legacy)"
+- Footer: should say "Temp Master Dashboard v1.0 - Built with jQuery + Bootstrap 3"
 - Verify no "Snake" or "SnakeRoom" text exists anywhere: `document.body.innerHTML.includes('Snake')` should be `false`
 
 ### API Connectivity
@@ -83,6 +83,6 @@ Expected: 97 tests pass.
 ## Architecture Notes
 
 - Backend: FastAPI + aiosqlite (SQLite persistence at `/data/app.db` or local `app.db`)
-- Frontend: Legacy jQuery + Bootstrap 3 (single `index.html` file)
+- Frontend: jQuery + Bootstrap 3 (single `index.html` file)
 - Deployment: Fly.io (see `fly.toml`)
 - Background data collection runs with 120s interval, with rate limiting and exponential backoff

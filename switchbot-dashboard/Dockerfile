@@ -1,4 +1,4 @@
-# Build and run backend (serves legacy frontend static files)
+# Build and run backend (serves frontend static files)
 FROM python:3.12-slim
 WORKDIR /app
 
@@ -14,8 +14,8 @@ RUN poetry config virtualenvs.create true && \
 # Copy backend application code
 COPY switchbot-backend/app/ ./app/
 
-# Copy legacy (jQuery + Bootstrap 3) frontend to root: served at /
-COPY switchbot-frontend-legacy/ ./static/
+# Copy frontend to root: served at /
+COPY switchbot-frontend/ ./static/
 
 EXPOSE 8000
 
