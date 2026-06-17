@@ -1,0 +1,36 @@
+name: Windows App
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'windows-app/**'
+      - '.github/workflows/windows-app.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'windows-app/**'
+      - '.github/workflows/windows-app.yml'
+
+jobs:
+  build:
+    name: Build WPF App
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: windows-app
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore TempMaster.Desktop.sln
+
+      - name: Build
+        run: dotnet build TempMaster.Desktop.sln -c Release --no-restore
