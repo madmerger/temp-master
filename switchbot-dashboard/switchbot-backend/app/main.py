@@ -791,12 +791,12 @@ async def backup_database():
 
 # Serve frontend static files if the static directory exists.
 # Layout under static/:
-#   index.html              -> legacy (jQuery + Bootstrap 3) frontend served at "/"
+#   index.html              -> frontend served at "/"
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
 if STATIC_DIR.is_dir():
     @app.get("/{full_path:path}")
     async def serve_spa(request: Request, full_path: str):
-        """Serve the legacy frontend at root."""
+        """Serve the frontend at root."""
         file_path = (STATIC_DIR / full_path).resolve()
         if not file_path.is_relative_to(STATIC_DIR.resolve()):
             return FileResponse(STATIC_DIR / "index.html")
