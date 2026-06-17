@@ -51,9 +51,6 @@
       text-align: center;
       padding: 40px 0;
     }
-    .shelf-section {
-      margin-bottom: 20px;
-    }
     .panel-default > .panel-heading {
       background-color: #f8f8f8;
     }
@@ -89,13 +86,6 @@
     <div class="panel panel-default">
       <div class="panel-body">
         <form class="form-inline">
-          <div class="form-group" style="margin-right: 20px;">
-            <label style="margin-right: 8px;">View:</label>
-            <div class="btn-group" role="group">
-              <button type="button" id="btn-default-view" class="btn btn-default">Default</button>
-              <button type="button" id="btn-shelf-view" class="btn btn-primary">Shelf</button>
-            </div>
-          </div>
           <div class="form-group" style="margin-right: 20px;">
             <label for="time-scale-select" style="margin-right: 8px;">Time Range:</label>
             <select id="time-scale-select" class="form-control">
@@ -163,19 +153,10 @@
     var API_URL = (window.location.protocol === 'file:') ? 'https://temp-master.fly.dev' : '';
 
     var REFRESH_INTERVAL = 30000;
-    var currentViewType = 'shelf';
     var currentTimeScale = 'day';
     var metersData = [];
     var statusData = null;
     var charts = {}; // device_id -> Chart instance map
-
-    var SHELF_VIEW_CONFIG = {
-      topRow: ['\u5916', 'Study'],
-      leftColumn: ['\u30d0\u30ed\u30f3', '\u304a\u3066\u3044\u3055\u3093', '\u30a2\u30ef\u30b3', '\u30cd\u30ba\u30df'],
-      middleColumn: ['\u86c7\u68da', '\u30b8\u30e3\u30ac\u767e\u4e07\u77f3', '\u4e2d\u83ef\u68da'],
-      rightColumn: ['\u30b4\u30f3\u30bf', '\u5922\u7537'],
-      excluded: ['Bedroom Meter', 'Living Meter']
-    };
 
     // ============================================================
     // Utility functions
@@ -218,15 +199,6 @@
         default:
           return date.toLocaleString();
       }
-    }
-
-    function findMeterByName(name) {
-      for (var i = 0; i < metersData.length; i++) {
-        if (metersData[i].device_name === name) {
-          return metersData[i];
-        }
-      }
-      return null;
     }
 
     // ============================================================
@@ -354,11 +326,7 @@
     // ============================================================
 
     function renderMeters() {
-      if (currentViewType === 'shelf') {
-        renderShelfView();
-      } else {
-        renderDefaultView();
-      }
+      renderDefaultView();
     }
 
     function renderDefaultView() {
@@ -367,65 +335,6 @@
         html += '<div class="col-md-4 col-sm-6">' + createMeterPanel(metersData[i]) + '</div>';
       }
       html += '</div>';
-      $('#meters-container').html(html);
-    }
-
-    function renderShelfView() {
-      var html = '';
-
-      // Top row: 2 meters, col-md-6 each
-      var topMeters = [];
-      for (var i = 0; i < SHELF_VIEW_CONFIG.topRow.length; i++) {
-        var m = findMeterByName(SHELF_VIEW_CONFIG.topRow[i]);
-        if (m) topMeters.push(m);
-      }
-      if (topMeters.length > 0) {
-        html += '<div class="row shelf-section">';
-        for (var t = 0; t < topMeters.length; t++) {
-          html += '<div class="col-md-6">' + createMeterPanel(topMeters[t]) + '</div>';
-        }
-        html += '</div>';
-      }
-
-      // Bottom: 3 columns col-md-4 each
-      var leftMeters = [];
-      for (var l = 0; l < SHELF_VIEW_CONFIG.leftColumn.length; l++) {
-        var ml = findMeterByName(SHELF_VIEW_CONFIG.leftColumn[l]);
-        if (ml) leftMeters.push(ml);
-      }
-      var middleMeters = [];
-      for (var mi = 0; mi < SHELF_VIEW_CONFIG.middleColumn.length; mi++) {
-        var mm = findMeterByName(SHELF_VIEW_CONFIG.middleColumn[mi]);
-        if (mm) middleMeters.push(mm);
-      }
-      var rightMeters = [];
-      for (var r = 0; r < SHELF_VIEW_CONFIG.rightColumn.length; r++) {
-        var mr = findMeterByName(SHELF_VIEW_CONFIG.rightColumn[r]);
-        if (mr) rightMeters.push(mr);
-      }
-
-      html += '<div class="row shelf-section">';
-
-      html += '<div class="col-md-4">';
-      for (var li = 0; li < leftMeters.length; li++) {
-        html += createMeterPanel(leftMeters[li]);
-      }
-      html += '</div>';
-
-      html += '<div class="col-md-4">';
-      for (var mii = 0; mii < middleMeters.length; mii++) {
-        html += createMeterPanel(middleMeters[mii]);
-      }
-      html += '</div>';
-
-      html += '<div class="col-md-4">';
-      for (var ri = 0; ri < rightMeters.length; ri++) {
-        html += createMeterPanel(rightMeters[ri]);
-      }
-      html += '</div>';
-
-      html += '</div>';
-
       $('#meters-container').html(html);
     }
 
@@ -575,25 +484,6 @@
       });
     }
 
-    // ============================================================
-    // View toggle helpers
-    // ============================================================
-
-    function setViewType(viewType) {
-      currentViewType = viewType;
-      if (viewType === 'shelf') {
-        $('#btn-shelf-view').removeClass('btn-default').addClass('btn-primary');
-        $('#btn-default-view').removeClass('btn-primary').addClass('btn-default');
-      } else {
-        $('#btn-default-view').removeClass('btn-default').addClass('btn-primary');
-        $('#btn-shelf-view').removeClass('btn-primary').addClass('btn-default');
-      }
-      // Destroy charts before re-rendering DOM (canvases will be removed)
-      destroyAllCharts();
-      renderMeters();
-      renderCharts();
-    }
-
     function destroyAllCharts() {
       for (var key in charts) {
         if (charts.hasOwnProperty(key) && charts[key]) {
@@ -610,14 +500,6 @@
     $(document).ready(function() {
       fetchData();
       setInterval(fetchData, REFRESH_INTERVAL);
-
-      $('#btn-default-view').click(function() {
-        setViewType('default');
-      });
-
-      $('#btn-shelf-view').click(function() {
-        setViewType('shelf');
-      });
 
       $('#time-scale-select').change(function() {
         currentTimeScale = $(this).val();
