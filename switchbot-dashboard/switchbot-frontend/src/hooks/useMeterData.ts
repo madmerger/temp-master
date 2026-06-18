@@ -9,6 +9,7 @@ interface MeterDataState {
   status: StatusResponse | null;
   loading: boolean;
   error: string | null;
+  lastRefreshedAt: Date | null;
 }
 
 export function useMeterData() {
@@ -17,6 +18,7 @@ export function useMeterData() {
     status: null,
     loading: true,
     error: null,
+    lastRefreshedAt: null,
   });
   const [refreshing, setRefreshing] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -32,6 +34,7 @@ export function useMeterData() {
         status: statusRes,
         loading: false,
         error: null,
+        lastRefreshedAt: new Date(),
       });
     } catch (err) {
       setState((prev) => ({

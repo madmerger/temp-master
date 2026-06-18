@@ -4,17 +4,23 @@ import type { StatusResponse } from "../types";
 interface StatusBarProps {
   status: StatusResponse | null;
   connected: boolean;
+  lastRefreshedAt: Date | null;
 }
 
 function pad2(n: number): string {
   return n < 10 ? `0${n}` : `${n}`;
 }
 
-export default function StatusBar({ status, connected }: StatusBarProps) {
+export default function StatusBar({
+  status,
+  connected,
+  lastRefreshedAt,
+}: StatusBarProps) {
   if (!status || !connected) return null;
 
-  const now = new Date();
-  const refreshText = `Last refresh: ${pad2(now.getHours())}:${pad2(now.getMinutes())}:${pad2(now.getSeconds())}`;
+  const refreshText = lastRefreshedAt
+    ? `Last refresh: ${pad2(lastRefreshedAt.getHours())}:${pad2(lastRefreshedAt.getMinutes())}:${pad2(lastRefreshedAt.getSeconds())}`
+    : "";
   const noun = status.meters_count === 1 ? "meter" : "meters";
 
   return (

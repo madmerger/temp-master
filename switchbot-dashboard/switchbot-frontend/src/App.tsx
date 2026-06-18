@@ -24,8 +24,15 @@ const TIME_SCALE_OPTIONS: { value: TimeScale; label: string }[] = [
 
 export default function App() {
   const [timeScale, setTimeScale] = useState<TimeScale>("day");
-  const { meters, status, loading, error, refreshing, handleRefresh } =
-    useMeterData();
+  const {
+    meters,
+    status,
+    loading,
+    error,
+    refreshing,
+    lastRefreshedAt,
+    handleRefresh,
+  } = useMeterData();
 
   const connected = !error;
 
@@ -84,7 +91,11 @@ export default function App() {
           </Card.Body>
         </Card>
 
-        <StatusBar status={status} connected={connected} />
+        <StatusBar
+          status={status}
+          connected={connected}
+          lastRefreshedAt={lastRefreshedAt}
+        />
 
         {loading && <LoadingSpinner />}
         {error && <ErrorAlert message={error} />}
