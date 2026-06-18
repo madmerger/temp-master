@@ -95,6 +95,20 @@ public class MainViewModelTests
     }
 
     [Fact]
+    public async Task LoadAsync_DeduplicatesDuplicateDeviceIds()
+    {
+        var api = new FakeApi { Meters = { Meter("dup", 21), Meter("dup", 22) } };
+        var vm = new MainViewModel(new AppSettings(), _ => api);
+
+        await vm.LoadAsync(triggerBackendRefresh: false);
+        // A second load must not throw (would happen if duplicates were stored).
+        await vm.LoadAsync(triggerBackendRefresh: false);
+
+        Assert.Single(vm.Meters);
+        Assert.True(vm.IsConnected);
+    }
+
+    [Fact]
     public async Task LoadAsync_WithBackendRefresh_CallsRefresh()
     {
         var api = new FakeApi();

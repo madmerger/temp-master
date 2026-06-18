@@ -235,7 +235,14 @@ public sealed class MainViewModel : ObservableObject
 
         foreach (var meter in incoming)
         {
-            seen.Add(meter.DeviceId);
+            // Skip duplicate device IDs (e.g. missing device_id defaulting to "")
+            // so the collection never ends up with duplicate keys, which would
+            // make the next ToDictionary throw and trap the app in an error state.
+            if (!seen.Add(meter.DeviceId))
+            {
+                continue;
+            }
+
             if (byId.TryGetValue(meter.DeviceId, out var existing))
             {
                 existing.UpdateFrom(meter);
