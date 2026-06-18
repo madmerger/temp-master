@@ -8,8 +8,10 @@
         xmlns:vm="clr-namespace:TempMaster.App.ViewModels"
         mc:Ignorable="d"
         Title="Temp Master 監視盤"
-        Height="760" Width="1180"
+        Height="720" Width="1180"
+        MinHeight="480" MinWidth="800"
         Background="{StaticResource BgBrush}"
+        WindowState="Maximized"
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
