@@ -45,11 +45,16 @@ export interface LatencyLog {
 }
 
 export interface LatencyStats {
-  total_requests: number;
-  successful_requests: number;
-  failed_requests: number;
+  total_calls: number;
+  successful_calls: number;
+  failed_calls: number;
   avg_latency_ms: number;
   max_latency_ms: number;
   min_latency_ms: number;
   success_rate: number;
+}
+
+export interface LatencyLogsResponse {
+  logs: LatencyLog[];
+  count: number;
 }

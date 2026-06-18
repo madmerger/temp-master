@@ -3,7 +3,7 @@ import type {
   StatusResponse,
   HistoryResponse,
   TimeScale,
-  LatencyLog,
+  LatencyLogsResponse,
   LatencyStats,
 } from '../types/meter';
 
@@ -43,8 +43,8 @@ export function downloadBackup(): void {
   window.open(`${API_URL}/api/backup`, '_blank');
 }
 
-export function fetchLatencyLogs(): Promise<LatencyLog[]> {
-  return request<LatencyLog[]>('/api/latency-logs');
+export function fetchLatencyLogs(): Promise<LatencyLogsResponse> {
+  return request<LatencyLogsResponse>('/api/latency-logs');
 }
 
 export function fetchLatencyStats(): Promise<LatencyStats> {

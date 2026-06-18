@@ -9,7 +9,7 @@ interface AnimatedCounterProps extends Omit<TypographyProps, 'children'> {
 }
 
 function AnimatedCounterInner({ value, decimals = 1, suffix = '' }: AnimatedCounterProps) {
-  const spring = useSpring(0, { stiffness: 80, damping: 20 });
+  const spring = useSpring(value, { stiffness: 80, damping: 20 });
   const display = useTransform(spring, (v) => v.toFixed(decimals) + suffix);
   const [text, setText] = useState(value.toFixed(decimals) + suffix);
   const ref = useRef<HTMLSpanElement>(null);
