@@ -75,7 +75,7 @@ export default function Charts({ deviceId, timeScale }: ChartsProps) {
         if (!cancelled) setHistory(res.history);
       })
       .catch(() => {
-        /* chart simply stays empty */
+        if (!cancelled) setHistory([]);
       });
     return () => {
       cancelled = true;

@@ -46,16 +46,15 @@ export function useMeterData() {
     setRefreshing(true);
     try {
       await triggerRefresh();
-      await loadData();
     } catch (err) {
       setState((prev) => ({
         ...prev,
         error:
           err instanceof Error ? err.message : "Failed to refresh data",
       }));
-    } finally {
-      setRefreshing(false);
     }
+    await loadData();
+    setRefreshing(false);
   }, [loadData]);
 
   useEffect(() => {
