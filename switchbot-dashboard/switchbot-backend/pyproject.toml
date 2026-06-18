@@ -14,8 +14,8 @@ python-dotenv = "^1.2.1"
 aiosqlite = "^0.22.1"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.0.0"
-pytest-asyncio = "^0.24.0"
+pytest = "^9.0.3"
+pytest-asyncio = "^1.0.0"
 pytest-cov = "^6.0.0"
 
 [tool.pytest.ini_options]
