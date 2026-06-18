@@ -3,3 +3,7 @@ __pycache__/
 *.pyc
 .venv/
 *.db
+
+# Frontend
+node_modules/
+switchbot-dashboard/switchbot-frontend/dist/

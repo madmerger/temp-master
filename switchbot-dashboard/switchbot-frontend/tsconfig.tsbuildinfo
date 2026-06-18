@@ -1,0 +1,1 @@
+{"root":["./src/App.tsx","./src/constants.ts","./src/main.tsx","./src/vite-env.d.ts","./src/api/client.ts","./src/components/Charts.tsx","./src/components/ErrorAlert.tsx","./src/components/LoadingSpinner.tsx","./src/components/MeterCard.tsx","./src/components/MeterList.tsx","./src/components/StatusBar.tsx","./src/hooks/useMeterData.ts","./src/types/index.ts"],"version":"5.6.3"}
