@@ -49,7 +49,7 @@ public class TempMasterApiClient : IDisposable
 
     public async Task RefreshDataAsync()
     {
-        var response = await _httpClient.PostAsync("/api/refresh", null);
+        var response = await _httpClient.PostAsync("/api/meters/refresh", null);
         response.EnsureSuccessStatusCode();
     }
 
