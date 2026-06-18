@@ -1,4 +1,12 @@
-# Build and run backend (serves frontend static files)
+# Frontend build stage
+FROM node:20-alpine AS frontend-build
+WORKDIR /app/frontend
+COPY switchbot-frontend/package*.json ./
+RUN npm ci
+COPY switchbot-frontend/ ./
+RUN npm run build
+
+# Backend stage
 FROM python:3.12-slim
 WORKDIR /app
 
@@ -14,8 +22,8 @@ RUN poetry config virtualenvs.create true && \
 # Copy backend application code
 COPY switchbot-backend/app/ ./app/
 
-# Copy frontend to root: served at /
-COPY switchbot-frontend/ ./static/
+# Copy built frontend assets
+COPY --from=frontend-build /app/frontend/dist ./static
 
 EXPOSE 8000
 
