@@ -136,7 +136,22 @@ public sealed class MainViewModel : ObservableObject
 
     public async Task ApplySettingsAsync()
     {
-        _settings.BaseUrl = string.IsNullOrWhiteSpace(BaseUrl) ? AppSettings.DefaultBaseUrl : BaseUrl.Trim();
+        var newBaseUrl = string.IsNullOrWhiteSpace(BaseUrl) ? AppSettings.DefaultBaseUrl : BaseUrl.Trim();
+
+        // Build (and thereby validate) the new client before mutating any state.
+        // An invalid URL must not be persisted or leave us with a disposed client.
+        ITempMasterApi newApi;
+        try
+        {
+            newApi = _apiFactory(newBaseUrl);
+        }
+        catch (Exception ex) when (ex is ArgumentException or UriFormatException)
+        {
+            ErrorText = $"無効なバックエンド URL です: {newBaseUrl}";
+            return;
+        }
+
+        _settings.BaseUrl = newBaseUrl;
         _settings.RefreshSeconds = RefreshSeconds;
         _settings.Save();
 
@@ -144,7 +159,7 @@ public sealed class MainViewModel : ObservableObject
         RefreshSeconds = _settings.EffectiveRefreshSeconds;
 
         (_api as IDisposable)?.Dispose();
-        _api = _apiFactory(_settings.BaseUrl);
+        _api = newApi;
 
         await LoadAsync(triggerBackendRefresh: false).ConfigureAwait(true);
     }

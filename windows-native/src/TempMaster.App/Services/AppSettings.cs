@@ -42,7 +42,7 @@ public sealed class AppSettings
                 var loaded = JsonSerializer.Deserialize<AppSettings>(json);
                 if (loaded is not null)
                 {
-                    if (string.IsNullOrWhiteSpace(loaded.BaseUrl))
+                    if (!Uri.TryCreate(loaded.BaseUrl?.Trim(), UriKind.Absolute, out _))
                     {
                         loaded.BaseUrl = DefaultBaseUrl;
                     }

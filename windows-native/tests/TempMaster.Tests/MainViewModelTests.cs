@@ -134,4 +134,28 @@ public class MainViewModelTests
             AppSettings.DirectoryOverride = null;
         }
     }
+
+    [Fact]
+    public async Task ApplySettings_InvalidUrl_DoesNotPersistOrReplaceClient()
+    {
+        var settings = new AppSettings { BaseUrl = "https://good.test" };
+        var goodApi = new FakeApi();
+        var vm = new MainViewModel(settings, url =>
+        {
+            if (url.Contains("bad"))
+            {
+                throw new System.ArgumentException("invalid");
+            }
+
+            return goodApi;
+        })
+        {
+            BaseUrl = "  bad url  ",
+        };
+
+        await vm.ApplySettingsAsync();
+
+        Assert.Equal("https://good.test", settings.BaseUrl);
+        Assert.False(string.IsNullOrEmpty(vm.ErrorText));
+    }
 }
