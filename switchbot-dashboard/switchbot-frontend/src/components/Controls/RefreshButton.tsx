@@ -5,7 +5,11 @@ import { motion } from 'framer-motion';
 import { triggerRefresh } from '../../api/client';
 import { useQueryClient } from '@tanstack/react-query';
 
-export default function RefreshButton() {
+interface RefreshButtonProps {
+  onRefreshComplete?: () => void;
+}
+
+export default function RefreshButton({ onRefreshComplete }: RefreshButtonProps) {
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<{ open: boolean; severity: 'success' | 'error'; message: string }>({
     open: false,
@@ -20,6 +24,7 @@ export default function RefreshButton() {
       await triggerRefresh();
       await queryClient.invalidateQueries();
       setToast({ open: true, severity: 'success', message: 'Data refreshed successfully' });
+      onRefreshComplete?.();
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Refresh failed';
       setToast({ open: true, severity: 'error', message });

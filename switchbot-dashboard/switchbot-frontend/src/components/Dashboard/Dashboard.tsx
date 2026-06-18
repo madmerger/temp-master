@@ -15,7 +15,7 @@ export default function Dashboard() {
   const [timeScale, setTimeScale] = useState<TimeScale>('day');
   const { data: metersData, isLoading, isError, error } = useMeters();
   const { data: statusData } = useStatus();
-  const { countdown } = useAutoRefresh();
+  const { countdown, reset: resetCountdown } = useAutoRefresh();
 
   const connected = !isError;
   const meters = metersData?.meters ?? [];
@@ -31,7 +31,7 @@ export default function Dashboard() {
       >
         <TimeScaleSelector value={timeScale} onChange={setTimeScale} />
         <Box display="flex" gap={1}>
-          <RefreshButton />
+          <RefreshButton onRefreshComplete={resetCountdown} />
           <BackupButton />
         </Box>
       </Box>

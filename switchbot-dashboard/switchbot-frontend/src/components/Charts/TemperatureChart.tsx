@@ -14,12 +14,20 @@ import type { MeterReading, TimeScale } from '../../types';
 import { formatTimestamp } from '../../utils/format';
 
 interface TemperatureChartProps {
+  deviceId: string;
   history: MeterReading[];
   timeScale: TimeScale;
 }
 
-export default function TemperatureChart({ history, timeScale }: TemperatureChartProps) {
+function colorId(hex: string): string {
+  return hex.replace('#', '');
+}
+
+export default function TemperatureChart({ deviceId, history, timeScale }: TemperatureChartProps) {
   const theme = useTheme();
+
+  const tempGradId = `tempGrad-${deviceId}-${colorId(theme.chart.temperature)}`;
+  const humGradId = `humGrad-${deviceId}-${colorId(theme.chart.humidity)}`;
 
   const data = useMemo(
     () =>
@@ -40,11 +48,11 @@ export default function TemperatureChart({ history, timeScale }: TemperatureChar
     <ResponsiveContainer width="100%" height={200}>
       <AreaChart data={data} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
         <defs>
-          <linearGradient id={`tempGrad-${theme.chart.temperature}`} x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id={tempGradId} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={theme.chart.temperature} stopOpacity={0.3} />
             <stop offset="100%" stopColor={theme.chart.temperature} stopOpacity={0.02} />
           </linearGradient>
-          <linearGradient id={`humGrad-${theme.chart.humidity}`} x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id={humGradId} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={theme.chart.humidity} stopOpacity={0.3} />
             <stop offset="100%" stopColor={theme.chart.humidity} stopOpacity={0.02} />
           </linearGradient>
@@ -93,7 +101,7 @@ export default function TemperatureChart({ history, timeScale }: TemperatureChar
           type="monotone"
           dataKey="temp"
           stroke={theme.chart.temperature}
-          fill={`url(#tempGrad-${theme.chart.temperature})`}
+          fill={`url(#${tempGradId})`}
           strokeWidth={2}
           dot={false}
           animationDuration={800}
@@ -103,7 +111,7 @@ export default function TemperatureChart({ history, timeScale }: TemperatureChar
           type="monotone"
           dataKey="humidity"
           stroke={theme.chart.humidity}
-          fill={`url(#humGrad-${theme.chart.humidity})`}
+          fill={`url(#${humGradId})`}
           strokeWidth={1.5}
           dot={false}
           animationDuration={800}

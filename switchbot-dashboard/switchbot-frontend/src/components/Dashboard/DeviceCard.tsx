@@ -146,7 +146,7 @@ export default function DeviceCard({ device, timeScale, index }: DeviceCardProps
                     {historyLoading ? (
                       <Skeleton variant="rectangular" height={200} sx={{ borderRadius: 2 }} />
                     ) : (
-                      <TemperatureChart history={history} timeScale={timeScale} />
+                      <TemperatureChart deviceId={device.device_id} history={history} timeScale={timeScale} />
                     )}
                   </Box>
                 </motion.div>
