@@ -172,6 +172,7 @@ public partial class MainWindow : Window
         }
 
         model.Series.Add(areaSeries);
+        model.Series.Add(series);
         plotView.Model = model;
     }
 
