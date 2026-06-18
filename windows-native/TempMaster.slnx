@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/TempMaster.App/TempMaster.App.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/TempMaster.Tests/TempMaster.Tests.csproj" />
+  </Folder>
+</Solution>
