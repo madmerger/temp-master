@@ -110,21 +110,28 @@ public class MainViewModelTests
     {
         AppSettings.DirectoryOverride = System.IO.Path.Combine(
             System.IO.Path.GetTempPath(), "TempMasterTests", System.Guid.NewGuid().ToString("N"));
-        var built = new List<string>();
-        var api = new FakeApi();
-        var vm = new MainViewModel(new AppSettings { BaseUrl = "https://one.test" }, url =>
+        try
         {
-            built.Add(url);
-            return api;
-        })
+            var built = new List<string>();
+            var api = new FakeApi();
+            var vm = new MainViewModel(new AppSettings { BaseUrl = "https://one.test" }, url =>
+            {
+                built.Add(url);
+                return api;
+            })
+            {
+                BaseUrl = "https://two.test",
+                RefreshSeconds = 5,
+            };
+
+            await vm.ApplySettingsAsync();
+
+            Assert.Contains("https://two.test", built);
+            Assert.Equal(AppSettings.MinRefreshSeconds, vm.RefreshSeconds);
+        }
+        finally
         {
-            BaseUrl = "https://two.test",
-            RefreshSeconds = 5,
-        };
-
-        await vm.ApplySettingsAsync();
-
-        Assert.Contains("https://two.test", built);
-        Assert.Equal(AppSettings.MinRefreshSeconds, vm.RefreshSeconds);
+            AppSettings.DirectoryOverride = null;
+        }
     }
 }

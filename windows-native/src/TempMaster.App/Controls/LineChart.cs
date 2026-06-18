@@ -86,12 +86,29 @@ public sealed class LineChart : FrameworkElement
         else
         {
             var geometry = BuildGeometry(series.Points, w, h, out var fillGeometry);
-            var fillBrush = new SolidColorBrush(((SolidColorBrush)lineBrush).Color) { Opacity = 0.18 };
+            var fillBrush = CreateFillBrush(lineBrush);
             dc.DrawGeometry(fillBrush, null, fillGeometry);
             dc.DrawGeometry(null, pen, geometry);
         }
 
         DrawAxisLabels(dc, series, typeface, dpi, w, h);
+    }
+
+    /// <summary>
+    /// Builds a translucent fill brush from any <see cref="Brush"/>, avoiding an
+    /// unsafe cast to <see cref="SolidColorBrush"/> (the bound brush could be a
+    /// gradient or other brush type).
+    /// </summary>
+    private static Brush CreateFillBrush(Brush lineBrush)
+    {
+        if (lineBrush is SolidColorBrush scb)
+        {
+            return new SolidColorBrush(scb.Color) { Opacity = 0.18 };
+        }
+
+        var clone = lineBrush.Clone();
+        clone.Opacity = 0.18;
+        return clone;
     }
 
     private static StreamGeometry BuildGeometry(IReadOnlyList<ChartPoint> points, double w, double h, out StreamGeometry fillGeometry)

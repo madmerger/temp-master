@@ -24,6 +24,7 @@ public sealed class MainViewModel : ObservableObject
     private bool _isConnected;
     private string? _errorText;
     private string _lastUpdatedText = "最終更新: --";
+    private bool _reloadRequested;
 
     public MainViewModel(AppSettings settings, Func<string, ITempMasterApi>? apiFactory = null)
     {
@@ -70,7 +71,17 @@ public sealed class MainViewModel : ObservableObject
         {
             if (SetProperty(ref _selectedTimeScale, value))
             {
-                _ = LoadAsync(triggerBackendRefresh: false);
+                // If a load is in flight, queue another so a rapid sequence of
+                // selections still ends on the latest scale instead of being
+                // silently dropped by the IsBusy guard.
+                if (IsBusy)
+                {
+                    _reloadRequested = true;
+                }
+                else
+                {
+                    _ = LoadAsync(triggerBackendRefresh: false);
+                }
             }
         }
     }
@@ -177,6 +188,12 @@ public sealed class MainViewModel : ObservableObject
         finally
         {
             IsBusy = false;
+
+            if (_reloadRequested)
+            {
+                _reloadRequested = false;
+                _ = LoadAsync(triggerBackendRefresh: false, ct);
+            }
         }
     }
 
