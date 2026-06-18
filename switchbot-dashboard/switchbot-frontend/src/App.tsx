@@ -22,16 +22,19 @@ import type { TimeScale } from './types/meter';
 export default function App() {
   const [timeScale, setTimeScale] = useState<TimeScale>('day');
   const [refreshing, setRefreshing] = useState(false);
+  const [refreshError, setRefreshError] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const { data, isLoading, isError, error } = useMeters();
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
+    setRefreshError(null);
     try {
       await triggerRefresh();
       await queryClient.invalidateQueries();
-    } catch {
-      // error handled by status
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setRefreshError(`Failed to refresh: ${msg}`);
     } finally {
       setRefreshing(false);
     }
@@ -74,6 +77,12 @@ export default function App() {
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
             <CircularProgress />
           </Box>
+        )}
+
+        {refreshError && (
+          <Alert severity="error" sx={{ mb: 2 }} onClose={() => setRefreshError(null)}>
+            {refreshError}
+          </Alert>
         )}
 
         {isError && (
