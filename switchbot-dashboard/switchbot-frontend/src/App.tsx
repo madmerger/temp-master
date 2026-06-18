@@ -88,7 +88,7 @@ export default function App() {
 
         {loading && <LoadingSpinner />}
         {error && <ErrorAlert message={error} />}
-        {!loading && !error && (
+        {!loading && meters.length > 0 && (
           <MeterList meters={meters} timeScale={timeScale} />
         )}
 
