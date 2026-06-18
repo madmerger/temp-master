@@ -53,6 +53,7 @@ export function formatTimestamp(timestamp: string, timeScale: TimeScale): string
 
 export function formatRelativeTime(isoString: string): string {
   const diff = Date.now() - new Date(isoString).getTime();
+  if (diff < 0) return 'just now';
   const seconds = Math.floor(diff / 1000);
   if (seconds < 60) return `${seconds}s ago`;
   const minutes = Math.floor(seconds / 60);
