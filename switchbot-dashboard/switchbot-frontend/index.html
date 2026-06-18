@@ -125,13 +125,13 @@
     </div>
 
     <!-- Status Bar -->
-    <div id="status-bar" class="alert alert-info d-flex justify-content-between align-items-center" style="display: none !important;">
+    <div id="status-bar" class="alert alert-info d-flex justify-content-between align-items-center d-none">
       <span id="status-meters-count">Monitoring 0 meters</span>
       <span id="status-last-refresh"></span>
     </div>
 
     <!-- Rate Limit Warning -->
-    <div id="rate-limit-warning" class="alert alert-warning" style="display: none !important;">
+    <div id="rate-limit-warning" class="alert alert-warning d-none">
       <strong>Rate Limited.</strong>
       <span id="rate-limit-text">SwitchBot API rate limit reached.</span>
     </div>
@@ -145,7 +145,7 @@
     </div>
 
     <!-- Error -->
-    <div id="error" class="alert alert-danger" style="display: none !important;">
+    <div id="error" class="alert alert-danger d-none">
       <strong>Error.</strong> <span id="error-text">Failed to fetch data.</span>
     </div>
 
@@ -246,8 +246,8 @@
     const $ = (selector) => document.querySelector(selector);
     const $id = (id) => document.getElementById(id);
 
-    const showEl = (el) => { if (el) el.style.display = ''; };
-    const hideEl = (el) => { if (el) el.style.display = 'none'; };
+    const showEl = (el) => { if (el) el.classList.remove('d-none'); };
+    const hideEl = (el) => { if (el) el.classList.add('d-none'); };
 
     // ============================================================
     // API calls (fetch + async/await)

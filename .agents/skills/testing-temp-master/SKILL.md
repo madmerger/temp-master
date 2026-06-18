@@ -57,13 +57,13 @@ The frontend is served at `http://localhost:8000/` and the API docs at `http://l
 ### Branding Verification
 - Page title (`<title>` tag): should say "Temp Master Dashboard"
 - Navbar brand: should say "Temp Master Dashboard"
-- Footer: should say "Temp Master Dashboard v1.0 - Built with jQuery + Bootstrap 3"
+- Footer: should say "Temp Master Dashboard v2.0"
 - Verify no "Snake" or "SnakeRoom" text exists anywhere: `document.body.innerHTML.includes('Snake')` should be `false`
 
 ### API Connectivity
 - `GET /api/status` returns `configured: true` and `meters_count` > 0
 - `GET /api/meters` returns live meter data with temperature, humidity, battery
-- Connection status badge shows "Connected" (green, class `label-success`)
+- Connection status badge shows "Connected" (green, class `bg-success`)
 
 ### UI Functionality
 - View toggle: Default (equal 3-col grid) vs Shelf (featured meter + 3-col grid)
@@ -83,6 +83,6 @@ Expected: 97 tests pass.
 ## Architecture Notes
 
 - Backend: FastAPI + aiosqlite (SQLite persistence at `/data/app.db` or local `app.db`)
-- Frontend: jQuery + Bootstrap 3 (single `index.html` file)
+- Frontend: Bootstrap 5 + Chart.js 4 + native fetch/async-await (single `index.html` file)
 - Deployment: Fly.io (see `fly.toml`)
 - Background data collection runs with 120s interval, with rate limiting and exponential backoff
