@@ -3,6 +3,9 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from dotenv import load_dotenv
+
+load_dotenv()
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -41,8 +44,6 @@ from app.switchbot import (
     fetch_devices,
     generate_switchbot_headers,
 )
-
-load_dotenv()
 
 DATA_COLLECTION_INTERVAL = 120
 
