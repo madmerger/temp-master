@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 import pytest
 from pydantic import ValidationError
 
-from app.main import (
+from app.models import (
     ImportData,
     ImportDeviceData,
     ImportReadingData,
