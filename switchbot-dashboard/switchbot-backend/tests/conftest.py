@@ -11,15 +11,11 @@ from fastapi.testclient import TestClient
 os.environ["SWITCHBOT_TOKEN"] = ""
 os.environ["SWITCHBOT_SECRET"] = ""
 
-from app.main import (
-    DB_PATH,
-    DataStore,
-    MeterDevice,
-    MeterReading,
-    app,
-    data_store,
-    init_database,
-)
+from app import config
+from app.database import init_database
+from app.main import app
+from app.models import MeterDevice, MeterReading
+from app.state import DataStore, data_store
 
 
 @pytest.fixture
@@ -29,22 +25,18 @@ def temp_db_path(tmp_path) -> str:
 
 @pytest.fixture
 async def test_db(temp_db_path: str) -> AsyncGenerator[str, None]:
-    import app.main as main_module
-    
-    original_db_path = main_module.DB_PATH
-    main_module.DB_PATH = temp_db_path
-    
+    original_db_path = config.DB_PATH
+    config.DB_PATH = temp_db_path
+
     await init_database()
-    
+
     yield temp_db_path
-    
-    main_module.DB_PATH = original_db_path
+
+    config.DB_PATH = original_db_path
 
 
 @pytest.fixture
 async def reset_data_store(tmp_path) -> AsyncGenerator[DataStore, None]:
-    import app.main as main_module
-    
     original_devices = data_store.devices.copy()
     original_history = data_store.history.copy()
     original_last_api_call = data_store.last_api_call
@@ -52,8 +44,8 @@ async def reset_data_store(tmp_path) -> AsyncGenerator[DataStore, None]:
     original_consecutive_errors = data_store.consecutive_errors
     original_is_collecting = data_store.is_collecting
     original_db_initialized = data_store.db_initialized
-    original_db_path = main_module.DB_PATH
-    
+    original_db_path = config.DB_PATH
+
     data_store.devices = {}
     data_store.history = {}
     data_store.last_api_call = 0
@@ -61,12 +53,12 @@ async def reset_data_store(tmp_path) -> AsyncGenerator[DataStore, None]:
     data_store.consecutive_errors = 0
     data_store.is_collecting = False
     data_store.db_initialized = False
-    
-    main_module.DB_PATH = str(tmp_path / "test.db")
+
+    config.DB_PATH = str(tmp_path / "test.db")
     await init_database()
-    
+
     yield data_store
-    
+
     data_store.devices = original_devices
     data_store.history = original_history
     data_store.last_api_call = original_last_api_call
@@ -74,7 +66,7 @@ async def reset_data_store(tmp_path) -> AsyncGenerator[DataStore, None]:
     data_store.consecutive_errors = original_consecutive_errors
     data_store.is_collecting = original_is_collecting
     data_store.db_initialized = original_db_initialized
-    main_module.DB_PATH = original_db_path
+    config.DB_PATH = original_db_path
 
 
 @pytest.fixture
@@ -153,6 +145,6 @@ def client(reset_data_store) -> TestClient:
 
 @pytest.fixture
 def mock_switchbot_credentials():
-    with patch("app.main.SWITCHBOT_TOKEN", "test-token"), \
-         patch("app.main.SWITCHBOT_SECRET", "test-secret"):
+    with patch.object(config, "SWITCHBOT_TOKEN", "test-token"), \
+         patch.object(config, "SWITCHBOT_SECRET", "test-secret"):
         yield
