@@ -55,14 +55,23 @@ export function useDashboardData(timeScale: TimeScale): DashboardData {
   );
 
   const load = useCallback(async () => {
+    // Meters are the critical data; status is supplementary. Fetch both in
+    // parallel but allow the dashboard to render meters even if /api/status fails.
+    const [metersResult, statusResult] = await Promise.allSettled([
+      fetchMeters(),
+      fetchStatus(),
+    ]);
+
+    if (statusResult.status === "fulfilled") {
+      setStatus(statusResult.value);
+    }
+
     try {
-      const [metersRes, statusRes] = await Promise.all([
-        fetchMeters(),
-        fetchStatus(),
-      ]);
-      const list = metersRes.meters ?? [];
+      if (metersResult.status === "rejected") {
+        throw metersResult.reason;
+      }
+      const list = metersResult.value.meters ?? [];
       setMeters(list);
-      setStatus(statusRes);
       setConnected(true);
       setError(null);
       setLastRefresh(new Date());
