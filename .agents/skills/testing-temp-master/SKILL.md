@@ -86,6 +86,14 @@ The frontend is served at `http://localhost:8000/` and the API docs at `http://l
 - 今すぐ更新 button triggers data reload; バックアップ downloads the DB
 - Theme switcher (テーマ menu): 5 themes incl. dark (Midnight / Carbon); selection persists in localStorage (`temp-master-theme`)
 
+### Tip: seed history for chart screenshots
+
+On a fresh DB only the latest reading exists, so charts look empty/flat. To make
+the Recharts area charts render meaningfully for screenshots, insert synthetic
+24h history into the local `app.db` (`readings` table: `device_id, timestamp,
+temperature, humidity, battery`) for each row in `devices`. This is for local
+visual evidence only — current values/KPIs still come from the live API.
+
 ## Running Backend Tests
 
 ```bash
