@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useLayoutEffect, useState } from 'react';
 import { Navbar } from './components/Navbar';
 import { Dashboard } from './components/Dashboard';
 import {
@@ -13,7 +13,7 @@ export default function App() {
   const [themeId, setThemeId] = useState<ThemeId>(loadSavedThemeId);
   const [connected, setConnected] = useState(true);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     applyTheme(getThemeById(themeId));
   }, [themeId]);
 
