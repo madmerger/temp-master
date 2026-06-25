@@ -1,78 +1,82 @@
 # Temp Master Dashboard
 
-A fullstack web dashboard to monitor temperature readings from SwitchBot Meter devices.
+SwitchBot Meter デバイスの温度・湿度をリアルタイム監視するフルスタック Web ダッシュボード。
 
-## Features
+## 技術スタック
 
-- Temperature charts for all SwitchBot Meter devices using Recharts
-- Time scale switching (hour/day/month/year)
-- Auto-refresh every 30 seconds (frontend) with background data collection every 2 minutes (backend)
-- Rate limiting protection with exponential backoff
-- All API calls are cached - GET endpoints never call SwitchBot API directly
+| レイヤー       | 技術                                      |
+| -------------- | ----------------------------------------- |
+| フロントエンド | React 19 + TypeScript + Vite + Recharts + Tailwind CSS |
+| バックエンド   | Python 3.12 + FastAPI 0.127.0 + aiosqlite (SQLite) |
+| デプロイ       | Docker (マルチステージ) → Fly.io (region: nrt) |
 
-## Setup
+## 機能
 
-### Backend
+- 全 SwitchBot Meter デバイスの温度チャート (Recharts)
+- 時間スケール切替 (hour / day / week / month / year)
+- フロントエンド 30 秒自動リフレッシュ、バックエンド 120 秒間隔データ収集
+- レート制限の指数バックオフ保護
+- SQLite への永続化 + バックアップダウンロード
 
-1. Navigate to the backend directory:
-   ```bash
-   cd switchbot-backend
-   ```
+## セットアップ
 
-2. Install dependencies:
-   ```bash
-   poetry install
-   ```
+### バックエンド
 
-3. Copy `.env.example` to `.env` and add your SwitchBot credentials:
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Get your credentials from the SwitchBot app:
-   - Go to Profile > Preferences > About
-   - Tap App Version 10 times to enable Developer Options
-   - Go to Developer Options > Get Token
+```bash
+cd switchbot-backend
+poetry install
+cp .env.example .env   # SWITCHBOT_TOKEN / SWITCHBOT_SECRET を設定
+poetry run fastapi dev app/main.py
+```
 
-4. Start the development server:
-   ```bash
-   poetry run fastapi dev app/main.py
-   ```
+### フロントエンド
 
-### Frontend
+```bash
+cd switchbot-frontend
+npm install
+npm run dev            # localhost:5173 → バックエンド (localhost:8000) へプロキシ
+```
 
-1. Navigate to the frontend directory:
-   ```bash
-   cd switchbot-frontend
-   ```
+### 本番ビルド (Docker)
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+```bash
+cd switchbot-dashboard
+docker build -t temp-master .
+docker run -p 8000:8000 temp-master
+```
 
-3. Copy `.env.example` to `.env`:
-   ```bash
-   cp .env.example .env
-   ```
+マルチステージ Dockerfile:
+1. Node イメージで Vite フロントをビルド (`dist/`)
+2. Python イメージにバックエンド + `dist/` をコピーし FastAPI が静的配信
 
-4. Start the development server:
-   ```bash
-   npm run dev
-   ```
+## API エンドポイント
 
-5. Open http://localhost:5173 in your browser
+| メソッド | パス                               | 説明                   |
+| -------- | ---------------------------------- | ---------------------- |
+| GET      | `/api/meters`                      | メーター一覧 (キャッシュ) |
+| GET      | `/api/meters/{device_id}/history`  | 温度履歴 (`time_scale` パラメータ) |
+| POST     | `/api/meters/refresh`              | 即時データ収集トリガー |
+| GET      | `/api/status`                      | バックエンド状態       |
+| GET      | `/api/backup`                      | SQLite DB ダウンロード |
 
-## API Endpoints
+## バックエンド構成
 
-- `GET /api/meters` - Returns list of all meter devices with current temperature (from cache)
-- `GET /api/meters/{device_id}/history` - Returns temperature history with time_scale parameter
-- `POST /api/meters/refresh` - Triggers immediate data collection
-- `GET /api/status` - Returns backend status and configuration
+```
+app/
+├── main.py          # FastAPI アプリ初期化・ライフサイクル・静的配信
+├── config.py        # 環境変数・定数
+├── models.py        # Pydantic モデル・DataStore
+├── api/
+│   └── routes.py    # API ルーター
+├── db/
+│   └── database.py  # SQLite アクセス層
+└── services/
+    ├── switchbot.py  # SwitchBot API 連携・データ収集
+    └── collector.py  # バックグラウンド収集ループ
+```
 
-## Notes
+## 備考
 
-- Temperature history is stored in memory and resets on backend restart
-- Backend data collection interval: 2 minutes minimum
-- Frontend refresh interval: 30 seconds
-- SwitchBot API has strict rate limits (~10000 requests/day)
+- SwitchBot API クレデンシャルは `.env` に設定 (`.env.example` を参照)
+- SQLite データは Fly.io の `/data` ボリュームに永続化
+- メモリ 256 MB でビルド済み静的配信が動作
