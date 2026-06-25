@@ -9,6 +9,7 @@ description: Test the Temp Master SwitchBot dashboard locally. Use when verifyin
 
 - Python 3.12+
 - Poetry (dependency management)
+- Node.js 22+ / npm (frontend build)
 - SwitchBot API credentials
 
 ## Devin Secrets Needed
@@ -33,15 +34,27 @@ echo "SWITCHBOT_TOKEN=${SWITCHBOT_TOKEN}" > .env
 echo "SWITCHBOT_SECRET=${SWITCHBOT_SECRET}" >> .env
 ```
 
-### 3. Symlink frontend static files
+### 3. Build the frontend and symlink static files
 
-The Dockerfile copies `switchbot-frontend/` to `switchbot-backend/static/`, but locally this directory doesn't exist. You must create a symlink:
+The frontend is a React + Vite SPA. The Dockerfile builds it and copies the resulting `dist/` to `switchbot-backend/static/`. Locally you must build it and symlink the build output:
 
 ```bash
-ln -s $(pwd)/switchbot-dashboard/switchbot-frontend switchbot-dashboard/switchbot-backend/static
+cd switchbot-dashboard/switchbot-frontend
+npm install
+npm run build   # outputs to switchbot-frontend/dist
+cd ../..
+ln -s $(pwd)/switchbot-dashboard/switchbot-frontend/dist switchbot-dashboard/switchbot-backend/static
 ```
 
 **Important:** The static directory check in `main.py` happens at module import time (`STATIC_DIR = Path(__file__).resolve().parent.parent / "static"`). If you create the symlink after starting the server, you must restart the server.
+
+#### Alternative: Vite dev server (hot reload)
+
+For frontend development, run the backend on port 8000 and the Vite dev server separately; it proxies `/api` to the backend:
+
+```bash
+cd switchbot-dashboard/switchbot-frontend && npm run dev   # http://localhost:5173
+```
 
 ### 4. Start the server
 
@@ -56,20 +69,22 @@ The frontend is served at `http://localhost:8000/` and the API docs at `http://l
 
 ### Branding Verification
 - Page title (`<title>` tag): should say "Temp Master Dashboard"
-- Navbar brand: should say "Temp Master Dashboard"
-- Footer: should say "Temp Master Dashboard v1.0 - Built with jQuery + Bootstrap 3"
+- Header brand: should say "Temp Master" with a "2.0" badge
+- Footer: should say "Temp Master Dashboard v2.0 — React 19 · TypeScript · MUI · Recharts"
 - Verify no "Snake" or "SnakeRoom" text exists anywhere: `document.body.innerHTML.includes('Snake')` should be `false`
 
 ### API Connectivity
 - `GET /api/status` returns `configured: true` and `meters_count` > 0
 - `GET /api/meters` returns live meter data with temperature, humidity, battery
-- Connection status badge shows "Connected" (green, class `label-success`)
+- Connection status chip in the header shows "接続中 · N台" (green dot)
 
 ### UI Functionality
-- View toggle: Default (equal 3-col grid) vs Shelf (featured meter + 3-col grid)
-- Time Range selector: Last Hour / Last 24 Hours / Last 7 Days / Last 30 Days / Last Year
-- Charts: Canvas elements rendered with Chart.js line charts
-- Refresh Data button triggers data reload
+- Responsive card grid (1 / 2 / 3 columns by breakpoint)
+- Summary KPI cards: 監視対象 / 平均温度 / 最高温度 / 平均湿度
+- Time Range selector (ToggleButtonGroup): 1時間 / 24時間 / 7日 / 30日 / 1年
+- Charts: Recharts area charts (SVG), one per meter
+- 今すぐ更新 button triggers data reload; バックアップ downloads the DB
+- Theme switcher (テーマ menu): 5 themes incl. dark (Midnight / Carbon); selection persists in localStorage (`temp-master-theme`)
 
 ## Running Backend Tests
 
@@ -83,6 +98,7 @@ Expected: 97 tests pass.
 ## Architecture Notes
 
 - Backend: FastAPI + aiosqlite (SQLite persistence at `/data/app.db` or local `app.db`)
-- Frontend: jQuery + Bootstrap 3 (single `index.html` file)
-- Deployment: Fly.io (see `fly.toml`)
+- Frontend: React 19 + TypeScript + MUI + Recharts, built with Vite (`switchbot-frontend/`)
+- Frontend lint/typecheck: `cd switchbot-frontend && npx tsc --noEmit`
+- Deployment: Fly.io (see `fly.toml`); the Dockerfile builds the frontend in a Node stage and serves it from the backend
 - Background data collection runs with 120s interval, with rate limiting and exponential backoff
