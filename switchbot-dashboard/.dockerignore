@@ -1,0 +1,5 @@
+switchbot-frontend/node_modules
+switchbot-frontend/dist
+**/__pycache__
+**/*.pyc
+.git
