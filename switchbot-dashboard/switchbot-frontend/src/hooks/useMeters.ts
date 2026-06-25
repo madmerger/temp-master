@@ -47,7 +47,7 @@ export function useMeters() {
 
   const refresh = useCallback(async () => {
     try {
-      await fetch('/api/meters/refresh', { method: 'POST' });
+      await fetchJson<{ status: string }>('/api/meters/refresh', { method: 'POST' });
       await fetchData();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to refresh');
@@ -61,6 +61,7 @@ export function useHistory(deviceId: string, timeScale: TimeScale) {
   const [history, setHistory] = useState<HistoryResponse | null>(null);
 
   useEffect(() => {
+    setHistory(null);
     let cancelled = false;
 
     async function load() {
