@@ -37,8 +37,12 @@ export function useDashboardData(timeScale: TimeScale): DashboardData {
   const timeScaleRef = useRef(timeScale);
   timeScaleRef.current = timeScale;
 
+  // Monotonic token so out-of-order history responses can't overwrite newer ones.
+  const historyReqRef = useRef(0);
+
   const loadHistories = useCallback(
     async (deviceIds: string[], scale: TimeScale) => {
+      const reqId = ++historyReqRef.current;
       const entries = await Promise.all(
         deviceIds.map(async (id) => {
           try {
@@ -49,7 +53,9 @@ export function useDashboardData(timeScale: TimeScale): DashboardData {
           }
         }),
       );
-      setHistory(Object.fromEntries(entries));
+      if (reqId === historyReqRef.current) {
+        setHistory(Object.fromEntries(entries));
+      }
     },
     [],
   );
