@@ -41,6 +41,7 @@ export function formatRelative(iso: string | null): string {
   const date = new Date(iso);
   const diffMs = Date.now() - date.getTime();
   const diffSec = Math.floor(diffMs / 1000);
+  if (diffSec < 0) return "たった今";
   if (diffSec < 60) return `${diffSec}秒前`;
   const diffMin = Math.floor(diffSec / 60);
   if (diffMin < 60) return `${diffMin}分前`;
