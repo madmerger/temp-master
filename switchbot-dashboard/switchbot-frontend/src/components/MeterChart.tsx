@@ -11,6 +11,7 @@ import {
 } from 'chart.js';
 import { fetchHistory } from '../api/meters';
 import { formatTimestamp } from '../utils/formatTimestamp';
+import { getThemeById } from '../themes/themes';
 import type { MeterReading, ThemeId, TimeScale } from '../types';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler, Tooltip);
@@ -38,12 +39,12 @@ export function MeterChart({ deviceId, timeScale, refreshKey, themeId }: MeterCh
   }, [deviceId, timeScale, refreshKey]);
 
   const colors = useMemo(() => {
-    const s = getComputedStyle(document.documentElement);
+    const vars = getThemeById(themeId).vars;
     return {
-      line: s.getPropertyValue('--chart-line').trim() || '#d32f2f',
-      fill: s.getPropertyValue('--chart-fill').trim() || 'rgba(211,47,47,0.12)',
-      grid: s.getPropertyValue('--chart-grid').trim() || 'rgba(0,0,0,0.06)',
-      tick: s.getPropertyValue('--chart-tick').trim() || '#757575',
+      line: vars['--chart-line'] || '#d32f2f',
+      fill: vars['--chart-fill'] || 'rgba(211,47,47,0.12)',
+      grid: vars['--chart-grid'] || 'rgba(0,0,0,0.06)',
+      tick: vars['--chart-tick'] || '#757575',
     };
   }, [themeId]);
 
