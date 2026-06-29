@@ -19,12 +19,6 @@ BACKUP_DIR="${BACKUP_DIR:-$HOME/switchbot_backups}"
 ADMIN_API_KEY="${ADMIN_API_KEY:-}"
 DEFAULT_INTERVAL=3600  # 1 hour in seconds
 
-if [ -z "$ADMIN_API_KEY" ]; then
-    echo "Error: ADMIN_API_KEY environment variable is not set."
-    echo "Set it with: export ADMIN_API_KEY=<your-api-key>"
-    exit 1
-fi
-
 LOOP_MODE=false
 INTERVAL=$DEFAULT_INTERVAL
 
@@ -61,6 +55,12 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+if [ -z "$ADMIN_API_KEY" ]; then
+    echo "Error: ADMIN_API_KEY environment variable is not set."
+    echo "Set it with: export ADMIN_API_KEY=<your-api-key>"
+    exit 1
+fi
 
 mkdir -p "$BACKUP_DIR"
 
