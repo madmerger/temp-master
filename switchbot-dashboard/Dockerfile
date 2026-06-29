@@ -3,7 +3,7 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Install poetry
-RUN pip install poetry
+RUN pip install poetry==2.4.1
 
 # Copy and install backend dependencies
 COPY switchbot-backend/pyproject.toml switchbot-backend/poetry.lock ./
