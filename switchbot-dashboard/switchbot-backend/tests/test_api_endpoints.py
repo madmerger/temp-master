@@ -19,7 +19,11 @@ from app.main import (
 
 @pytest.fixture
 def client(reset_data_store) -> TestClient:
-    return TestClient(app)
+    with patch.object(main_module, "ADMIN_API_KEY", "test-admin-key"):
+        yield TestClient(app)
+
+
+ADMIN_HEADERS = {"Authorization": "Bearer test-admin-key"}
 
 
 class TestHealthzEndpoint:
@@ -372,7 +376,7 @@ class TestImportDataEndpoint:
                 ]
             }
             
-            response = client.post("/api/import", json=import_data)
+            response = client.post("/api/import", json=import_data, headers=ADMIN_HEADERS)
             
             assert response.status_code == 200
             data = response.json()
@@ -416,7 +420,7 @@ class TestImportDataEndpoint:
                 ]
             }
             
-            response = client.post("/api/import", json=import_data)
+            response = client.post("/api/import", json=import_data, headers=ADMIN_HEADERS)
             
             assert response.status_code == 200
             data = response.json()
@@ -449,7 +453,7 @@ class TestImportDataEndpoint:
                 ]
             }
             
-            response = client.post("/api/import", json=import_data)
+            response = client.post("/api/import", json=import_data, headers=ADMIN_HEADERS)
             
             assert response.status_code == 200
             data = response.json()
@@ -463,9 +467,73 @@ class TestImportDataEndpoint:
     def test_import_data_empty_devices(self, client, reset_data_store):
         import_data = {"devices": []}
         
-        response = client.post("/api/import", json=import_data)
+        response = client.post("/api/import", json=import_data, headers=ADMIN_HEADERS)
         
         assert response.status_code == 200
         data = response.json()
         assert data["imported_devices"] == 0
         assert data["imported_readings"] == 0
+
+    def test_import_requires_auth(self, client, reset_data_store):
+        import_data = {"devices": []}
+        response = client.post("/api/import", json=import_data)
+        assert response.status_code == 401
+
+    def test_import_rejects_wrong_key(self, client, reset_data_store):
+        import_data = {"devices": []}
+        response = client.post(
+            "/api/import",
+            json=import_data,
+            headers={"Authorization": "Bearer wrong-key"},
+        )
+        assert response.status_code == 401
+
+    def test_import_accepts_query_param_key(self, client, reset_data_store):
+        import_data = {"devices": []}
+        response = client.post("/api/import?api_key=test-admin-key", json=import_data)
+        assert response.status_code == 200
+
+    def test_import_returns_403_when_key_not_configured(self, reset_data_store):
+        with patch.object(main_module, "ADMIN_API_KEY", ""):
+            c = TestClient(app)
+            import_data = {"devices": []}
+            response = c.post(
+                "/api/import",
+                json=import_data,
+                headers={"Authorization": "Bearer any-key"},
+            )
+            assert response.status_code == 403
+
+
+class TestBackupEndpoint:
+    def test_backup_requires_auth(self, client, reset_data_store):
+        response = client.get("/api/backup")
+        assert response.status_code == 401
+
+    def test_backup_rejects_wrong_key(self, client, reset_data_store):
+        response = client.get(
+            "/api/backup",
+            headers={"Authorization": "Bearer wrong-key"},
+        )
+        assert response.status_code == 401
+
+    def test_backup_returns_403_when_key_not_configured(self, reset_data_store):
+        with patch.object(main_module, "ADMIN_API_KEY", ""):
+            c = TestClient(app)
+            response = c.get(
+                "/api/backup",
+                headers={"Authorization": "Bearer any-key"},
+            )
+            assert response.status_code == 403
+
+    def test_backup_accepts_query_param_key(self, client, reset_data_store, temp_db_path):
+        original_db_path = main_module.DB_PATH
+        main_module.DB_PATH = temp_db_path
+        try:
+            # Create a dummy db file
+            with open(temp_db_path, "w") as f:
+                f.write("dummy")
+            response = client.get("/api/backup?api_key=test-admin-key")
+            assert response.status_code == 200
+        finally:
+            main_module.DB_PATH = original_db_path
