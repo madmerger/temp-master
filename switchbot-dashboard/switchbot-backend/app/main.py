@@ -2,6 +2,7 @@ import asyncio
 import base64
 import hashlib
 import hmac
+import logging
 import os
 import time
 import uuid
@@ -9,6 +10,8 @@ from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 import aiosqlite
 import httpx
@@ -569,7 +572,12 @@ async def lifespan(app: FastAPI):
     # Initialize database and load existing data
     await init_database()
     await load_devices_from_db()
-    
+
+    if not ADMIN_API_KEY:
+        logger.warning(
+            "ADMIN_API_KEY is not set. /api/backup and /api/import endpoints are unprotected."
+        )
+
     if SWITCHBOT_TOKEN and SWITCHBOT_SECRET:
         data_store.collection_task = asyncio.create_task(background_collector())
     yield
@@ -646,12 +654,12 @@ async def verify_admin_key(authorization: str = Header(default="")):
     if not ADMIN_API_KEY:
         return
     expected = f"Bearer {ADMIN_API_KEY}"
-    if authorization != expected:
+    if not hmac.compare_digest(authorization, expected):
         raise HTTPException(status_code=401, detail="Invalid or missing API key")
 
 
 @app.post("/api/meters/refresh")
-async def refresh_meters(_auth=Depends(verify_admin_key)):
+async def refresh_meters():
     if not SWITCHBOT_TOKEN or not SWITCHBOT_SECRET:
         raise HTTPException(status_code=500, detail="SwitchBot credentials not configured")
     
