@@ -57,6 +57,7 @@ export function App() {
 
   const handleError = useCallback((message: string) => {
     setError(message);
+    setConnected(false);
   }, []);
 
   return (
