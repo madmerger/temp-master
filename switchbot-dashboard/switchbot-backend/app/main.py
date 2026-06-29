@@ -54,7 +54,7 @@ async def verify_admin_api_key(
         token = credentials.credentials
     if not token:
         token = request.query_params.get("api_key")
-    if not token or token != ADMIN_API_KEY:
+    if not token or not hmac.compare_digest(token, ADMIN_API_KEY):
         raise HTTPException(status_code=401, detail="Invalid or missing API key")
 
 DATA_COLLECTION_INTERVAL = 120
