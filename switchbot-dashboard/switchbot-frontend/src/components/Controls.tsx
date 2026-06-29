@@ -25,6 +25,7 @@ export function Controls({
       onRefreshComplete();
     } catch (err) {
       onError(`Failed to refresh: ${err instanceof Error ? err.message : String(err)}`);
+      onRefreshComplete();
     } finally {
       setRefreshing(false);
     }
