@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useLayoutEffect, useCallback } from "react";
 import type { ThemeMode } from "../types";
 import { applyTheme, loadTheme, saveTheme } from "../theme";
 
 export function useTheme() {
   const [theme, setThemeState] = useState<ThemeMode>(loadTheme);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     applyTheme(theme);
   }, [theme]);
 
