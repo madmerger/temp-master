@@ -15,7 +15,7 @@ import httpx
 from dotenv import load_dotenv
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -28,6 +28,7 @@ DB_PATH = os.getenv("DB_PATH", "/data/app.db" if os.path.exists("/data") else "a
 SWITCHBOT_API_BASE = "https://api.switch-bot.com/v1.1"
 SWITCHBOT_TOKEN = os.getenv("SWITCHBOT_TOKEN", "")
 SWITCHBOT_SECRET = os.getenv("SWITCHBOT_SECRET", "")
+ADMIN_API_KEY = os.getenv("ADMIN_API_KEY", "")
 
 DATA_COLLECTION_INTERVAL = 120
 RATE_LIMIT_BACKOFF_BASE = 60
@@ -589,7 +590,7 @@ app = FastAPI(lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -641,8 +642,16 @@ async def get_meter_history(device_id: str, time_scale: TimeScale = TimeScale.HO
     }
 
 
+async def verify_admin_key(authorization: str = Header(default="")):
+    if not ADMIN_API_KEY:
+        return
+    expected = f"Bearer {ADMIN_API_KEY}"
+    if authorization != expected:
+        raise HTTPException(status_code=401, detail="Invalid or missing API key")
+
+
 @app.post("/api/meters/refresh")
-async def refresh_meters():
+async def refresh_meters(_auth=Depends(verify_admin_key)):
     if not SWITCHBOT_TOKEN or not SWITCHBOT_SECRET:
         raise HTTPException(status_code=500, detail="SwitchBot credentials not configured")
     
@@ -730,7 +739,7 @@ class ImportData(BaseModel):
 
 
 @app.post("/api/import")
-async def import_data(data: ImportData):
+async def import_data(data: ImportData, _auth=Depends(verify_admin_key)):
     """Import historical data from another backend instance."""
     imported_devices = 0
     imported_readings = 0
@@ -774,7 +783,7 @@ async def import_data(data: ImportData):
 
 
 @app.get("/api/backup")
-async def backup_database():
+async def backup_database(_auth=Depends(verify_admin_key)):
     """Download the SQLite database file for backup purposes."""
     if not os.path.exists(DB_PATH):
         raise HTTPException(status_code=404, detail="Database file not found")
