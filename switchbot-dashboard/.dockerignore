@@ -1,0 +1,5 @@
+switchbot-frontend/node_modules/
+switchbot-frontend/dist/
+switchbot-frontend/*.tsbuildinfo
+switchbot-backend/__pycache__/
+switchbot-backend/.pytest_cache/
