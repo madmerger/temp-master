@@ -9,7 +9,7 @@ import {
   type MeterReading,
   type TimeScale,
 } from "../api/meters";
-import { REFRESH_INTERVAL } from "../config/api";
+import { API_URL, REFRESH_INTERVAL } from "../config/api";
 
 interface MetersState {
   meters: MeterDevice[];
@@ -102,22 +102,17 @@ export function useMeters() {
     setState((prev) => ({ ...prev, refreshing: true }));
     try {
       await triggerRefresh();
-      await loadData();
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Failed to refresh";
       setState((prev) => ({ ...prev, error: message }));
-    } finally {
-      setState((prev) => ({ ...prev, refreshing: false }));
     }
+    await loadData();
+    setState((prev) => ({ ...prev, refreshing: false }));
   }, [loadData]);
 
   const handleBackup = useCallback(() => {
-    const baseUrl =
-      window.location.protocol === "file:"
-        ? "https://temp-master.fly.dev"
-        : "";
-    window.open(`${baseUrl}/api/backup`, "_blank");
+    window.open(`${API_URL}/api/backup`, "_blank");
   }, []);
 
   return {
