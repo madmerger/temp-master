@@ -42,7 +42,7 @@ export function App() {
             <strong>Error.</strong> {error}
           </div>
         )}
-        {!loading && !error && (
+        {!loading && meters.length > 0 && (
           <MeterGrid
             meters={meters}
             histories={histories}
