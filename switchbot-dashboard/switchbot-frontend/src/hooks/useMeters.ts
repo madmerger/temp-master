@@ -20,6 +20,7 @@ interface MetersState {
   connected: boolean;
   refreshing: boolean;
   timeScale: TimeScale;
+  lastRefreshed: Date | null;
 }
 
 export function useMeters() {
@@ -32,6 +33,7 @@ export function useMeters() {
     connected: false,
     refreshing: false,
     timeScale: "day",
+    lastRefreshed: null,
   });
 
   const timeScaleRef = useRef(state.timeScale);
@@ -70,6 +72,7 @@ export function useMeters() {
         loading: false,
         error: null,
         connected: true,
+        lastRefreshed: new Date(),
       }));
     } catch (err) {
       const message =

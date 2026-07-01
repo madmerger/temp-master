@@ -15,6 +15,7 @@ export function App() {
     connected,
     refreshing,
     timeScale,
+    lastRefreshed,
     setTimeScale,
     handleRefresh,
     handleBackup,
@@ -31,7 +32,7 @@ export function App() {
           onBackup={handleBackup}
           refreshing={refreshing}
         />
-        <StatusBar status={status} />
+        <StatusBar status={status} lastRefreshed={lastRefreshed} />
         {loading && (
           <div className="loading">
             <p>Loading temperature data...</p>
