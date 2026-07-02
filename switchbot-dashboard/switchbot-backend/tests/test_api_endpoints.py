@@ -313,7 +313,7 @@ class TestGetStatusEndpoint:
             data = response.json()
             assert data["configured"] is True
             assert data["meters_count"] == 1
-            assert data["collection_interval"] == 120
+            assert data["collection_interval"] == 3600
 
     def test_get_status_not_configured(self, client, reset_data_store):
         with patch.object(main_module, "SWITCHBOT_TOKEN", ""), \
