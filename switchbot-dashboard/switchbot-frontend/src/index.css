@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-bg: #f5f5f5;
+  --color-surface: #ffffff;
+  --color-text: #1f2937;
+  --color-text-secondary: #6b7280;
+  --color-border: #e5e7eb;
+  --color-primary: #3b82f6;
+  --color-danger: #ef4444;
+  --color-info: #06b6d4;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-nav-bg: #ffffff;
+  --color-nav-text: #1f2937;
+  --color-badge-bg: #f3f4f6;
+  --color-chart-line: #ef4444;
+  --color-chart-fill: rgba(239, 68, 68, 0.1);
+  --color-chart-grid: rgba(0, 0, 0, 0.05);
+}
+
+.dark {
+  --color-bg: #111827;
+  --color-surface: #1f2937;
+  --color-text: #f9fafb;
+  --color-text-secondary: #9ca3af;
+  --color-border: #374151;
+  --color-primary: #60a5fa;
+  --color-danger: #f87171;
+  --color-info: #22d3ee;
+  --color-success: #4ade80;
+  --color-warning: #fbbf24;
+  --color-nav-bg: #1f2937;
+  --color-nav-text: #f9fafb;
+  --color-badge-bg: #374151;
+  --color-chart-line: #f87171;
+  --color-chart-fill: rgba(248, 113, 113, 0.15);
+  --color-chart-grid: rgba(255, 255, 255, 0.05);
+}
+
+.high-contrast {
+  --color-bg: #000000;
+  --color-surface: #1a1a1a;
+  --color-text: #ffffff;
+  --color-text-secondary: #cccccc;
+  --color-border: #555555;
+  --color-primary: #00bfff;
+  --color-danger: #ff4444;
+  --color-info: #00ffff;
+  --color-success: #00ff00;
+  --color-warning: #ffff00;
+  --color-nav-bg: #1a1a1a;
+  --color-nav-text: #ffffff;
+  --color-badge-bg: #333333;
+  --color-chart-line: #ff4444;
+  --color-chart-fill: rgba(255, 68, 68, 0.2);
+  --color-chart-grid: rgba(255, 255, 255, 0.1);
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  transition: background-color 0.2s, color 0.2s;
+}

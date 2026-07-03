@@ -6,6 +6,7 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 
 - Temperature charts for all SwitchBot Meter devices using Recharts
 - Time scale switching (hour/day/month/year)
+- Multi-theme support (Light / Dark / System / High Contrast) with localStorage persistence
 - Auto-refresh every 30 seconds (frontend) with background data collection every 2 minutes (backend)
 - Rate limiting protection with exponential backoff
 - All API calls are cached - GET endpoints never call SwitchBot API directly
@@ -51,17 +52,35 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
    npm install
    ```
 
-3. Copy `.env.example` to `.env`:
-   ```bash
-   cp .env.example .env
-   ```
-
-4. Start the development server:
+3. Start the Vite development server:
    ```bash
    npm run dev
    ```
 
-5. Open http://localhost:5173 in your browser
+4. Open http://localhost:5173 in your browser
+
+The Vite dev server proxies `/api` requests to the backend at `http://localhost:8000`.
+
+### Production Build
+
+```bash
+cd switchbot-frontend
+npm run build
+```
+
+The built files are output to `dist/` and served by the FastAPI backend's static file handler.
+
+## Docker
+
+The Dockerfile uses a multi-stage build:
+1. Node stage builds the frontend (`npm ci && npm run build`)
+2. Python stage runs the backend and serves the built frontend from `./static/`
+
+```bash
+cd switchbot-dashboard
+docker build -t temp-master .
+docker run -p 8000:8000 --env-file switchbot-backend/.env temp-master
+```
 
 ## API Endpoints
 
