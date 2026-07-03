@@ -16,6 +16,7 @@ import { formatTimestamp } from '../utils'
 interface MeterChartProps {
   deviceId: string
   timeScale: TimeScale
+  refreshKey: number
 }
 
 interface ChartDataPoint {
@@ -23,7 +24,7 @@ interface ChartDataPoint {
   temperature: number
 }
 
-export function MeterChart({ deviceId, timeScale }: MeterChartProps) {
+export function MeterChart({ deviceId, timeScale, refreshKey }: MeterChartProps) {
   const [data, setData] = useState<ChartDataPoint[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -50,7 +51,7 @@ export function MeterChart({ deviceId, timeScale }: MeterChartProps) {
     return () => {
       cancelled = true
     }
-  }, [deviceId, timeScale])
+  }, [deviceId, timeScale, refreshKey])
 
   if (loading) {
     return (

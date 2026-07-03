@@ -5,9 +5,10 @@ import { MeterChart } from './MeterChart'
 interface MeterPanelProps {
   meter: Meter
   timeScale: TimeScale
+  refreshKey: number
 }
 
-export function MeterPanel({ meter, timeScale }: MeterPanelProps) {
+export function MeterPanel({ meter, timeScale, refreshKey }: MeterPanelProps) {
   const displayName = getDisplayName(meter.device_name)
   const lastUpdated = meter.last_updated
     ? new Date(meter.last_updated).toLocaleString()
@@ -41,7 +42,7 @@ export function MeterPanel({ meter, timeScale }: MeterPanelProps) {
             </span>
           )}
         </div>
-        <MeterChart deviceId={meter.device_id} timeScale={timeScale} />
+        <MeterChart deviceId={meter.device_id} timeScale={timeScale} refreshKey={refreshKey} />
         {lastUpdated && (
           <p className="mt-2 text-xs text-[var(--color-text-secondary)]">
             Last updated: {lastUpdated}

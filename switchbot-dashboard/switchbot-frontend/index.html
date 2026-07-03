@@ -4,6 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Temp Master Dashboard</title>
+    <script>
+      (function() {
+        var t = localStorage.getItem('temp-master-theme') || 'system';
+        var d = t === 'system'
+          ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+          : t;
+        if (d === 'dark') document.documentElement.classList.add('dark');
+        else if (d === 'high-contrast') { document.documentElement.classList.add('dark', 'high-contrast'); }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

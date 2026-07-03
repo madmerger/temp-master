@@ -17,6 +17,7 @@ function Dashboard() {
   const [connected, setConnected] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
+  const [refreshKey, setRefreshKey] = useState(0)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const loadData = useCallback(async () => {
@@ -30,6 +31,7 @@ function Dashboard() {
       setConnected(true)
       setError(null)
       setLastRefresh(new Date())
+      setRefreshKey((k) => k + 1)
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to fetch data'
       setError(msg)
@@ -134,6 +136,7 @@ function Dashboard() {
                 key={meter.device_id}
                 meter={meter}
                 timeScale={timeScale}
+                refreshKey={refreshKey}
               />
             ))}
           </div>
