@@ -19,6 +19,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [lastRefresh, setLastRefresh] = useState('');
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -30,6 +31,7 @@ export default function App() {
       setConnected(true);
       setError(null);
       setLastRefresh(formatLastRefresh());
+      setRefreshKey((k) => k + 1);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Failed to fetch data';
       setError(msg);
@@ -89,7 +91,7 @@ export default function App() {
 
         <div className="meters-grid">
           {meters.map((meter) => (
-            <MeterCard key={meter.device_id} meter={meter} timeScale={timeScale} />
+            <MeterCard key={meter.device_id} meter={meter} timeScale={timeScale} refreshKey={refreshKey} />
           ))}
         </div>
       </main>

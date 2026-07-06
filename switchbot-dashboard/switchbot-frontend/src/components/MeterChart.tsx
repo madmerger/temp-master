@@ -15,6 +15,7 @@ import type { TimeScale, MeterReading } from '../types';
 interface MeterChartProps {
   deviceId: string;
   timeScale: TimeScale;
+  refreshKey: number;
 }
 
 interface ChartPoint {
@@ -22,7 +23,7 @@ interface ChartPoint {
   temperature: number;
 }
 
-export function MeterChart({ deviceId, timeScale }: MeterChartProps) {
+export function MeterChart({ deviceId, timeScale, refreshKey }: MeterChartProps) {
   const [data, setData] = useState<ChartPoint[]>([]);
 
   useEffect(() => {
@@ -41,7 +42,7 @@ export function MeterChart({ deviceId, timeScale }: MeterChartProps) {
         if (!cancelled) setData([]);
       });
     return () => { cancelled = true; };
-  }, [deviceId, timeScale]);
+  }, [deviceId, timeScale, refreshKey]);
 
   if (data.length === 0) {
     return <div className="chart-empty">No data available</div>;

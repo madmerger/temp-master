@@ -5,9 +5,10 @@ import type { MeterDevice, TimeScale } from '../types';
 interface MeterCardProps {
   meter: MeterDevice;
   timeScale: TimeScale;
+  refreshKey: number;
 }
 
-export function MeterCard({ meter, timeScale }: MeterCardProps) {
+export function MeterCard({ meter, timeScale, refreshKey }: MeterCardProps) {
   const displayName = getDisplayName(meter.device_name);
 
   return (
@@ -28,7 +29,7 @@ export function MeterCard({ meter, timeScale }: MeterCardProps) {
             <span className="stat-badge stat-battery">{meter.battery}%</span>
           )}
         </div>
-        <MeterChart deviceId={meter.device_id} timeScale={timeScale} />
+        <MeterChart deviceId={meter.device_id} timeScale={timeScale} refreshKey={refreshKey} />
         {meter.last_updated && (
           <p className="meter-last-updated">
             Last updated: {new Date(meter.last_updated).toLocaleString()}
