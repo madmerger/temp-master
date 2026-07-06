@@ -5,10 +5,11 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 ## Features
 
 - Temperature charts for all SwitchBot Meter devices using Recharts
-- Time scale switching (hour/day/month/year)
+- Time scale switching (hour/day/week/month/year)
 - Auto-refresh every 30 seconds (frontend) with background data collection every 2 minutes (backend)
 - Rate limiting protection with exponential backoff
 - All API calls are cached - GET endpoints never call SwitchBot API directly
+- Dark theme by default with modern UI
 
 ## Setup
 
@@ -51,17 +52,27 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
    npm install
    ```
 
-3. Copy `.env.example` to `.env`:
-   ```bash
-   cp .env.example .env
-   ```
-
-4. Start the development server:
+3. Start the development server (proxies `/api` to the backend on port 8000):
    ```bash
    npm run dev
    ```
 
-5. Open http://localhost:5173 in your browser
+4. Open http://localhost:5173 in your browser
+
+### Production Build
+
+Build the frontend for production:
+```bash
+cd switchbot-frontend
+npm run build
+```
+
+The built files are output to `switchbot-frontend/dist/`. To serve them via the backend, either:
+- Symlink `dist/` as `switchbot-backend/static/`:
+  ```bash
+  ln -s $(pwd)/switchbot-frontend/dist switchbot-backend/static
+  ```
+- Or use the Docker multi-stage build (see Dockerfile).
 
 ## API Endpoints
 
@@ -69,10 +80,11 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 - `GET /api/meters/{device_id}/history` - Returns temperature history with time_scale parameter
 - `POST /api/meters/refresh` - Triggers immediate data collection
 - `GET /api/status` - Returns backend status and configuration
+- `GET /api/backup` - Download the SQLite database backup
 
 ## Notes
 
-- Temperature history is stored in memory and resets on backend restart
+- Temperature history is persisted in SQLite and survives backend restarts
 - Backend data collection interval: 2 minutes minimum
 - Frontend refresh interval: 30 seconds
 - SwitchBot API has strict rate limits (~10000 requests/day)
