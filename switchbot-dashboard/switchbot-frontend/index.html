@@ -10,8 +10,19 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
 
   <style>
+    :root {
+      --body-bg: #f5f5f5;
+      --body-text: #333;
+      --panel-heading-bg: #f8f8f8;
+      --muted-text: #777;
+      --tag-bg: #eee;
+      --tag-text: #777;
+      --chart-font-color: #777;
+      --chart-grid-color: rgba(0, 0, 0, 0.05);
+    }
     body {
-      background-color: #f5f5f5;
+      background-color: var(--body-bg);
+      color: var(--body-text);
       padding-top: 70px;
     }
     .navbar-status {
@@ -36,14 +47,14 @@
       height: 200px;
     }
     .meter-last-updated {
-      color: #777;
+      color: var(--muted-text);
       font-size: 12px;
       margin-top: 8px;
       margin-bottom: 0;
     }
     footer {
       text-align: center;
-      color: #777;
+      color: var(--muted-text);
       font-size: 12px;
       margin: 30px 0 20px 0;
     }
@@ -52,14 +63,91 @@
       padding: 40px 0;
     }
     .panel-default > .panel-heading {
-      background-color: #f8f8f8;
+      background-color: var(--panel-heading-bg);
     }
     .device-type-tag {
       font-size: 11px;
-      color: #777;
-      background-color: #eee;
+      color: var(--tag-text);
+      background-color: var(--tag-bg);
       padding: 2px 8px;
       border-radius: 10px;
+    }
+    #btn-theme-toggle {
+      margin-top: 15px;
+      margin-right: 15px;
+    }
+
+    /* ============================================================
+       Dark theme
+       ============================================================ */
+    body.dark-theme {
+      --body-bg: #1e1f22;
+      --body-text: #e6e6e6;
+      --panel-heading-bg: #2b2d31;
+      --muted-text: #a0a0a0;
+      --tag-bg: #3a3d42;
+      --tag-text: #cfcfcf;
+      --chart-font-color: #a0a0a0;
+      --chart-grid-color: rgba(255, 255, 255, 0.08);
+    }
+    body.dark-theme .navbar-default {
+      background-color: #2b2d31;
+      border-color: #1a1b1e;
+    }
+    body.dark-theme .navbar-default .navbar-brand,
+    body.dark-theme .navbar-default .nav > li > a {
+      color: #e6e6e6;
+    }
+    body.dark-theme .navbar-default .nav > .active > a,
+    body.dark-theme .navbar-default .nav > li > a:hover,
+    body.dark-theme .navbar-default .nav > li > a:focus {
+      color: #ffffff;
+      background-color: #3a3d42;
+    }
+    body.dark-theme .panel-default {
+      background-color: #26282c;
+      border-color: #1a1b1e;
+    }
+    body.dark-theme .panel-default > .panel-heading {
+      color: #e6e6e6;
+      border-color: #1a1b1e;
+    }
+    body.dark-theme .form-control {
+      background-color: #2b2d31;
+      color: #e6e6e6;
+      border-color: #3a3d42;
+    }
+    body.dark-theme .form-control::placeholder {
+      color: #a0a0a0;
+    }
+    body.dark-theme .btn-default {
+      background-color: #3a3d42;
+      color: #e6e6e6;
+      border-color: #4a4d52;
+    }
+    body.dark-theme .btn-default:hover,
+    body.dark-theme .btn-default:focus {
+      background-color: #4a4d52;
+      color: #ffffff;
+    }
+    body.dark-theme label,
+    body.dark-theme .text-muted {
+      color: #cfcfcf;
+    }
+    body.dark-theme .alert-info {
+      background-color: #1c3a44;
+      color: #cfe9f1;
+      border-color: #245560;
+    }
+    body.dark-theme .alert-warning {
+      background-color: #4a3c1a;
+      color: #f1e2b8;
+      border-color: #6b5722;
+    }
+    body.dark-theme .alert-danger {
+      background-color: #4a2020;
+      color: #f1c2c2;
+      border-color: #6b2c2c;
     }
   </style>
 </head>
@@ -74,6 +162,9 @@
       <ul class="nav navbar-nav">
         <li class="active"><a href="/">Dashboard</a></li>
       </ul>
+      <div class="pull-right">
+        <button type="button" id="btn-theme-toggle" class="btn btn-default btn-sm">Dark Theme</button>
+      </div>
       <div class="navbar-status pull-right">
         <span id="connection-status" class="label label-success">Connected</span>
       </div>
@@ -423,10 +514,19 @@
       }
     }
 
+    function getChartColors() {
+      var styles = getComputedStyle(document.body);
+      return {
+        fontColor: (styles.getPropertyValue('--chart-font-color') || '#777').trim(),
+        gridColor: (styles.getPropertyValue('--chart-grid-color') || 'rgba(0, 0, 0, 0.05)').trim()
+      };
+    }
+
     function renderSingleChart(deviceId, history) {
       var canvas = document.getElementById('chart-' + deviceId);
       if (!canvas) return;
       var ctx = canvas.getContext('2d');
+      var chartColors = getChartColors();
 
       var labels = [];
       var temperatures = [];
@@ -482,23 +582,23 @@
               display: true,
               gridLines: {
                 display: true,
-                color: 'rgba(0, 0, 0, 0.05)'
+                color: chartColors.gridColor
               },
               ticks: {
                 maxTicksLimit: 8,
                 fontSize: 10,
-                fontColor: '#777'
+                fontColor: chartColors.fontColor
               }
             }],
             yAxes: [{
               display: true,
               gridLines: {
                 display: true,
-                color: 'rgba(0, 0, 0, 0.05)'
+                color: chartColors.gridColor
               },
               ticks: {
                 fontSize: 10,
-                fontColor: '#777',
+                fontColor: chartColors.fontColor,
                 callback: function(value) {
                   return value + '\u00b0';
                 }
@@ -519,12 +619,42 @@
     }
 
     // ============================================================
-    // Init
+    // Theme handling
     // ============================================================
 
+    var THEME_STORAGE_KEY = 'temp-master-theme';
+
+    function applyTheme(theme) {
+      var isDark = (theme === 'dark');
+      $('body').toggleClass('dark-theme', isDark);
+      $('#btn-theme-toggle').text(isDark ? 'Light Theme' : 'Dark Theme');
+    }
+
+    function loadTheme() {
+      var stored = null;
+      try {
+        stored = localStorage.getItem(THEME_STORAGE_KEY);
+      } catch (e) {
+        stored = null;
+      }
+      applyTheme(stored === 'dark' ? 'dark' : 'light');
+    }
+
     $(document).ready(function() {
+      loadTheme();
+
       fetchData();
       setInterval(fetchData, REFRESH_INTERVAL);
+
+      $('#btn-theme-toggle').click(function() {
+        var isDark = !$('body').hasClass('dark-theme');
+        applyTheme(isDark ? 'dark' : 'light');
+        try {
+          localStorage.setItem(THEME_STORAGE_KEY, isDark ? 'dark' : 'light');
+        } catch (e) {}
+        destroyAllCharts();
+        renderCharts();
+      });
 
       $('#time-scale-select').change(function() {
         currentTimeScale = $(this).val();
