@@ -3,3 +3,8 @@ __pycache__/
 *.pyc
 .venv/
 *.db
+
+# Frontend
+switchbot-dashboard/switchbot-frontend/node_modules/
+switchbot-dashboard/switchbot-frontend/dist/
+switchbot-dashboard/switchbot-frontend/tsconfig.tsbuildinfo

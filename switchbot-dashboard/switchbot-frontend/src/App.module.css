@@ -1,0 +1,50 @@
+.main {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 76px 20px 20px;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px 0;
+  color: #999;
+}
+
+.error {
+  background-color: #f2dede;
+  border: 1px solid #ebccd1;
+  color: #a94442;
+  padding: 12px 20px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 992px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.col {
+  min-width: 0;
+}
+
+.footer {
+  text-align: center;
+  color: #777;
+  font-size: 12px;
+  margin: 30px 0 20px;
+}
