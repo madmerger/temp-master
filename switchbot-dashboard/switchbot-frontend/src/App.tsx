@@ -10,15 +10,13 @@ import styles from './App.module.css';
 
 export function App() {
   const [timeScale, setTimeScale] = useState<TimeScale>('day');
-  const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
 
-  const { meters, loading, error, connected, reload: reloadMeters } = useMeters();
+  const { meters, loading, error, connected, lastFetchTime, reload: reloadMeters } = useMeters();
   const { status, reload: reloadStatus } = useStatus();
 
   const handleRefreshComplete = useCallback(() => {
     void reloadMeters();
     void reloadStatus();
-    setLastRefresh(new Date());
   }, [reloadMeters, reloadStatus]);
 
   return (
@@ -30,7 +28,7 @@ export function App() {
           onTimeScaleChange={setTimeScale}
           onRefreshComplete={handleRefreshComplete}
         />
-        <StatusBar status={status} lastRefresh={lastRefresh} />
+        <StatusBar status={status} lastRefresh={lastFetchTime} />
 
         {loading && (
           <p className={styles.loading}>Loading temperature data...</p>

@@ -8,6 +8,7 @@ interface UseMetersResult {
   loading: boolean;
   error: string | null;
   connected: boolean;
+  lastFetchTime: Date | null;
   reload: () => Promise<void>;
 }
 
@@ -16,6 +17,7 @@ export function useMeters(): UseMetersResult {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [connected, setConnected] = useState(true);
+  const [lastFetchTime, setLastFetchTime] = useState<Date | null>(null);
 
   const reload = useCallback(async () => {
     try {
@@ -23,6 +25,7 @@ export function useMeters(): UseMetersResult {
       setMeters(data.meters);
       setError(null);
       setConnected(true);
+      setLastFetchTime(new Date());
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to fetch meters');
       setConnected(false);
@@ -37,5 +40,5 @@ export function useMeters(): UseMetersResult {
     return () => clearInterval(id);
   }, [reload]);
 
-  return { meters, loading, error, connected, reload };
+  return { meters, loading, error, connected, lastFetchTime, reload };
 }
