@@ -3,7 +3,7 @@ import { backupUrl, fetchMeters, fetchStatus, triggerRefresh } from './api'
 import MeterCard from './components/MeterCard'
 import ThemeSwitcher from './components/ThemeSwitcher'
 import type { MeterDevice, StatusResponse, TimeScale } from './types'
-import { formatClock } from './utils'
+import { formatClock, isStaleMeter } from './utils'
 
 const REFRESH_INTERVAL = 30000
 
@@ -68,6 +68,13 @@ export default function App() {
 
   const meterCount = status?.meters_count ?? 0
   const meterNoun = meterCount === 1 ? 'meter' : 'meters'
+
+  const activeMeters: MeterDevice[] = []
+  const staleMeters: MeterDevice[] = []
+  for (const meter of meters) {
+    if (isStaleMeter(meter)) staleMeters.push(meter)
+    else activeMeters.push(meter)
+  }
 
   return (
     <>
@@ -144,16 +151,40 @@ export default function App() {
         )}
 
         {!loading && (
-          <div className="meters-grid">
-            {meters.map((meter) => (
-              <MeterCard
-                key={meter.device_id}
-                meter={meter}
-                timeScale={timeScale}
-                reloadToken={reloadToken}
-              />
-            ))}
-          </div>
+          <>
+            {activeMeters.length > 0 && (
+              <div className="meters-grid">
+                {activeMeters.map((meter) => (
+                  <MeterCard
+                    key={meter.device_id}
+                    meter={meter}
+                    timeScale={timeScale}
+                    reloadToken={reloadToken}
+                  />
+                ))}
+              </div>
+            )}
+
+            {staleMeters.length > 0 && (
+              <section className="meter-section stale-meters-section">
+                <div className="meter-section-header">
+                  <h3 className="meter-section-title">⚠ 未更新のメーター</h3>
+                  <p className="meter-section-subtitle">1週間以上更新されていないデバイス</p>
+                </div>
+                <div className="meters-grid">
+                  {staleMeters.map((meter) => (
+                    <MeterCard
+                      key={meter.device_id}
+                      meter={meter}
+                      timeScale={timeScale}
+                      reloadToken={reloadToken}
+                      isStale
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
+          </>
         )}
 
         <footer>Temp Master Dashboard v1.0 - Built with React + Vite + TypeScript</footer>

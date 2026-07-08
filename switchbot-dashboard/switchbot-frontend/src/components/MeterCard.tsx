@@ -8,12 +8,15 @@ interface Props {
   meter: MeterDevice
   timeScale: TimeScale
   reloadToken: number
+  isStale?: boolean
 }
 
-export default function MeterCard({ meter, timeScale, reloadToken }: Props) {
+export default function MeterCard({ meter, timeScale, reloadToken, isStale = false }: Props) {
   const [history, setHistory] = useState<MeterReading[]>([])
 
   useEffect(() => {
+    // Stale meters are excluded from history fetching (matches legacy behavior).
+    if (isStale) return
     let cancelled = false
     fetchHistory(meter.device_id, timeScale)
       .then((data) => {
@@ -25,7 +28,7 @@ export default function MeterCard({ meter, timeScale, reloadToken }: Props) {
     return () => {
       cancelled = true
     }
-  }, [meter.device_id, timeScale, reloadToken])
+  }, [meter.device_id, timeScale, reloadToken, isStale])
 
   const name = getDisplayName(meter.device_name)
   const hasTemp = meter.current_temperature !== null && meter.current_temperature !== undefined
@@ -35,7 +38,10 @@ export default function MeterCard({ meter, timeScale, reloadToken }: Props) {
   return (
     <div className="meter-card">
       <div className="meter-card-header">
-        <span className="meter-name">{name}</span>
+        <div className="meter-card-title">
+          <span className="meter-name">{name}</span>
+          {isStale && <span className="stale-meter-badge">7日以上未更新</span>}
+        </div>
         <span className="device-type-tag">{meter.device_type}</span>
       </div>
       <div className="meter-card-body">
@@ -44,13 +50,19 @@ export default function MeterCard({ meter, timeScale, reloadToken }: Props) {
           {hasHumidity && <span className="stat stat-humidity">{meter.current_humidity}%</span>}
           {hasBattery && <span className="stat stat-battery">{meter.battery}%</span>}
         </div>
-        <div className="meter-chart-wrap">
-          <TemperatureChart history={history} timeScale={timeScale} />
-        </div>
-        {meter.last_updated && (
+        {isStale ? (
+          <p className="stale-meter-empty">履歴データの取得対象外</p>
+        ) : (
+          <div className="meter-chart-wrap">
+            <TemperatureChart history={history} timeScale={timeScale} />
+          </div>
+        )}
+        {meter.last_updated ? (
           <p className="meter-last-updated">
             Last updated: {new Date(meter.last_updated).toLocaleString()}
           </p>
+        ) : (
+          isStale && <p className="stale-meter-empty">値がありません（データ未受信）</p>
         )}
       </div>
     </div>

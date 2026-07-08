@@ -188,8 +188,63 @@ select.form-control {
   border-bottom: 1px solid var(--border);
 }
 
+.meter-card-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .meter-name {
   font-weight: 600;
+}
+
+.meter-section {
+  margin-top: 28px;
+}
+
+.meter-section-header {
+  margin-bottom: 12px;
+}
+
+.meter-section-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--warning-text);
+}
+
+.meter-section-subtitle {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: var(--warning-text);
+}
+
+.stale-meters-section .meter-card {
+  border-color: var(--warning-text);
+  background-color: var(--warning-bg);
+}
+
+.stale-meters-section .meter-card-header {
+  background-color: var(--warning-bg);
+  border-bottom-color: var(--warning-text);
+}
+
+.stale-meter-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--warning-text);
+  background-color: var(--warning-bg);
+  border: 1px solid var(--warning-text);
+}
+
+.stale-meter-empty {
+  color: var(--warning-text);
+  font-size: 13px;
+  margin: 0 0 4px 0;
 }
 
 .device-type-tag {

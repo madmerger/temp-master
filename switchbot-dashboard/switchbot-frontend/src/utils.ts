@@ -1,7 +1,18 @@
-import type { TimeScale } from './types'
+import type { MeterDevice, TimeScale } from './types'
+
+// A meter is considered stale when it has not reported for at least a week.
+export const STALE_METER_THRESHOLD_MS = 7 * 24 * 60 * 60 * 1000
 
 function pad2(n: number): string {
   return n < 10 ? '0' + n : '' + n
+}
+
+// Ported from the legacy index.html isStaleMeter().
+export function isStaleMeter(meter: MeterDevice): boolean {
+  if (!meter.last_updated) return true
+  const lastUpdated = new Date(meter.last_updated)
+  if (Number.isNaN(lastUpdated.getTime())) return true
+  return Date.now() - lastUpdated.getTime() >= STALE_METER_THRESHOLD_MS
 }
 
 const DAY_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
