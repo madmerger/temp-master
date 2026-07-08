@@ -15,7 +15,7 @@ export interface ThemeMeta {
   chart: ChartColors
 }
 
-// The CSS custom properties for each theme live in themes.css (keyed by
+// The CSS custom properties for each theme live in index.css (keyed by
 // [data-theme=...]). The chart colors below are consumed by Recharts, which
 // cannot read CSS variables directly, so they are mirrored here per theme.
 export const THEMES: ThemeMeta[] = [
