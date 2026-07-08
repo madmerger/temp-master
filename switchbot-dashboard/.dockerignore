@@ -1,3 +1,7 @@
+# Excluding node_modules/dist is REQUIRED for the Docker frontend build:
+# the Dockerfile runs `COPY switchbot-frontend/ ./` after `npm ci`, and without
+# these excludes the host's node_modules/dist would clobber the freshly built
+# ones. Do not remove these entries.
 **/node_modules
 **/dist
 **/.venv
