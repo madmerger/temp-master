@@ -77,6 +77,20 @@ To create a production build (output in `dist/`):
 npm run build
 ```
 
+### API base URL resolution
+
+The frontend resolves its API base URL as follows (see `src/api.ts`):
+
+- If `VITE_API_URL` is set at build/dev time, it is used as-is.
+- Otherwise, if the page is opened via `file://`, it falls back to
+  `https://temp-master.fly.dev`.
+- Otherwise it uses the same origin (empty base URL).
+
+In production the FastAPI backend serves the built `dist/` as static files, so
+the same-origin default is correct and **no `.env` is needed**. The Docker image
+intentionally does not include `.env` (it is excluded via `.dockerignore`); the
+`.env` file is only for optionally overriding `VITE_API_URL` during local dev.
+
 ## Themes
 
 The frontend ships with four themes — **Light**, **Dark**, **Ocean**, and
