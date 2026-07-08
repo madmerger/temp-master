@@ -12,9 +12,11 @@
 # Configuration:
 #   Set SWITCHBOT_BACKEND_URL environment variable or edit the default below
 #   Set BACKUP_DIR environment variable to change the backup directory
+#   Set ADMIN_API_KEY environment variable for API authentication (required)
 
 BACKEND_URL="${SWITCHBOT_BACKEND_URL:-https://temp-master.fly.dev}"
 BACKUP_DIR="${BACKUP_DIR:-$HOME/switchbot_backups}"
+ADMIN_API_KEY="${ADMIN_API_KEY:-}"
 DEFAULT_INTERVAL=3600  # 1 hour in seconds
 
 LOOP_MODE=false
@@ -41,6 +43,7 @@ while [[ $# -gt 0 ]]; do
             echo "  --help              Show this help message"
             echo ""
             echo "Environment variables:"
+            echo "  ADMIN_API_KEY          Admin API key for authentication (required)"
             echo "  SWITCHBOT_BACKEND_URL  Backend URL (default: https://temp-master.fly.dev)"
             echo "  BACKUP_DIR             Backup directory (default: ~/switchbot_backups)"
             exit 0
@@ -53,6 +56,12 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+if [ -z "$ADMIN_API_KEY" ]; then
+    echo "Error: ADMIN_API_KEY environment variable is not set."
+    echo "Set it with: export ADMIN_API_KEY=<your-api-key>"
+    exit 1
+fi
+
 mkdir -p "$BACKUP_DIR"
 
 backup_database() {
@@ -61,7 +70,7 @@ backup_database() {
     
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting backup..."
     
-    local http_code=$(curl -s -w "%{http_code}" -o "$backup_file" "$BACKEND_URL/api/backup")
+    local http_code=$(curl -s -w "%{http_code}" -o "$backup_file" -H "Authorization: Bearer $ADMIN_API_KEY" "$BACKEND_URL/api/backup")
     
     if [ "$http_code" -eq 200 ]; then
         local file_size=$(ls -lh "$backup_file" | awk '{print $5}')

@@ -15,9 +15,10 @@ import httpx
 from dotenv import load_dotenv
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel
 
 load_dotenv()
@@ -28,6 +29,33 @@ DB_PATH = os.getenv("DB_PATH", "/data/app.db" if os.path.exists("/data") else "a
 SWITCHBOT_API_BASE = "https://api.switch-bot.com/v1.1"
 SWITCHBOT_TOKEN = os.getenv("SWITCHBOT_TOKEN", "")
 SWITCHBOT_SECRET = os.getenv("SWITCHBOT_SECRET", "")
+
+ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv(
+        "ALLOWED_ORIGINS", "https://temp-master.fly.dev"
+    ).split(",")
+    if origin.strip()
+]
+
+ADMIN_API_KEY = os.getenv("ADMIN_API_KEY", "")
+
+bearer_scheme = HTTPBearer(auto_error=False)
+
+
+async def verify_admin_api_key(
+    request: Request,
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+) -> None:
+    if not ADMIN_API_KEY:
+        raise HTTPException(status_code=403, detail="ADMIN_API_KEY is not configured")
+    token: str | None = None
+    if credentials:
+        token = credentials.credentials
+    if not token:
+        token = request.query_params.get("api_key")
+    if not token or not hmac.compare_digest(token, ADMIN_API_KEY):
+        raise HTTPException(status_code=401, detail="Invalid or missing API key")
 
 DATA_COLLECTION_INTERVAL = 120
 RATE_LIMIT_BACKOFF_BASE = 60
@@ -588,7 +616,7 @@ app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -730,7 +758,7 @@ class ImportData(BaseModel):
 
 
 @app.post("/api/import")
-async def import_data(data: ImportData):
+async def import_data(data: ImportData, _auth: None = Depends(verify_admin_api_key)):
     """Import historical data from another backend instance."""
     imported_devices = 0
     imported_readings = 0
@@ -774,7 +802,7 @@ async def import_data(data: ImportData):
 
 
 @app.get("/api/backup")
-async def backup_database():
+async def backup_database(_auth: None = Depends(verify_admin_api_key)):
     """Download the SQLite database file for backup purposes."""
     if not os.path.exists(DB_PATH):
         raise HTTPException(status_code=404, detail="Database file not found")
