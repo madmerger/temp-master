@@ -5,10 +5,16 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 ## Features
 
 - Temperature charts for all SwitchBot Meter devices using Recharts
-- Time scale switching (hour/day/month/year)
+- Time scale switching (hour/day/week/month/year)
 - Auto-refresh every 30 seconds (frontend) with background data collection every 2 minutes (backend)
 - Rate limiting protection with exponential backoff
 - All API calls are cached - GET endpoints never call SwitchBot API directly
+- Multiple UI themes (Light / Dark / Ocean / Sunset) switchable from the navbar
+
+## Tech Stack
+
+- **Backend:** FastAPI + SQLite (aiosqlite), Poetry
+- **Frontend:** React + Vite + TypeScript, charts via Recharts, theming via CSS variables
 
 ## Setup
 
@@ -51,10 +57,13 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
    npm install
    ```
 
-3. Copy `.env.example` to `.env`:
+3. (Optional) Copy `.env.example` to `.env` to override the API base URL:
    ```bash
    cp .env.example .env
    ```
+   By default the dev server proxies `/api` requests to the backend on
+   `http://localhost:8000` (see `vite.config.ts`), so no `.env` is required
+   for local development.
 
 4. Start the development server:
    ```bash
@@ -62,6 +71,19 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
    ```
 
 5. Open http://localhost:5173 in your browser
+
+To create a production build (output in `dist/`):
+```bash
+npm run build
+```
+
+## Themes
+
+The frontend ships with four themes — **Light**, **Dark**, **Ocean**, and
+**Sunset** — implemented with CSS variables (`src/index.css`). Switch themes
+from the selector in the navbar; the choice is persisted to `localStorage`.
+Recharts chart colors follow the active theme (see `src/themes.ts`), keeping
+the graphs legible on dark backgrounds.
 
 ## API Endpoints
 

@@ -1,0 +1,141 @@
+/* ============================================================
+   Theme tokens (CSS variables). Each theme overrides the same
+   set of tokens; components only reference var(--token).
+   ============================================================ */
+:root,
+:root[data-theme='light'] {
+  --bg: #f5f5f5;
+  --bg-elevated: #ffffff;
+  --panel-bg: #ffffff;
+  --panel-header-bg: #f8f8f8;
+  --border: #e2e2e2;
+  --text: #24292f;
+  --text-muted: #6b7280;
+  --navbar-bg: #ffffff;
+  --navbar-text: #24292f;
+  --accent: #337ab7;
+  --accent-contrast: #ffffff;
+  --temp: #d9534f;
+  --humidity: #31708f;
+  --battery: #3c763d;
+  --tag-bg: #eeeeee;
+  --tag-text: #777777;
+  --info-bg: #d9edf7;
+  --info-text: #31708f;
+  --warning-bg: #fcf8e3;
+  --warning-text: #8a6d3b;
+  --danger-bg: #f2dede;
+  --danger-text: #a94442;
+  --success: #5cb85c;
+  --danger: #d9534f;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+:root[data-theme='dark'] {
+  --bg: #0d1117;
+  --bg-elevated: #161b22;
+  --panel-bg: #161b22;
+  --panel-header-bg: #1c2333;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-muted: #9aa4b2;
+  --navbar-bg: #161b22;
+  --navbar-text: #e6edf3;
+  --accent: #58a6ff;
+  --accent-contrast: #0d1117;
+  --temp: #ff7b72;
+  --humidity: #79c0ff;
+  --battery: #56d364;
+  --tag-bg: #21262d;
+  --tag-text: #9aa4b2;
+  --info-bg: #12283a;
+  --info-text: #79c0ff;
+  --warning-bg: #3b2f14;
+  --warning-text: #e3b341;
+  --danger-bg: #3b1518;
+  --danger-text: #ff7b72;
+  --success: #3fb950;
+  --danger: #f85149;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme='ocean'] {
+  --bg: #062637;
+  --bg-elevated: #0b3247;
+  --panel-bg: #0b3247;
+  --panel-header-bg: #0d3b53;
+  --border: #12506e;
+  --text: #e7f6fc;
+  --text-muted: #8ab6c9;
+  --navbar-bg: #0b3247;
+  --navbar-text: #e7f6fc;
+  --accent: #22d3ee;
+  --accent-contrast: #052330;
+  --temp: #f472b6;
+  --humidity: #38bdf8;
+  --battery: #34d399;
+  --tag-bg: #0d3b53;
+  --tag-text: #8ab6c9;
+  --info-bg: #0d3b53;
+  --info-text: #7dd3fc;
+  --warning-bg: #3f3517;
+  --warning-text: #fbbf24;
+  --danger-bg: #3f1d2b;
+  --danger-text: #fb7185;
+  --success: #34d399;
+  --danger: #fb7185;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+:root[data-theme='sunset'] {
+  --bg: #2a1620;
+  --bg-elevated: #3a1f2b;
+  --panel-bg: #3a1f2b;
+  --panel-header-bg: #47262f;
+  --border: #5e3340;
+  --text: #ffe9d6;
+  --text-muted: #d3a894;
+  --navbar-bg: #3a1f2b;
+  --navbar-text: #ffe9d6;
+  --accent: #ffb347;
+  --accent-contrast: #2a1620;
+  --temp: #ff6b6b;
+  --humidity: #ffd166;
+  --battery: #06d6a0;
+  --tag-bg: #47262f;
+  --tag-text: #d3a894;
+  --info-bg: #3d2a33;
+  --info-text: #ffd166;
+  --warning-bg: #4a3418;
+  --warning-text: #ffd166;
+  --danger-bg: #4a1f24;
+  --danger-text: #ff6b6b;
+  --success: #06d6a0;
+  --danger: #ff6b6b;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
