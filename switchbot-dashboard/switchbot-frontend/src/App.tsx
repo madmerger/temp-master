@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { backupUrl, fetchMeters, fetchStatus, triggerRefresh } from './api'
 import MeterCard from './components/MeterCard'
 import ThemeSwitcher from './components/ThemeSwitcher'
@@ -26,9 +26,6 @@ export default function App() {
   const [reloadToken, setReloadToken] = useState(0)
   const [refreshing, setRefreshing] = useState(false)
 
-  // Keep the latest timeScale available to the interval without resetting it.
-  const reloadRef = useRef<() => void>(() => {})
-
   const loadData = useCallback(async () => {
     try {
       const [metersResp, statusResp] = await Promise.all([fetchMeters(), fetchStatus()])
@@ -46,11 +43,10 @@ export default function App() {
     }
   }, [])
 
-  reloadRef.current = loadData
-
   useEffect(() => {
+    // loadData is stable (empty deps), so the interval always calls the latest one.
     void loadData()
-    const id = window.setInterval(() => void reloadRef.current(), REFRESH_INTERVAL)
+    const id = window.setInterval(() => void loadData(), REFRESH_INTERVAL)
     return () => window.clearInterval(id)
   }, [loadData])
 
@@ -58,11 +54,12 @@ export default function App() {
     setRefreshing(true)
     try {
       await triggerRefresh()
+      await loadData()
     } catch (err) {
       setError('Failed to refresh: ' + (err instanceof Error ? err.message : String(err)))
+    } finally {
+      setRefreshing(false)
     }
-    await loadData()
-    setRefreshing(false)
   }
 
   const handleBackup = () => {

@@ -8,6 +8,7 @@ import {
   YAxis,
   type TooltipProps,
 } from 'recharts'
+import { useId } from 'react'
 import { useTheme } from '../theme'
 import type { MeterReading, TimeScale } from '../types'
 import { formatTimestamp } from '../utils'
@@ -46,6 +47,8 @@ function TempTooltip({ active, payload }: TooltipProps<number, string>) {
 export default function TemperatureChart({ history, timeScale }: Props) {
   const { theme } = useTheme()
   const { chart } = theme
+  // Unique per chart instance so multiple charts don't share one gradient <def> id.
+  const gradientId = `fill-${useId().replace(/:/g, '')}`
 
   if (!history || history.length === 0) {
     return <div className="chart-empty">No history data</div>
@@ -60,7 +63,7 @@ export default function TemperatureChart({ history, timeScale }: Props) {
     <ResponsiveContainer width="100%" height="100%">
       <AreaChart data={data} margin={{ top: 8, right: 12, left: -12, bottom: 0 }}>
         <defs>
-          <linearGradient id={`fill-${theme.id}`} x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={chart.line} stopOpacity={0.4} />
             <stop offset="100%" stopColor={chart.line} stopOpacity={0} />
           </linearGradient>
@@ -85,7 +88,7 @@ export default function TemperatureChart({ history, timeScale }: Props) {
           dataKey="temperature"
           stroke={chart.line}
           strokeWidth={2}
-          fill={`url(#fill-${theme.id})`}
+          fill={`url(#${gradientId})`}
           dot={{ r: 2, fill: chart.line }}
           activeDot={{ r: 4 }}
           isAnimationActive={false}
