@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
   CartesianGrid,
   Line,
@@ -11,41 +10,7 @@ import {
 } from "recharts";
 import type { HistoryPoint, TimeScale } from "../api";
 import { formatTimestamp } from "../constants";
-import type { Theme } from "../theme";
-
-interface ChartColors {
-  grid: string;
-  axis: string;
-  line: string;
-  fill: string;
-}
-
-function readColor(name: string, fallback: string): string {
-  const value = getComputedStyle(document.documentElement)
-    .getPropertyValue(name)
-    .trim();
-  return value || fallback;
-}
-
-function useChartColors(theme: Theme): ChartColors {
-  const [colors, setColors] = useState<ChartColors>({
-    grid: "rgba(15, 23, 42, 0.08)",
-    axis: "#94a3b8",
-    line: "#dc2626",
-    fill: "rgba(220, 38, 38, 0.15)",
-  });
-
-  useEffect(() => {
-    setColors({
-      grid: readColor("--chart-grid", "rgba(15, 23, 42, 0.08)"),
-      axis: readColor("--chart-axis", "#94a3b8"),
-      line: readColor("--chart-line", "#dc2626"),
-      fill: readColor("--chart-fill", "rgba(220, 38, 38, 0.15)"),
-    });
-  }, [theme]);
-
-  return colors;
-}
+import { CHART_COLORS, type Theme } from "../theme";
 
 function CustomTooltip({ active, payload }: TooltipProps<number, string>) {
   if (!active || !payload || payload.length === 0) {
@@ -69,7 +34,7 @@ interface Props {
 }
 
 export function TemperatureChart({ history, timeScale, theme }: Props) {
-  const colors = useChartColors(theme);
+  const colors = CHART_COLORS[theme];
 
   const data = history.map((point) => ({
     label: formatTimestamp(point.timestamp, timeScale),
