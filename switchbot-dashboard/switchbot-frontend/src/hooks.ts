@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   fetchHistory,
   fetchMeters,
@@ -99,10 +99,9 @@ export function useHistory(
   const [history, setHistory] = useState<HistoryPoint[]>([]);
   const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
-  const cancelledRef = useRef(false);
 
   useEffect(() => {
-    cancelledRef.current = false;
+    let cancelled = false;
     if (!enabled) {
       setHistory([]);
       setLoading(false);
@@ -111,20 +110,20 @@ export function useHistory(
     setLoading(true);
     fetchHistory(deviceId, timeScale)
       .then((resp) => {
-        if (cancelledRef.current) return;
+        if (cancelled) return;
         setHistory(resp.history ?? []);
         setError(null);
       })
       .catch((err) => {
-        if (cancelledRef.current) return;
+        if (cancelled) return;
         setError(err instanceof Error ? err.message : String(err));
       })
       .finally(() => {
-        if (cancelledRef.current) return;
+        if (cancelled) return;
         setLoading(false);
       });
     return () => {
-      cancelledRef.current = true;
+      cancelled = true;
     };
   }, [deviceId, timeScale, enabled, refreshKey]);
 

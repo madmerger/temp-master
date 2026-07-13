@@ -30,9 +30,13 @@ export const CHART_COLORS: Record<Theme, ChartColors> = {
 const STORAGE_KEY = "temp-master-theme";
 
 function getInitialTheme(): Theme {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored === "light" || stored === "dark") {
-    return stored;
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored === "light" || stored === "dark") {
+      return stored;
+    }
+  } catch {
+    // localStorage may be unavailable (e.g. private browsing)
   }
   if (
     window.matchMedia &&
@@ -48,7 +52,11 @@ export function useTheme(): { theme: Theme; toggleTheme: () => void } {
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem(STORAGE_KEY, theme);
+    try {
+      localStorage.setItem(STORAGE_KEY, theme);
+    } catch {
+      // localStorage may be unavailable (e.g. private browsing)
+    }
   }, [theme]);
 
   const toggleTheme = useCallback(() => {
