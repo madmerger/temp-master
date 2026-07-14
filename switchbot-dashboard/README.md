@@ -5,7 +5,8 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 ## Features
 
 - Temperature charts for all SwitchBot Meter devices using Recharts
-- Time scale switching (hour/day/month/year)
+- Time scale switching (hour/day/week/month/year)
+- Light/dark theme switching with the preference saved in local storage
 - Auto-refresh every 30 seconds (frontend) with background data collection every 2 minutes (backend)
 - Rate limiting protection with exponential backoff
 - All API calls are cached - GET endpoints never call SwitchBot API directly
@@ -51,10 +52,11 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
    npm install
    ```
 
-3. Copy `.env.example` to `.env`:
+3. Copy `.env.example` to `.env` if you want to override the default production API:
    ```bash
    cp .env.example .env
    ```
+   `VITE_API_URL` defaults to `https://snakeroom.fly.dev`.
 
 4. Start the development server:
    ```bash
@@ -62,6 +64,12 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
    ```
 
 5. Open http://localhost:5173 in your browser
+
+6. Build and type-check the frontend:
+   ```bash
+   npm run build
+   npm run typecheck
+   ```
 
 ## API Endpoints
 

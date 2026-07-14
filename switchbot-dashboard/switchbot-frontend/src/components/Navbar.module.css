@@ -1,0 +1,77 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 60px;
+  background-color: var(--navbar-bg);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.brand {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--brand);
+  letter-spacing: 0.01em;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.connected {
+  color: var(--success);
+  background-color: var(--badge-battery-bg);
+}
+.connected .dot {
+  background-color: var(--success);
+}
+
+.disconnected {
+  color: var(--danger);
+  background-color: var(--error-bg);
+}
+.disconnected .dot {
+  background-color: var(--danger);
+}
+
+.themeToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background-color: var(--btn-secondary-bg);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+.themeToggle:hover {
+  transform: translateY(-1px);
+}

@@ -1,0 +1,105 @@
+:root {
+  --bg: #f0f2f5;
+  --panel-bg: #ffffff;
+  --panel-header-bg: #f8f9fb;
+  --text: #1f2733;
+  --text-muted: #6b7280;
+  --border: #e2e6ec;
+  --shadow: 0 1px 3px rgba(16, 24, 40, 0.08), 0 1px 2px rgba(16, 24, 40, 0.04);
+
+  --navbar-bg: #ffffff;
+  --brand: #2563eb;
+
+  --badge-temp-bg: #fee2e2;
+  --badge-temp-text: #b91c1c;
+  --badge-humidity-bg: #e0f2fe;
+  --badge-humidity-text: #0369a1;
+  --badge-battery-bg: #dcfce7;
+  --badge-battery-text: #15803d;
+
+  --accent: #2563eb;
+  --accent-text: #ffffff;
+  --btn-secondary-bg: #eef1f6;
+  --btn-secondary-text: #334155;
+
+  --status-info-bg: #e0f2fe;
+  --status-info-text: #075985;
+  --warn-bg: #fef3c7;
+  --warn-text: #92400e;
+  --warn-border: #f59e0b;
+  --error-bg: #fee2e2;
+  --error-text: #991b1b;
+
+  --success: #16a34a;
+  --danger: #dc2626;
+
+  --chart-line: #dc2626;
+  --chart-fill: rgba(220, 38, 38, 0.12);
+  --chart-grid: rgba(15, 23, 42, 0.08);
+  --chart-axis: #6b7280;
+  --chart-tooltip-bg: #ffffff;
+}
+
+[data-theme='dark'] {
+  --bg: #0f172a;
+  --panel-bg: #1e293b;
+  --panel-header-bg: #24334b;
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+  --border: #334155;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.3);
+
+  --navbar-bg: #111c33;
+  --brand: #60a5fa;
+
+  --badge-temp-bg: #7f1d1d;
+  --badge-temp-text: #fecaca;
+  --badge-humidity-bg: #0c4a6e;
+  --badge-humidity-text: #bae6fd;
+  --badge-battery-bg: #14532d;
+  --badge-battery-text: #bbf7d0;
+
+  --accent: #3b82f6;
+  --accent-text: #ffffff;
+  --btn-secondary-bg: #334155;
+  --btn-secondary-text: #e2e8f0;
+
+  --status-info-bg: #0c4a6e;
+  --status-info-text: #bae6fd;
+  --warn-bg: #422006;
+  --warn-text: #fde68a;
+  --warn-border: #b45309;
+  --error-bg: #450a0a;
+  --error-text: #fecaca;
+
+  --success: #22c55e;
+  --danger: #f87171;
+
+  --chart-line: #f87171;
+  --chart-fill: rgba(248, 113, 113, 0.16);
+  --chart-grid: rgba(226, 232, 240, 0.1);
+  --chart-axis: #94a3b8;
+  --chart-tooltip-bg: #1e293b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue',
+    'Hiragino Sans', 'Noto Sans JP', Arial, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+#root {
+  min-height: 100vh;
+}

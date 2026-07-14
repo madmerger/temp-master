@@ -1,0 +1,31 @@
+.section {
+  margin-top: 28px;
+}
+
+.header {
+  margin-bottom: 12px;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--warn-text);
+}
+
+.subtitle {
+  margin: 4px 0 0;
+  color: var(--warn-text);
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.wrapper {
+  padding: 16px;
+  border-radius: 12px;
+  background-color: var(--warn-bg);
+  border: 1px solid var(--warn-border);
+}

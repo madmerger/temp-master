@@ -1,0 +1,94 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 16px;
+  background-color: var(--panel-header-bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.typeTag {
+  font-size: 11px;
+  color: var(--text-muted);
+  background-color: var(--btn-secondary-bg);
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 14px 16px;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.badge {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+.temp {
+  background-color: var(--badge-temp-bg);
+  color: var(--badge-temp-text);
+}
+.humidity {
+  background-color: var(--badge-humidity-bg);
+  color: var(--badge-humidity-text);
+}
+.battery {
+  background-color: var(--badge-battery-bg);
+  color: var(--badge-battery-text);
+}
+
+.staleBadge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background-color: var(--warn-bg);
+  color: var(--warn-text);
+  border: 1px solid var(--warn-border);
+}
+
+.lastUpdated {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin: 8px 0 0;
+}
+
+.staleEmpty {
+  color: var(--warn-text);
+  font-size: 13px;
+  margin: 0;
+}
