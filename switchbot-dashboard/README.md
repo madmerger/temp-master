@@ -4,8 +4,11 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 
 ## Features
 
+- Modern SPA frontend built with Vite + React + TypeScript
 - Temperature charts for all SwitchBot Meter devices using Recharts
-- Time scale switching (hour/day/month/year)
+- Light / dark theme toggle (respects `prefers-color-scheme`, persisted to `localStorage`); chart colors follow the active theme
+- Time scale switching (hour/day/week/month/year)
+- Stale meters (no update for 7+ days) are shown in a separate "未更新のメーター" section without charts
 - Auto-refresh every 30 seconds (frontend) with background data collection every 2 minutes (backend)
 - Rate limiting protection with exponential backoff
 - All API calls are cached - GET endpoints never call SwitchBot API directly
@@ -51,10 +54,13 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
    npm install
    ```
 
-3. Copy `.env.example` to `.env`:
+3. (Optional) Copy `.env.example` to `.env` to override the API base URL:
    ```bash
    cp .env.example .env
    ```
+   By default the frontend talks to the same origin. In dev, requests to `/api`
+   are proxied to `http://localhost:8000` (see `vite.config.ts`). Set
+   `VITE_API_URL` (e.g. `https://snakeroom.fly.dev`) to point elsewhere.
 
 4. Start the development server:
    ```bash
@@ -63,12 +69,23 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 
 5. Open http://localhost:5173 in your browser
 
+### Production build
+
+```bash
+cd switchbot-frontend
+npm run build   # outputs static assets to dist/
+```
+
+The Docker image builds the frontend in a Node stage and copies `dist/` into the
+backend's `static/` directory, so FastAPI serves the compiled SPA at `/`.
+
 ## API Endpoints
 
 - `GET /api/meters` - Returns list of all meter devices with current temperature (from cache)
 - `GET /api/meters/{device_id}/history` - Returns temperature history with time_scale parameter
 - `POST /api/meters/refresh` - Triggers immediate data collection
 - `GET /api/status` - Returns backend status and configuration
+- `GET /api/backup` - Downloads the SQLite database file
 
 ## Notes
 
