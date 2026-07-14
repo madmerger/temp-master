@@ -1,88 +1,72 @@
 ---
 name: testing-temp-master
-description: Test the Temp Master SwitchBot dashboard locally. Use when verifying UI changes, API connectivity, or branding updates.
+description: Test the Temp Master React/Vite SwitchBot dashboard locally. Use when verifying dashboard UI, API connectivity, charts, themes, refresh behavior, backups, or container delivery.
 ---
 
 # Testing Temp Master Dashboard
 
-## Prerequisites
-
-- Python 3.12+
-- Poetry (dependency management)
-- SwitchBot API credentials
-
 ## Devin Secrets Needed
 
-- `SWITCHBOT_TOKEN` - SwitchBot API token
-- `SWITCHBOT_SECRET` - SwitchBot API secret
+- None when testing the frontend against the public API configured by `VITE_API_URL`.
+- `SWITCHBOT_TOKEN` and `SWITCHBOT_SECRET` only when running a locally configured backend that must collect fresh SwitchBot data.
 
-## Local Development Setup
-
-### 1. Install dependencies
+## Frontend Setup
 
 ```bash
-cd switchbot-dashboard/switchbot-backend
-poetry install --no-interaction
+cd switchbot-dashboard/switchbot-frontend
+npm ci
+npm run dev
 ```
 
-### 2. Create .env file
+Vite serves the app at `http://localhost:5173`. The default API is `https://snakeroom.fly.dev`; override it when needed:
 
 ```bash
-cd switchbot-dashboard/switchbot-backend
-echo "SWITCHBOT_TOKEN=${SWITCHBOT_TOKEN}" > .env
-echo "SWITCHBOT_SECRET=${SWITCHBOT_SECRET}" >> .env
+VITE_API_URL=http://localhost:8000 npm run dev
 ```
 
-### 3. Symlink frontend static files
-
-The Dockerfile copies `switchbot-frontend/` to `switchbot-backend/static/`, but locally this directory doesn't exist. You must create a symlink:
+Before UI testing, verify the configured API:
 
 ```bash
-ln -s $(pwd)/switchbot-dashboard/switchbot-frontend switchbot-dashboard/switchbot-backend/static
+curl -fsS "$VITE_API_URL/api/status"
+curl -fsS "$VITE_API_URL/api/meters"
 ```
 
-**Important:** The static directory check in `main.py` happens at module import time (`STATIC_DIR = Path(__file__).resolve().parent.parent / "static"`). If you create the symlink after starting the server, you must restart the server.
+If `VITE_API_URL` is unset, use the default URL explicitly in these checks.
 
-### 4. Start the server
+## Browser Test Flow
+
+1. Confirm `Temp Master Dashboard`, `Connected`, meter count, and absence of error banners.
+2. Confirm cards show temperature, humidity, optional battery, Japanese aliases, and SVG charts rendered by Recharts.
+3. Scroll to `未更新のメーター`; stale cards should show the stale warning and `履歴データの取得対象外`, without a chart.
+4. Switch among hour/day/week/month/year. Wait for history requests to settle before judging empty charts; hover a chart and confirm the tooltip value ends in `°C`.
+5. Toggle dark mode and verify the page, panels, text, chart lines, axes, and grid all change. Reload and confirm persistence.
+6. Click `Refresh Data`; confirm the disabled `Refreshing...` state, recovery to the normal label, and an advanced `Last refresh`.
+7. Wait more than 30 seconds and confirm `Last refresh` advances automatically while remaining connected.
+8. Click `Download Backup`; confirm an actual `switchbot_backup_*.db` download. A JSON authentication response is a failure and may indicate that the configured API deployment differs from the repository backend.
+9. Check the API's `is_rate_limited` and `backoff_remaining`. Do not exhaust a production quota to manufacture the positive warning state.
+
+## Container Verification
 
 ```bash
-cd switchbot-dashboard/switchbot-backend
-poetry run fastapi run app/main.py --host 0.0.0.0 --port 8000
+cd switchbot-dashboard
+docker build -t temp-master-test .
+docker run --rm -p 8000:8000 temp-master-test
 ```
 
-The frontend is served at `http://localhost:8000/` and the API docs at `http://localhost:8000/docs`.
+Verify `/`, `/healthz`, and an unknown frontend route. The unknown route should return the React `index.html` through the FastAPI SPA fallback.
 
-## Key Test Points
-
-### Branding Verification
-- Page title (`<title>` tag): should say "Temp Master Dashboard"
-- Navbar brand: should say "Temp Master Dashboard"
-- Footer: should say "Temp Master Dashboard v1.0 - Built with jQuery + Bootstrap 3"
-- Verify no "Snake" or "SnakeRoom" text exists anywhere: `document.body.innerHTML.includes('Snake')` should be `false`
-
-### API Connectivity
-- `GET /api/status` returns `configured: true` and `meters_count` > 0
-- `GET /api/meters` returns live meter data with temperature, humidity, battery
-- Connection status badge shows "Connected" (green, class `label-success`)
-
-### UI Functionality
-- View toggle: Default (equal 3-col grid) vs Shelf (featured meter + 3-col grid)
-- Time Range selector: Last Hour / Last 24 Hours / Last 7 Days / Last 30 Days / Last Year
-- Charts: Canvas elements rendered with Chart.js line charts
-- Refresh Data button triggers data reload
-
-## Running Backend Tests
+To embed a different API URL in the production bundle:
 
 ```bash
-cd switchbot-dashboard/switchbot-backend
-poetry run pytest -v
+docker build --build-arg VITE_API_URL=https://example.com -t temp-master-test .
 ```
 
-Expected: 97 tests pass.
+Frontend `.env*` files are intentionally excluded from the Docker context, so container builds use the Docker build argument rather than local frontend env files.
 
-## Architecture Notes
+## Runtime Architecture
 
-- Backend: FastAPI + aiosqlite (SQLite persistence at `/data/app.db` or local `app.db`)
-- Frontend: jQuery + Bootstrap 3 (single `index.html` file)
-- Deployment: Fly.io (see `fly.toml`)
-- Background data collection runs with 120s interval, with rate limiting and exponential backoff
+- Frontend: React 18 + TypeScript + Vite + Recharts
+- Backend: FastAPI + aiosqlite
+- Frontend development port: 5173
+- Container port: 8000
+- Production frontend assets: built in a Node stage and copied to `/app/static`
