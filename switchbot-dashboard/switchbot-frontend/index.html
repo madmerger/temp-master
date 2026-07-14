@@ -4,6 +4,25 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Temp Master Dashboard</title>
+    <script>
+      // Set the theme synchronously before first paint to avoid a flash of the
+      // light theme for dark-mode users. Kept in sync with ThemeContext.tsx.
+      (function () {
+        try {
+          var stored = localStorage.getItem('temp-master-theme')
+          var theme =
+            stored === 'light' || stored === 'dark'
+              ? stored
+              : window.matchMedia &&
+                  window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light'
+          document.documentElement.setAttribute('data-theme', theme)
+        } catch (e) {
+          /* no-op */
+        }
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>
