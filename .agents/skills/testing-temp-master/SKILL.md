@@ -64,7 +64,7 @@ The frontend is served at `http://localhost:8000/` and the API docs at `http://l
 ### Branding Verification
 - Page title (`<title>` tag): should say "Temp Master Dashboard"
 - Navbar brand: should say "Temp Master Dashboard"
-- Footer: should say "Built with React + TypeScript + Vite"
+- Footer: should say "Temp Master Dashboard v2.0 · Built with React + TypeScript + Vite"
 - Verify no "Snake" or "SnakeRoom" text exists anywhere: `document.body.innerHTML.includes('Snake')` should be `false`
 
 ### API Connectivity
