@@ -2,14 +2,24 @@ import type { Meter, TimeScale } from "../types";
 import { getDisplayName } from "../utils";
 import { TemperatureChart } from "./TemperatureChart";
 
-interface MeterCardProps {
+interface ActiveMeterCardProps {
   meter: Meter;
   timeScale: TimeScale;
   refreshKey: number;
-  stale?: boolean;
+  stale?: false;
 }
 
-export function MeterCard({ meter, timeScale, refreshKey, stale = false }: MeterCardProps) {
+interface StaleMeterCardProps {
+  meter: Meter;
+  stale: true;
+}
+
+type MeterCardProps = ActiveMeterCardProps | StaleMeterCardProps;
+
+export function MeterCard(props: MeterCardProps) {
+  const { meter } = props;
+  const stale = props.stale === true;
+
   return (
     <article className={`meter-card card ${stale ? "stale" : ""}`}>
       <header className="meter-header">
@@ -52,8 +62,8 @@ export function MeterCard({ meter, timeScale, refreshKey, stale = false }: Meter
       ) : (
         <TemperatureChart
           deviceId={meter.device_id}
-          timeScale={timeScale}
-          refreshKey={refreshKey}
+          timeScale={props.timeScale}
+          refreshKey={props.refreshKey}
         />
       )}
 

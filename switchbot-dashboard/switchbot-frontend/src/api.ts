@@ -1,4 +1,10 @@
-import type { HistoryResponse, MetersResponse, StatusResponse, TimeScale } from "./types";
+import type {
+  HistoryResponse,
+  MetersResponse,
+  RefreshResponse,
+  StatusResponse,
+  TimeScale,
+} from "./types";
 
 const API_URL = (import.meta.env.VITE_API_URL ?? "").replace(/\/+$/, "");
 
@@ -36,8 +42,8 @@ export function fetchHistory(deviceId: string, timeScale: TimeScale): Promise<Hi
   );
 }
 
-export function triggerRefresh(): Promise<void> {
-  return fetchJson<void>("/api/meters/refresh", { method: "POST" });
+export function triggerRefresh(): Promise<RefreshResponse> {
+  return fetchJson<RefreshResponse>("/api/meters/refresh", { method: "POST" });
 }
 
 export function getBackupUrl(): string {

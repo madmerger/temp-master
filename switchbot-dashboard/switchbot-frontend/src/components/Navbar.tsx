@@ -1,7 +1,7 @@
 import { useTheme, type Theme } from "../theme/ThemeContext";
 
 interface NavbarProps {
-  connected: boolean;
+  connectionState: "loading" | "connected" | "disconnected";
 }
 
 const THEME_OPTIONS: Array<{ value: Theme; label: string }> = [
@@ -10,8 +10,13 @@ const THEME_OPTIONS: Array<{ value: Theme; label: string }> = [
   { value: "aurora", label: "Aurora" },
 ];
 
-export function Navbar({ connected }: NavbarProps) {
+export function Navbar({ connectionState }: NavbarProps) {
   const { theme, setTheme } = useTheme();
+  const statusLabel = {
+    loading: "Connecting",
+    connected: "Connected",
+    disconnected: "Disconnected",
+  }[connectionState];
 
   return (
     <header className="navbar">
@@ -40,9 +45,9 @@ export function Navbar({ connected }: NavbarProps) {
             ))}
           </select>
         </label>
-        <div className={`connection-status ${connected ? "connected" : "disconnected"}`}>
+        <div className={`connection-status ${connectionState}`}>
           <span className="status-dot" aria-hidden="true" />
-          {connected ? "Connected" : "Disconnected"}
+          {statusLabel}
         </div>
       </div>
     </header>

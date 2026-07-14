@@ -1,17 +1,11 @@
-import type { Meter, TimeScale } from "../types";
+import type { Meter } from "../types";
 import { MeterCard } from "./MeterCard";
 
 interface StaleMetersSectionProps {
   meters: Meter[];
-  timeScale: TimeScale;
-  refreshKey: number;
 }
 
-export function StaleMetersSection({
-  meters,
-  timeScale,
-  refreshKey,
-}: StaleMetersSectionProps) {
+export function StaleMetersSection({ meters }: StaleMetersSectionProps) {
   if (meters.length === 0) {
     return null;
   }
@@ -29,13 +23,7 @@ export function StaleMetersSection({
       </div>
       <div className="meter-grid stale-grid">
         {meters.map((meter) => (
-          <MeterCard
-            key={meter.device_id}
-            meter={meter}
-            timeScale={timeScale}
-            refreshKey={refreshKey}
-            stale
-          />
+          <MeterCard key={meter.device_id} meter={meter} stale />
         ))}
       </div>
     </section>

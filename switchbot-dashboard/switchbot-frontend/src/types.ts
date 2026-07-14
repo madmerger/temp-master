@@ -38,3 +38,9 @@ export interface StatusResponse {
   last_api_call: number;
   collection_interval: number;
 }
+
+export interface RefreshResponse {
+  status: "ok";
+  message: string;
+  meters_count: number;
+}

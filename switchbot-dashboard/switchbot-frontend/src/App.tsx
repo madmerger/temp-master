@@ -65,7 +65,9 @@ export default function App() {
 
   return (
     <>
-      <Navbar connected={!error && status !== null} />
+      <Navbar
+        connectionState={loading ? "loading" : error || !status ? "disconnected" : "connected"}
+      />
       <main className="page-shell">
         <Controls
           timeScale={timeScale}
@@ -109,11 +111,7 @@ export default function App() {
               timeScale={timeScale}
               refreshKey={refreshKey}
             />
-            <StaleMetersSection
-              meters={staleMeters}
-              timeScale={timeScale}
-              refreshKey={refreshKey}
-            />
+            <StaleMetersSection meters={staleMeters} />
           </>
         )}
       </main>
