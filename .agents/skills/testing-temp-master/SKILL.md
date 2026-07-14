@@ -32,9 +32,30 @@ curl -fsS "$API_URL/api/status"
 curl -fsS "$API_URL/api/meters"
 ```
 
+## Optional Local Backend Integration
+
+Frontend-only tests should use the default public API. To test against a local backend with fresh SwitchBot data, start FastAPI in one terminal:
+
+```bash
+cd switchbot-dashboard/switchbot-backend
+poetry install --no-interaction
+printf 'SWITCHBOT_TOKEN=%s\nSWITCHBOT_SECRET=%s\n' \
+  "$SWITCHBOT_TOKEN" "$SWITCHBOT_SECRET" > .env
+poetry run fastapi run app/main.py --host 0.0.0.0 --port 8000
+```
+
+Then start Vite in another terminal:
+
+```bash
+cd switchbot-dashboard/switchbot-frontend
+VITE_API_URL=http://localhost:8000 npm run dev
+```
+
+Do not create a `switchbot-backend/static` symlink for local development; Vite serves the React source directly.
+
 ## Browser Test Flow
 
-1. Confirm `Temp Master Dashboard`, `Connected`, meter count, and absence of error banners.
+1. Confirm the title and navbar say `Temp Master Dashboard`, no visible `Snake` or `SnakeRoom` branding appears, the connection says `Connected`, the meter count is present, and no error banner is shown. The configured API hostname may still contain `snakeroom.fly.dev`.
 2. Confirm cards show temperature, humidity, optional battery, Japanese aliases, and SVG charts rendered by Recharts.
 3. Scroll to `未更新のメーター`; stale cards should show the stale warning and `履歴データの取得対象外`, without a chart.
 4. Switch among hour/day/week/month/year. Wait for history requests to settle before judging empty charts; hover a chart and confirm the tooltip value ends in `°C`.
