@@ -27,11 +27,10 @@ VITE_API_URL=http://localhost:8000 npm run dev
 Before UI testing, verify the configured API:
 
 ```bash
-curl -fsS "$VITE_API_URL/api/status"
-curl -fsS "$VITE_API_URL/api/meters"
+API_URL="${VITE_API_URL:-https://snakeroom.fly.dev}"
+curl -fsS "$API_URL/api/status"
+curl -fsS "$API_URL/api/meters"
 ```
-
-If `VITE_API_URL` is unset, use the default URL explicitly in these checks.
 
 ## Browser Test Flow
 
@@ -62,6 +61,13 @@ docker build --build-arg VITE_API_URL=https://example.com -t temp-master-test .
 ```
 
 Frontend `.env*` files are intentionally excluded from the Docker context, so container builds use the Docker build argument rather than local frontend env files.
+
+## Backend Tests
+
+```bash
+cd switchbot-dashboard/switchbot-backend
+poetry run pytest -v
+```
 
 ## Runtime Architecture
 
