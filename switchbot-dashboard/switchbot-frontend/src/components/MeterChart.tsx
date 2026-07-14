@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import {
   Area,
   AreaChart,
@@ -52,10 +52,14 @@ function TooltipContent({ active, payload }: {
 export default function MeterChart({ deviceId, timeScale, refreshTick }: MeterChartProps) {
   const [data, setData] = useState<ChartPoint[]>([])
   const gradientId = useId().replace(/:/g, '')
+  const previousTimeScale = useRef(timeScale)
 
   useEffect(() => {
     let cancelled = false
-    setData([])
+    if (previousTimeScale.current !== timeScale) {
+      setData([])
+      previousTimeScale.current = timeScale
+    }
     fetchHistory(deviceId, timeScale)
       .then((resp) => {
         if (cancelled) return
