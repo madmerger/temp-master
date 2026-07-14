@@ -23,10 +23,12 @@ export function TemperatureChart({ deviceId, timeScale, refreshKey }: Temperatur
   const { theme } = useTheme();
   const [history, setHistory] = useState<MeterReading[]>([]);
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let active = true;
     setError(false);
+    setLoading(true);
 
     void fetchHistory(deviceId, timeScale)
       .then((response) => {
@@ -37,6 +39,11 @@ export function TemperatureChart({ deviceId, timeScale, refreshKey }: Temperatur
       .catch(() => {
         if (active) {
           setError(true);
+        }
+      })
+      .finally(() => {
+        if (active) {
+          setLoading(false);
         }
       });
 
@@ -66,6 +73,10 @@ export function TemperatureChart({ deviceId, timeScale, refreshKey }: Temperatur
       })),
     [history, timeScale],
   );
+
+  if (loading) {
+    return <p className="chart-message">Loading history...</p>;
+  }
 
   if (error) {
     return <p className="chart-message error-text">Failed to load history.</p>;
