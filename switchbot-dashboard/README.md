@@ -9,7 +9,7 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 - Light / dark theme toggle (respects `prefers-color-scheme`, persisted to `localStorage`); chart colors follow the active theme
 - Time scale switching (hour/day/week/month/year)
 - Stale meters (no update for 7+ days) are shown in a separate "未更新のメーター" section without charts
-- Auto-refresh every 30 seconds (frontend) with background data collection every 2 minutes (backend)
+- Auto-refresh every 30 seconds (frontend) with background data collection every hour (backend, `DATA_COLLECTION_INTERVAL = 3600`)
 - Rate limiting protection with exponential backoff
 - All API calls are cached - GET endpoints never call SwitchBot API directly
 
