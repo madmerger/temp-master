@@ -56,12 +56,16 @@ export default function App() {
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true)
+    let refreshError: string | null = null
     try {
       await triggerRefresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err))
+      refreshError = err instanceof Error ? err.message : String(err)
     } finally {
       await loadData()
+      if (refreshError) {
+        setError(refreshError)
+      }
       setRefreshing(false)
     }
   }, [loadData])

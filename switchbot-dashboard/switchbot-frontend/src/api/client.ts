@@ -6,7 +6,7 @@ import type {
 } from '../types'
 
 export const API_URL =
-  import.meta.env.VITE_API_URL ?? 'https://snakeroom.fly.dev'
+  import.meta.env.VITE_API_URL || 'https://snakeroom.fly.dev'
 
 async function getJson<T>(path: string): Promise<T> {
   const res = await fetch(`${API_URL}${path}`)

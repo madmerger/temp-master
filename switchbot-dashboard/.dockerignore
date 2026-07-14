@@ -1,6 +1,7 @@
 .git
 switchbot-frontend/node_modules
 switchbot-frontend/dist
+switchbot-frontend/.env*
 switchbot-backend/.venv
 switchbot-backend/**/__pycache__
 switchbot-backend/.env

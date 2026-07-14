@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import {
   Area,
   AreaChart,
@@ -51,6 +51,7 @@ function TooltipContent({ active, payload }: {
 
 export default function MeterChart({ deviceId, timeScale, refreshTick }: MeterChartProps) {
   const [data, setData] = useState<ChartPoint[]>([])
+  const gradientId = useId().replace(/:/g, '')
 
   useEffect(() => {
     let cancelled = false
@@ -76,7 +77,7 @@ export default function MeterChart({ deviceId, timeScale, refreshTick }: MeterCh
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -18 }}>
           <defs>
-            <linearGradient id={`grad-${deviceId}`} x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="var(--chart-line)" stopOpacity={0.25} />
               <stop offset="100%" stopColor="var(--chart-line)" stopOpacity={0} />
             </linearGradient>
@@ -101,7 +102,7 @@ export default function MeterChart({ deviceId, timeScale, refreshTick }: MeterCh
             dataKey="temperature"
             stroke="var(--chart-line)"
             strokeWidth={2}
-            fill={`url(#grad-${deviceId})`}
+            fill={`url(#${gradientId})`}
             dot={false}
             isAnimationActive={false}
           />
