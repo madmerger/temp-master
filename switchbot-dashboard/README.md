@@ -89,7 +89,7 @@ backend's `static/` directory, so FastAPI serves the compiled SPA at `/`.
 
 ## Notes
 
-- Temperature history is stored in memory and resets on backend restart
-- Backend data collection interval: 2 minutes minimum
+- Temperature history is persisted to SQLite (survives backend restarts)
+- Backend data collection interval: 1 hour (`DATA_COLLECTION_INTERVAL = 3600`)
 - Frontend refresh interval: 30 seconds
 - SwitchBot API has strict rate limits (~10000 requests/day)
