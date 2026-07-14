@@ -71,6 +71,11 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
    npm run typecheck
    ```
 
+To override the API URL in a Docker build:
+```bash
+docker build --build-arg VITE_API_URL=https://example.com -t temp-master .
+```
+
 ## API Endpoints
 
 - `GET /api/meters` - Returns list of all meter devices with current temperature (from cache)

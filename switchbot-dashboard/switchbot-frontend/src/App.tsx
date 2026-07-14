@@ -24,8 +24,9 @@ export default function App() {
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
   const [refreshing, setRefreshing] = useState(false)
   const [refreshTick, setRefreshTick] = useState(0)
+  const refreshingRef = useRef(false)
 
-  const loadData = useCallback(async () => {
+  const loadData = useCallback(async (clearError = true) => {
     try {
       const [metersResp, statusResp] = await Promise.all([
         fetchMeters(),
@@ -34,7 +35,9 @@ export default function App() {
       setMeters(metersResp.meters ?? [])
       setStatus(statusResp)
       setConnected(true)
-      setError(null)
+      if (clearError) {
+        setError(null)
+      }
       setLastRefresh(new Date())
       setRefreshTick((tick) => tick + 1)
     } catch (err) {
@@ -50,11 +53,16 @@ export default function App() {
 
   useEffect(() => {
     loadDataRef.current()
-    const id = window.setInterval(() => loadDataRef.current(), REFRESH_INTERVAL)
+    const id = window.setInterval(() => {
+      if (!refreshingRef.current) {
+        loadDataRef.current()
+      }
+    }, REFRESH_INTERVAL)
     return () => window.clearInterval(id)
   }, [])
 
   const handleRefresh = useCallback(async () => {
+    refreshingRef.current = true
     setRefreshing(true)
     let refreshError: string | null = null
     try {
@@ -62,10 +70,11 @@ export default function App() {
     } catch (err) {
       refreshError = err instanceof Error ? err.message : String(err)
     } finally {
-      await loadData()
+      await loadData(refreshError === null)
       if (refreshError) {
         setError(refreshError)
       }
+      refreshingRef.current = false
       setRefreshing(false)
     }
   }, [loadData])

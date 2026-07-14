@@ -55,6 +55,7 @@ export default function MeterChart({ deviceId, timeScale, refreshTick }: MeterCh
 
   useEffect(() => {
     let cancelled = false
+    setData([])
     fetchHistory(deviceId, timeScale)
       .then((resp) => {
         if (cancelled) return
