@@ -1,0 +1,70 @@
+import {
+  DISPLAY_NAMES,
+  STALE_METER_THRESHOLD_MS,
+} from "../constants";
+import type { MeterDevice, TimeScale } from "../types/api";
+
+export function getDisplayName(deviceName: string): string {
+  return DISPLAY_NAMES[deviceName] ?? deviceName;
+}
+
+export function isStaleMeter(meter: MeterDevice): boolean {
+  if (!meter.last_updated) {
+    return true;
+  }
+
+  const lastUpdated = new Date(meter.last_updated).getTime();
+  return (
+    Number.isNaN(lastUpdated) ||
+    Date.now() - lastUpdated >= STALE_METER_THRESHOLD_MS
+  );
+}
+
+export function formatTimestamp(
+  timestamp: string,
+  timeScale: TimeScale,
+): string {
+  const date = new Date(timestamp);
+
+  if (Number.isNaN(date.getTime())) {
+    return "—";
+  }
+
+  if (timeScale === "hour" || timeScale === "day") {
+    return new Intl.DateTimeFormat("ja-JP", {
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(date);
+  }
+
+  if (timeScale === "week") {
+    return new Intl.DateTimeFormat("ja-JP", {
+      weekday: "short",
+      hour: "2-digit",
+    }).format(date);
+  }
+
+  return new Intl.DateTimeFormat("ja-JP", {
+    month: "short",
+    day: "numeric",
+  }).format(date);
+}
+
+export function formatDateTime(timestamp: string | null): string {
+  if (!timestamp) {
+    return "データ未受信";
+  }
+
+  const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) {
+    return "日時不明";
+  }
+
+  return new Intl.DateTimeFormat("ja-JP", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}
