@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   CartesianGrid,
   Line,
@@ -38,9 +38,10 @@ function ChartTooltip({ active, payload }: TooltipContentProps) {
 interface Props {
   deviceId: string
   timeScale: TimeScale
+  refreshKey?: number
 }
 
-export function TemperatureChart({ deviceId, timeScale }: Props) {
+export function TemperatureChart({ deviceId, timeScale, refreshKey = 0 }: Props) {
   const { theme } = useTheme()
   const [data, setData] = useState<ChartPoint[]>([])
   const colors = THEME_COLORS[theme]
@@ -65,7 +66,13 @@ export function TemperatureChart({ deviceId, timeScale }: Props) {
     return () => {
       cancelled = true
     }
-  }, [deviceId, timeScale])
+    // refreshKey re-fetches history on each auto/manual data refresh.
+  }, [deviceId, timeScale, refreshKey])
+
+  const renderTooltip = useCallback(
+    (props: TooltipContentProps) => <ChartTooltip {...props} />,
+    [],
+  )
 
   return (
     <div className="meter-chart-wrap">
@@ -83,7 +90,7 @@ export function TemperatureChart({ deviceId, timeScale }: Props) {
             tickFormatter={(v: number) => `${v}\u00b0`}
             width={40}
           />
-          <Tooltip content={(props) => <ChartTooltip {...props} />} />
+          <Tooltip content={renderTooltip} />
           <Line
             type="monotone"
             dataKey="temperature"

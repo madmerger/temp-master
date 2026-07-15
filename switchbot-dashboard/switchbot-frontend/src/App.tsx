@@ -17,6 +17,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null)
   const [refreshing, setRefreshing] = useState(false)
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
+  const [refreshKey, setRefreshKey] = useState(0)
 
   const loadData = useCallback(async () => {
     try {
@@ -29,6 +30,7 @@ export default function App() {
       setConnected(true)
       setError(null)
       setLastRefresh(new Date())
+      setRefreshKey((k) => k + 1)
     } catch (err) {
       setConnected(false)
       setError(err instanceof Error ? err.message : 'Failed to fetch data')
@@ -100,7 +102,11 @@ export default function App() {
           </div>
         ) : (
           <>
-            <MeterGrid meters={activeMeters} timeScale={timeScale} />
+            <MeterGrid
+              meters={activeMeters}
+              timeScale={timeScale}
+              refreshKey={refreshKey}
+            />
             <StaleMetersSection meters={staleMeters} timeScale={timeScale} />
           </>
         )}

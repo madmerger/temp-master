@@ -6,9 +6,10 @@ interface Props {
   meter: Meter
   timeScale: TimeScale
   isStale: boolean
+  refreshKey?: number
 }
 
-export function MeterCard({ meter, timeScale, isStale }: Props) {
+export function MeterCard({ meter, timeScale, isStale, refreshKey = 0 }: Props) {
   const name = getDisplayName(meter.device_name)
   const hasTemp =
     meter.current_temperature !== null && meter.current_temperature !== undefined
@@ -49,7 +50,11 @@ export function MeterCard({ meter, timeScale, isStale }: Props) {
         {isStale ? (
           <p className="stale-meter-empty">履歴データの取得対象外</p>
         ) : (
-          <TemperatureChart deviceId={meter.device_id} timeScale={timeScale} />
+          <TemperatureChart
+            deviceId={meter.device_id}
+            timeScale={timeScale}
+            refreshKey={refreshKey}
+          />
         )}
 
         {meter.last_updated ? (
