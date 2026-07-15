@@ -4,6 +4,26 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Temp Master Dashboard</title>
+    <script>
+      // Apply the persisted (or OS-preferred) theme before first paint to
+      // avoid a flash of the wrong theme (FOUC). Keep the storage key in sync
+      // with src/theme.tsx.
+      (function () {
+        try {
+          var stored = localStorage.getItem('temp-master-theme')
+          var theme =
+            stored === 'light' || stored === 'dark'
+              ? stored
+              : window.matchMedia &&
+                  window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light'
+          document.documentElement.setAttribute('data-theme', theme)
+        } catch (e) {
+          /* ignore storage/matchMedia errors */
+        }
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

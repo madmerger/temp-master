@@ -47,10 +47,10 @@ export default function App() {
     setRefreshing(true)
     try {
       await triggerRefresh()
+      await loadData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to refresh')
     } finally {
-      await loadData()
       setRefreshing(false)
     }
   }, [loadData])

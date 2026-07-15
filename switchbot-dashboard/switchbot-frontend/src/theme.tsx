@@ -12,6 +12,12 @@ export type Theme = 'light' | 'dark'
 const STORAGE_KEY = 'temp-master-theme'
 
 function getInitialTheme(): Theme {
+  // The inline script in index.html already resolved and applied the theme
+  // before first paint; reuse it to stay consistent and avoid a flash.
+  const applied = document.documentElement.getAttribute('data-theme')
+  if (applied === 'light' || applied === 'dark') {
+    return applied
+  }
   const stored = localStorage.getItem(STORAGE_KEY)
   if (stored === 'light' || stored === 'dark') {
     return stored
