@@ -8,6 +8,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useId } from "react";
 import type { MeterReading, TimeScale } from "../types/api";
 import { formatTimestamp } from "../utils/meter";
 
@@ -21,6 +22,7 @@ export function TemperatureChart({
   timeScale,
 }: TemperatureChartProps) {
   const theme = useTheme();
+  const fillId = `temperature-fill-${useId().replaceAll(":", "")}`;
   const isDark = theme.palette.mode === "dark";
   const lineColor = isDark ? "#38bdf8" : "#0284c7";
   const gridColor = isDark
@@ -58,7 +60,7 @@ export function TemperatureChart({
           margin={{ top: 10, right: 4, left: -18, bottom: 0 }}
         >
           <defs>
-            <linearGradient id="temperature-fill" x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id={fillId} x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor={lineColor} stopOpacity={0.35} />
               <stop offset="95%" stopColor={lineColor} stopOpacity={0.02} />
             </linearGradient>
@@ -102,7 +104,7 @@ export function TemperatureChart({
             dataKey="temperature"
             stroke={lineColor}
             strokeWidth={2.5}
-            fill="url(#temperature-fill)"
+            fill={`url(#${fillId})`}
             dot={false}
             activeDot={{ r: 5, fill: lineColor, strokeWidth: 0 }}
           />

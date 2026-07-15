@@ -84,6 +84,7 @@ function App() {
   const [historyWarning, setHistoryWarning] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const requestId = useRef(0);
+  const manualRefreshInProgress = useRef(false);
 
   const loadDashboard = useCallback(
     async (showLoading = false) => {
@@ -150,7 +151,9 @@ function App() {
   useEffect(() => {
     void loadDashboard(true);
     const intervalId = window.setInterval(() => {
-      void loadDashboard();
+      if (!manualRefreshInProgress.current) {
+        void loadDashboard();
+      }
     }, REFRESH_INTERVAL);
 
     return () => window.clearInterval(intervalId);
@@ -161,6 +164,7 @@ function App() {
   };
 
   const handleRefresh = async () => {
+    manualRefreshInProgress.current = true;
     setRefreshing(true);
     setError(null);
 
@@ -170,6 +174,7 @@ function App() {
     } catch (refreshError) {
       setError(`手動更新に失敗しました: ${getErrorMessage(refreshError)}`);
     } finally {
+      manualRefreshInProgress.current = false;
       setRefreshing(false);
     }
   };
