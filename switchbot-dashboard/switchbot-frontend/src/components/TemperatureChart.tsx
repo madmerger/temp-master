@@ -58,7 +58,9 @@ export function TemperatureChart({ deviceId, timeScale }: Props) {
         )
       })
       .catch(() => {
-        /* ignore per-chart fetch errors */
+        // Clear on error so a failed reload doesn't keep showing the
+        // previous time range's data.
+        if (!cancelled) setData([])
       })
     return () => {
       cancelled = true
