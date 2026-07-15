@@ -1,0 +1,7 @@
+switchbot-frontend/node_modules/
+switchbot-frontend/dist/
+switchbot-backend/.venv/
+switchbot-backend/.pytest_cache/
+switchbot-backend/app.db
+**/__pycache__/
+**/*.pyc

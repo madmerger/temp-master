@@ -1,78 +1,89 @@
 # Temp Master Dashboard
 
-A fullstack web dashboard to monitor temperature readings from SwitchBot Meter devices.
+SwitchBotメーターの温度・湿度・バッテリーと温度履歴を表示する監視ダッシュボードです。
 
-## Features
+## 技術スタック
 
-- Temperature charts for all SwitchBot Meter devices using Recharts
-- Time scale switching (hour/day/month/year)
-- Auto-refresh every 30 seconds (frontend) with background data collection every 2 minutes (backend)
-- Rate limiting protection with exponential backoff
-- All API calls are cached - GET endpoints never call SwitchBot API directly
+- Frontend: React 19, Vite 8, TypeScript 5.9, MUI 9, Recharts 3
+- Backend: FastAPI, Python 3.12, Poetry, SQLite
+- Deployment: Docker, Fly.io
 
-## Setup
+## 主な機能
+
+- 全SwitchBotメーターの現在温度・湿度・バッテリー表示
+- 1時間、24時間、7日、30日、1年の温度チャート
+- 7日以上更新されていないメーターの分離表示
+- 30秒ごとの画面自動更新と手動データ収集
+- APIレート制限状態と接続エラーの表示
+- ライト・ダークテーマ切替（ブラウザ設定を初期値に使用し、選択を保存）
+- SQLiteデータベースのバックアップダウンロード
+
+## ローカル開発
 
 ### Backend
 
-1. Navigate to the backend directory:
-   ```bash
-   cd switchbot-backend
-   ```
+```bash
+cd switchbot-backend
+poetry install
+cp .env.example .env
+poetry run fastapi dev app/main.py
+```
 
-2. Install dependencies:
-   ```bash
-   poetry install
-   ```
-
-3. Copy `.env.example` to `.env` and add your SwitchBot credentials:
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Get your credentials from the SwitchBot app:
-   - Go to Profile > Preferences > About
-   - Tap App Version 10 times to enable Developer Options
-   - Go to Developer Options > Get Token
-
-4. Start the development server:
-   ```bash
-   poetry run fastapi dev app/main.py
-   ```
+`.env` に `SWITCHBOT_TOKEN` と `SWITCHBOT_SECRET` を設定してください。バックエンドは
+`http://localhost:8000` で起動します。
 
 ### Frontend
 
-1. Navigate to the frontend directory:
-   ```bash
-   cd switchbot-frontend
-   ```
+```bash
+cd switchbot-frontend
+npm install
+cp .env.example .env
+npm run dev
+```
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+フロントエンドは `http://localhost:5173` で起動します。
 
-3. Copy `.env.example` to `.env`:
-   ```bash
-   cp .env.example .env
-   ```
+- `VITE_API_URL`: ブラウザから接続するAPIのベースURL
+- `VITE_DEV_PROXY_TARGET`: `VITE_API_URL` 未指定時にViteが `/api` を転送する開発用URL
 
-4. Start the development server:
-   ```bash
-   npm run dev
-   ```
+本番コンテナではフロントエンドとAPIが同一オリジンになるため、
+`VITE_API_URL` を空にすると現在のオリジンを使用します。別のバックエンドを利用する場合は
+Viteのビルド時に `VITE_API_URL` を設定してください。
 
-5. Open http://localhost:5173 in your browser
+## 検証
 
-## API Endpoints
+```bash
+cd switchbot-frontend
+npm run typecheck
+npm run build
 
-- `GET /api/meters` - Returns list of all meter devices with current temperature (from cache)
-- `GET /api/meters/{device_id}/history` - Returns temperature history with time_scale parameter
-- `POST /api/meters/refresh` - Triggers immediate data collection
-- `GET /api/status` - Returns backend status and configuration
+cd ../switchbot-backend
+poetry run pytest
+```
 
-## Notes
+## Docker
 
-- Temperature history is stored in memory and resets on backend restart
-- Backend data collection interval: 2 minutes minimum
-- Frontend refresh interval: 30 seconds
-- SwitchBot API has strict rate limits (~10000 requests/day)
+DockerfileはNode.jsステージでViteをビルドし、`dist/` をFastAPIの `static/`
+ディレクトリへコピーします。
+
+```bash
+docker build \
+  --build-arg VITE_API_URL=https://snakeroom.fly.dev \
+  -t temp-master .
+docker run --rm -p 8000:8000 \
+  -e SWITCHBOT_TOKEN \
+  -e SWITCHBOT_SECRET \
+  temp-master
+```
+
+同一コンテナのAPIを利用する場合、`--build-arg VITE_API_URL=...` は不要です。
+
+## API
+
+- `GET /api/meters`
+- `GET /api/meters/{device_id}/history?time_scale=hour|day|week|month|year`
+- `POST /api/meters/refresh`
+- `GET /api/status`
+- `GET /api/backup`
+
+バックエンドは1時間ごとにSwitchBot APIからデータを収集し、履歴をSQLiteへ保存します。
