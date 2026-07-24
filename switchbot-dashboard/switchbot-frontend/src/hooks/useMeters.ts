@@ -7,7 +7,7 @@ const REFRESH_INTERVAL = 30000;
 export interface UseMetersResult {
   meters: Meter[];
   status: StatusResponse | null;
-  connected: boolean;
+  connected: boolean | null;
   loading: boolean;
   error: string | null;
   lastRefresh: Date | null;
@@ -19,7 +19,8 @@ export interface UseMetersResult {
 export function useMeters(): UseMetersResult {
   const [meters, setMeters] = useState<Meter[]>([]);
   const [status, setStatus] = useState<StatusResponse | null>(null);
-  const [connected, setConnected] = useState(false);
+  // null = initial state, connection not yet determined.
+  const [connected, setConnected] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);

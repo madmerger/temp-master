@@ -1,7 +1,7 @@
 import { useTheme } from '../hooks/useTheme';
 
 interface Props {
-  connected: boolean;
+  connected: boolean | null;
 }
 
 function ThemeToggle() {
@@ -32,6 +32,7 @@ function ThemeToggle() {
 }
 
 export default function Navbar({ connected }: Props) {
+  const connecting = connected === null;
   return (
     <nav className="fixed inset-x-0 top-0 z-20 border-b border-gray-200 bg-white/90 backdrop-blur dark:border-gray-700 dark:bg-gray-900/90">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
@@ -44,17 +45,24 @@ export default function Navbar({ connected }: Props) {
           <span
             className={
               'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ' +
-              (connected
-                ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300'
-                : 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300')
+              (connecting
+                ? 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300'
+                : connected
+                  ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300'
+                  : 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300')
             }
           >
             <span
               className={
-                'h-2 w-2 rounded-full ' + (connected ? 'bg-green-500' : 'bg-red-500')
+                'h-2 w-2 rounded-full ' +
+                (connecting
+                  ? 'animate-pulse bg-gray-400'
+                  : connected
+                    ? 'bg-green-500'
+                    : 'bg-red-500')
               }
             />
-            {connected ? 'Connected' : 'Disconnected'}
+            {connecting ? 'Connecting…' : connected ? 'Connected' : 'Disconnected'}
           </span>
           <ThemeToggle />
         </div>

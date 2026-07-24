@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { fetchHistory } from '../api/client';
 import type { HistoryPoint, TimeScale } from '../types';
 
-// Fetches temperature history for a single meter, refetching when the device or
-// time scale changes and on a periodic interval to stay in sync with the grid.
+// Fetches temperature history for a single meter, refetching when the device,
+// time scale, or refreshKey changes. The parent bumps refreshKey after each
+// successful meters refresh, keeping the charts in sync with the grid.
 export function useHistory(
   deviceId: string,
   timeScale: TimeScale,
