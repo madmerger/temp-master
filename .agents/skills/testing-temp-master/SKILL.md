@@ -51,9 +51,14 @@ cp -r switchbot-frontend/dist switchbot-backend/static
 
 **Important:** The static directory check in `main.py` happens at module import time (`STATIC_DIR = Path(__file__).resolve().parent.parent / "static"`). If you create/populate `static/` after starting the server, you must restart the server.
 
-> **Frontend-only iteration:** you can instead run `npm run dev` (http://localhost:5173).
+> **Frontend-only iteration:** you can instead run `npm run dev` (http://localhost:5173,
+> falling back to 5174 etc. if the port is busy — check the printed URL).
 > The dev server proxies `/api` per `vite.config.ts`, and `VITE_API_URL` (default
 > `https://snakeroom.fly.dev`) selects the backend the frontend calls.
+>
+> **Cold-start note:** on first load against a cold backend, the 22 concurrent
+> `/api/meters/{id}/history` requests can take **~150s+** before charts render
+> ("読み込み中..."). Once warm it's ~0.6s. Wait it out rather than assuming a bug.
 
 ### 4. Start the server
 
@@ -75,7 +80,7 @@ The frontend is served at `http://localhost:8000/` and the API docs at `http://l
 ### API Connectivity
 - `GET /api/status` returns `configured: true` and `meters_count` > 0
 - `GET /api/meters` returns live meter data with temperature, humidity, battery
-- Connection status badge in the navbar shows "Connected" (green) when the API is reachable, "Disconnected" (red) otherwise
+- Connection status badge in the navbar: neutral "Connecting…" (grey, pulsing) until the first fetch resolves, then "Connected" (green) when the API is reachable or "Disconnected" (red) on failure
 
 ### UI Functionality
 - Meter grid (responsive 3-col) plus a separate "未更新のメーター" section for meters stale >7 days
