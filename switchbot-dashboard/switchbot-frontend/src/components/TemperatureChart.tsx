@@ -12,10 +12,14 @@ import {
 import { useMemo } from 'react'
 import { Line } from 'react-chartjs-2'
 import { formatTimestamp } from '../lib/meters'
-import { useTheme } from '../lib/theme-context'
 import type { HistoryPoint, TimeScale } from '../types'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler, Tooltip)
+
+const TICK_COLOR = '#777777'
+const GRID_COLOR = 'rgba(0, 0, 0, 0.05)'
+const LINE_COLOR = '#d9534f'
+const FILL_COLOR = 'rgba(217, 83, 79, 0.15)'
 
 interface Props {
   history: HistoryPoint[]
@@ -23,15 +27,6 @@ interface Props {
 }
 
 export function TemperatureChart({ history, timeScale }: Props) {
-  const { theme } = useTheme()
-  const isDark = theme === 'dark'
-
-  // 軸・グリッド・線色はテーマに応じて切り替える
-  const tickColor = isDark ? '#9ca3af' : '#777777'
-  const gridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)'
-  const lineColor = isDark ? '#f87171' : '#d9534f'
-  const fillColor = isDark ? 'rgba(248, 113, 113, 0.18)' : 'rgba(217, 83, 79, 0.15)'
-
   const data = useMemo<ChartData<'line'>>(
     () => ({
       labels: history.map((point) => formatTimestamp(point.timestamp, timeScale)),
@@ -39,12 +34,12 @@ export function TemperatureChart({ history, timeScale }: Props) {
         {
           label: 'Temperature (C)',
           data: history.map((point) => point.temperature),
-          borderColor: lineColor,
-          backgroundColor: fillColor,
+          borderColor: LINE_COLOR,
+          backgroundColor: FILL_COLOR,
           borderWidth: 2,
           pointRadius: 3,
-          pointBackgroundColor: lineColor,
-          pointBorderColor: lineColor,
+          pointBackgroundColor: LINE_COLOR,
+          pointBorderColor: LINE_COLOR,
           pointHoverRadius: 5,
           pointHoverBackgroundColor: '#5bc0de',
           fill: true,
@@ -52,7 +47,7 @@ export function TemperatureChart({ history, timeScale }: Props) {
         },
       ],
     }),
-    [history, timeScale, lineColor, fillColor],
+    [history, timeScale],
   )
 
   const options = useMemo<ChartOptions<'line'>>(
@@ -75,21 +70,21 @@ export function TemperatureChart({ history, timeScale }: Props) {
       scales: {
         x: {
           display: true,
-          grid: { display: true, color: gridColor },
-          ticks: { maxTicksLimit: 8, font: { size: 10 }, color: tickColor },
+          grid: { display: true, color: GRID_COLOR },
+          ticks: { maxTicksLimit: 8, font: { size: 10 }, color: TICK_COLOR },
         },
         y: {
           display: true,
-          grid: { display: true, color: gridColor },
+          grid: { display: true, color: GRID_COLOR },
           ticks: {
             font: { size: 10 },
-            color: tickColor,
+            color: TICK_COLOR,
             callback: (value) => `${value}\u00b0`,
           },
         },
       },
     }),
-    [gridColor, tickColor],
+    [],
   )
 
   return (

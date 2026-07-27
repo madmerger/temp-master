@@ -6,7 +6,6 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 
 - Temperature charts for all SwitchBot Meter devices using Chart.js v4 (react-chartjs-2)
 - Time scale switching (hour/day/week/month/year)
-- Light / dark mode toggle (persisted in localStorage, defaults to OS preference)
 - Auto-refresh every 30 seconds (frontend) with background data collection every 2 minutes (backend)
 - Rate limiting protection with exponential backoff
 - All API calls are cached - GET endpoints never call SwitchBot API directly
@@ -72,7 +71,7 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
    npm run build
    ```
 
-Stack: React 19 + TypeScript + Vite 6 + Tailwind CSS 3 (`darkMode: 'class'`) + Chart.js v4.
+Stack: React 19 + TypeScript + Vite 6 + Tailwind CSS 3 + Chart.js v4.
 
 ## Docker
 

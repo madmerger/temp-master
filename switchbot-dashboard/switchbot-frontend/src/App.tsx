@@ -28,7 +28,7 @@ export default function App() {
   const countNoun = metersCount === 1 ? 'meter' : 'meters'
 
   return (
-    <div className="min-h-screen bg-slate-100 pt-[70px] text-slate-800 dark:bg-slate-950 dark:text-slate-200">
+    <div className="min-h-screen bg-slate-100 pt-[70px] text-slate-800">
       <Navbar connected={!error} />
 
       <div className="px-4 pb-6">
@@ -41,7 +41,7 @@ export default function App() {
         />
 
         {status && (
-          <div className="mb-4 flex flex-wrap justify-between gap-2 rounded border border-sky-300 bg-sky-50 px-4 py-3 text-sky-900 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-200">
+          <div className="mb-4 flex flex-wrap justify-between gap-2 rounded border border-sky-300 bg-sky-50 px-4 py-3 text-sky-900">
             <span>
               Monitoring {metersCount} {countNoun}
             </span>
@@ -50,7 +50,7 @@ export default function App() {
         )}
 
         {status?.is_rate_limited && (
-          <div className="mb-4 rounded border border-amber-400 bg-amber-50 px-4 py-3 text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-200">
+          <div className="mb-4 rounded border border-amber-400 bg-amber-50 px-4 py-3 text-amber-900">
             <strong>Rate Limited.</strong>{' '}
             <span>
               SwitchBot API rate limit reached. Retry in {status.backoff_remaining ?? 0} seconds.
@@ -59,13 +59,11 @@ export default function App() {
         )}
 
         {loading && (
-          <div className="py-10 text-center text-slate-500 dark:text-slate-400">
-            Loading temperature data...
-          </div>
+          <div className="py-10 text-center text-slate-500">Loading temperature data...</div>
         )}
 
         {error && (
-          <div className="mb-4 rounded border border-red-400 bg-red-50 px-4 py-3 text-red-900 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">
+          <div className="mb-4 rounded border border-red-400 bg-red-50 px-4 py-3 text-red-900">
             <strong>Error.</strong> <span>{error}</span>
           </div>
         )}
@@ -88,7 +86,7 @@ export default function App() {
           <StaleMetersSection meters={staleMeters} timeScale={timeScale} />
         )}
 
-        <footer className="my-8 text-center text-xs text-slate-500 dark:text-slate-400">
+        <footer className="my-8 text-center text-xs text-slate-500">
           Temp Master Dashboard v1.0 - Built with React + TypeScript + Vite
         </footer>
       </div>

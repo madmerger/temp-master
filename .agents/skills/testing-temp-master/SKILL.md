@@ -72,7 +72,6 @@ The frontend is served at `http://localhost:8000/` and the API docs at `http://l
 - Time Range selector: Last Hour / Last 24 Hours / Last 7 Days / Last 30 Days / Last Year
 - Charts: Canvas elements rendered with Chart.js v4 line charts (react-chartjs-2)
 - Refresh Data button triggers data reload
-- Theme toggle (Light/Dark) in the navbar; persisted in `localStorage.theme`
 
 ## Running Backend Tests
 

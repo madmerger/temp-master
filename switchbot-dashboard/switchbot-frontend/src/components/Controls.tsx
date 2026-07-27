@@ -16,24 +16,18 @@ interface Props {
   refreshing: boolean
 }
 
-export function Controls({
-  timeScale,
-  onTimeScaleChange,
-  onRefresh,
-  onBackup,
-  refreshing,
-}: Props) {
+export function Controls({ timeScale, onTimeScaleChange, onRefresh, onBackup, refreshing }: Props) {
   return (
-    <div className="mb-4 rounded border border-slate-300 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
+    <div className="mb-4 rounded border border-slate-300 bg-white p-4">
       <div className="flex flex-wrap items-center gap-3">
-        <label htmlFor="time-scale-select" className="text-slate-700 dark:text-slate-300">
+        <label htmlFor="time-scale-select" className="text-slate-700">
           Time Range:
         </label>
         <select
           id="time-scale-select"
           value={timeScale}
           onChange={(event) => onTimeScaleChange(event.target.value as TimeScale)}
-          className="rounded border border-slate-300 bg-white px-3 py-1.5 text-slate-800 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+          className="rounded border border-slate-300 bg-white px-3 py-1.5 text-slate-800"
         >
           {TIME_SCALE_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
@@ -52,7 +46,7 @@ export function Controls({
         <button
           type="button"
           onClick={onBackup}
-          className="rounded border border-slate-300 bg-white px-3 py-1.5 text-slate-700 transition-colors hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-700"
+          className="rounded border border-slate-300 bg-white px-3 py-1.5 text-slate-700 transition-colors hover:bg-slate-100"
         >
           Download Backup
         </button>

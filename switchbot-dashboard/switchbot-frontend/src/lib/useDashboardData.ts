@@ -24,6 +24,8 @@ export function useDashboardData(timeScale: TimeScale): DashboardData {
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
   const timeScaleRef = useRef(timeScale)
   timeScaleRef.current = timeScale
+  const metersRef = useRef<Meter[]>(meters)
+  metersRef.current = meters
 
   const loadHistories = useCallback(async (targetMeters: Meter[], scale: TimeScale) => {
     const results = await Promise.all(
@@ -66,16 +68,21 @@ export function useDashboardData(timeScale: TimeScale): DashboardData {
     return () => window.clearInterval(timer)
   }, [reload])
 
-  // 時間スケール変更時は履歴のみ取り直す
+  // 時間スケール変更時は履歴のみ取り直す（メーター更新時は reload 側で取得済み）
+  const loadedTimeScaleRef = useRef(timeScale)
   useEffect(() => {
-    if (meters.length === 0) {
+    if (loadedTimeScaleRef.current === timeScale) {
+      return
+    }
+    loadedTimeScaleRef.current = timeScale
+    if (metersRef.current.length === 0) {
       return
     }
     void loadHistories(
-      meters.filter((meter) => !isStaleMeter(meter)),
+      metersRef.current.filter((meter) => !isStaleMeter(meter)),
       timeScale,
     )
-  }, [timeScale, meters, loadHistories])
+  }, [timeScale, loadHistories])
 
   const { activeMeters, staleMeters } = useMemo(() => {
     const active: Meter[] = []

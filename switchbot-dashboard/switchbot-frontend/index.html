@@ -4,16 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Temp Master Dashboard</title>
-    <script>
-      // 初期テーマを描画前に適用してダークモードのちらつきを防ぐ
-      (function () {
-        var stored = localStorage.getItem('theme');
-        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (stored === 'dark' || (!stored && prefersDark)) {
-          document.documentElement.classList.add('dark');
-        }
-      })();
-    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -20,19 +20,17 @@ function StatBadge({ className, children }: { className: string; children: React
 
 export function MeterPanel({ meter, isStale, history, timeScale }: Props) {
   return (
-    <div className="rounded border border-slate-300 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
-      <div className="flex items-center justify-between gap-2 rounded-t border-b border-slate-300 bg-slate-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-900/60">
+    <div className="rounded border border-slate-300 bg-white shadow-sm">
+      <div className="flex items-center justify-between gap-2 rounded-t border-b border-slate-300 bg-slate-50 px-4 py-3">
         <div className="flex flex-wrap items-center gap-2">
-          <strong className="text-slate-900 dark:text-slate-100">
-            {getDisplayName(meter.device_name)}
-          </strong>
+          <strong className="text-slate-900">{getDisplayName(meter.device_name)}</strong>
           {isStale && (
             <span className="rounded bg-amber-500 px-2 py-0.5 text-xs font-semibold text-white">
               7日以上未更新
             </span>
           )}
         </div>
-        <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[11px] text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+        <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[11px] text-slate-600">
           {meter.device_type}
         </span>
       </div>
@@ -51,19 +49,17 @@ export function MeterPanel({ meter, isStale, history, timeScale }: Props) {
         </div>
 
         {isStale ? (
-          <p className="m-0 text-amber-700 dark:text-amber-400">履歴データの取得対象外</p>
+          <p className="m-0 text-amber-700">履歴データの取得対象外</p>
         ) : (
           <TemperatureChart history={history} timeScale={timeScale} />
         )}
 
         {meter.last_updated ? (
-          <p className="mb-0 mt-2 text-xs text-slate-500 dark:text-slate-400">
+          <p className="mb-0 mt-2 text-xs text-slate-500">
             Last updated: {new Date(meter.last_updated).toLocaleString()}
           </p>
         ) : (
-          isStale && (
-            <p className="m-0 text-amber-700 dark:text-amber-400">値がありません（データ未受信）</p>
-          )
+          isStale && <p className="m-0 text-amber-700">値がありません（データ未受信）</p>
         )}
       </div>
     </div>
