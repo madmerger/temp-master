@@ -4,8 +4,9 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 
 ## Features
 
-- Temperature charts for all SwitchBot Meter devices using Recharts
-- Time scale switching (hour/day/month/year)
+- Temperature charts for all SwitchBot Meter devices using Chart.js v4 (react-chartjs-2)
+- Time scale switching (hour/day/week/month/year)
+- Light / dark mode toggle (persisted in localStorage, defaults to OS preference)
 - Auto-refresh every 30 seconds (frontend) with background data collection every 2 minutes (backend)
 - Rate limiting protection with exponential backoff
 - All API calls are cached - GET endpoints never call SwitchBot API directly
@@ -51,10 +52,13 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
    npm install
    ```
 
-3. Copy `.env.example` to `.env`:
+3. Copy `.env.example` to `.env` (optional):
    ```bash
    cp .env.example .env
    ```
+
+   `VITE_API_URL` sets the API base URL. If unset, `https://snakeroom.fly.dev` is used.
+   Set `VITE_API_URL=` (empty) to use the Vite dev proxy to a local backend on port 8000.
 
 4. Start the development server:
    ```bash
@@ -63,12 +67,30 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 
 5. Open http://localhost:5173 in your browser
 
+6. Production build (outputs to `dist/`):
+   ```bash
+   npm run build
+   ```
+
+Stack: React 19 + TypeScript + Vite 6 + Tailwind CSS 3 (`darkMode: 'class'`) + Chart.js v4.
+
+## Docker
+
+The `Dockerfile` is a multi-stage build: the Node stage runs `npm ci && npm run build` for the
+frontend, and the resulting `dist/` is copied into the backend image as `static/`, which FastAPI
+serves at `/`.
+
+```bash
+docker build -t temp-master .
+```
+
 ## API Endpoints
 
 - `GET /api/meters` - Returns list of all meter devices with current temperature (from cache)
 - `GET /api/meters/{device_id}/history` - Returns temperature history with time_scale parameter
 - `POST /api/meters/refresh` - Triggers immediate data collection
 - `GET /api/status` - Returns backend status and configuration
+- `GET /api/backup` - Downloads a database backup
 
 ## Notes
 
