@@ -86,7 +86,7 @@ The frontend is served at `http://localhost:8000/` and the API docs at `http://l
 - Meter grid (responsive 3-col) plus a separate "未更新のメーター" section for meters stale >7 days
 - Dark mode toggle (top-right): switches theme, persists to localStorage, adjusts chart colors
 - Time Range selector: Last Hour / Last 24 Hours / Last 7 Days / Last 30 Days / Last Year
-- Charts: Chart.js v4 line charts rendered via react-chartjs-2
+- Charts: Recharts line charts
 - Refresh Data button triggers data reload; Download Backup opens `/api/backup`
 
 ## Running Backend Tests
@@ -101,6 +101,6 @@ Expected: 97 tests pass.
 ## Architecture Notes
 
 - Backend: FastAPI + aiosqlite (SQLite persistence at `/data/app.db` or local `app.db`)
-- Frontend: React 18 + TypeScript + Vite + Tailwind CSS; charts via Chart.js v4 / react-chartjs-2
+- Frontend: React 18 + TypeScript + Vite + Tailwind CSS; charts via Recharts
 - Deployment: Fly.io (see `fly.toml`), Docker multi-stage build (Node builds frontend, FastAPI serves `dist/`)
-- Background data collection runs with 120s interval, with rate limiting and exponential backoff
+- Background data collection runs with a one-hour interval, with rate limiting and exponential backoff

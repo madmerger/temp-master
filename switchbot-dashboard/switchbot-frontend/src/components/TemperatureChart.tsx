@@ -1,30 +1,16 @@
 import {
-  CategoryScale,
-  Chart as ChartJS,
-  Filler,
-  Legend,
-  LineElement,
-  LinearScale,
-  PointElement,
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
   Tooltip,
-  type ChartData,
-  type ChartOptions,
-} from 'chart.js';
-import { Line } from 'react-chartjs-2';
+  XAxis,
+  YAxis,
+} from 'recharts';
 import { useHistory } from '../hooks/useHistory';
 import { useTheme } from '../hooks/useTheme';
 import type { TimeScale } from '../types';
 import { formatTimestamp } from '../utils/format';
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Tooltip,
-  Legend,
-  Filler,
-);
 
 interface Props {
   deviceId: string;
@@ -35,66 +21,22 @@ interface Props {
 export default function TemperatureChart({ deviceId, timeScale, refreshKey }: Props) {
   const { history, loading } = useHistory(deviceId, timeScale, refreshKey);
   const { theme } = useTheme();
-  const isDark = theme === 'dark';
-
-  const gridColor = isDark ? 'rgba(148, 163, 184, 0.18)' : 'rgba(0, 0, 0, 0.06)';
-  const tickColor = isDark ? '#94a3b8' : '#6b7280';
-  const lineColor = isDark ? '#f87171' : '#dc2626';
-  const fillColor = isDark ? 'rgba(248, 113, 113, 0.15)' : 'rgba(220, 38, 38, 0.12)';
-
-  const labels = history.map((h) => formatTimestamp(h.timestamp, timeScale));
-  const temperatures = history.map((h) => h.temperature);
-
-  const data: ChartData<'line'> = {
-    labels,
-    datasets: [
-      {
-        label: 'Temperature (C)',
-        data: temperatures as number[],
-        borderColor: lineColor,
-        backgroundColor: fillColor,
-        borderWidth: 2,
-        pointRadius: 2,
-        pointBackgroundColor: lineColor,
-        pointBorderColor: lineColor,
-        pointHoverRadius: 5,
-        fill: true,
-        tension: 0.4,
-      },
-    ],
-  };
-
-  const options: ChartOptions<'line'> = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        mode: 'index',
-        intersect: false,
-        callbacks: {
-          label: (item) => {
-            const v = item.parsed.y;
-            return v === null || v === undefined ? '' : `${v.toFixed(1)}\u00b0C`;
-          },
-        },
-      },
-    },
-    scales: {
-      x: {
-        grid: { color: gridColor },
-        ticks: { maxTicksLimit: 8, font: { size: 10 }, color: tickColor },
-      },
-      y: {
-        grid: { color: gridColor },
-        ticks: {
-          font: { size: 10 },
-          color: tickColor,
-          callback: (value) => `${value}\u00b0`,
-        },
-      },
-    },
-  };
+  const styles = getComputedStyle(document.documentElement);
+  const gridColor =
+    styles.getPropertyValue('--chart-grid').trim() ||
+    (theme === 'dark' ? 'rgba(148, 163, 184, 0.2)' : 'rgba(17, 24, 39, 0.1)');
+  const tickColor =
+    styles.getPropertyValue('--chart-axis').trim() ||
+    (theme === 'dark' ? '#cbd5e1' : '#6b7280');
+  const lineColor =
+    styles.getPropertyValue('--chart-line').trim() ||
+    (theme === 'dark' ? '#fb7185' : '#dc2626');
+  const chartData = history
+    .filter((point) => point.temperature !== null)
+    .map((point) => ({
+      label: formatTimestamp(point.timestamp, timeScale),
+      temperature: point.temperature as number,
+    }));
 
   return (
     <div className="relative h-[200px]">
@@ -103,7 +45,42 @@ export default function TemperatureChart({ deviceId, timeScale, refreshKey }: Pr
           読み込み中...
         </div>
       ) : (
-        <Line data={data} options={options} />
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={chartData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+            <CartesianGrid stroke={gridColor} strokeDasharray="3 3" />
+            <XAxis
+              dataKey="label"
+              tick={{ fill: tickColor, fontSize: 10 }}
+              tickLine={false}
+              axisLine={{ stroke: gridColor }}
+              minTickGap={20}
+            />
+            <YAxis
+              tick={{ fill: tickColor, fontSize: 10 }}
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={(value: number) => `${value}°`}
+              width={42}
+            />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: styles.getPropertyValue('--chart-tooltip-bg').trim(),
+                borderColor: styles.getPropertyValue('--border').trim(),
+                color: styles.getPropertyValue('--text').trim(),
+              }}
+              formatter={(value) => [`${Number(value).toFixed(1)}°C`, 'Temperature']}
+            />
+            <Line
+              type="monotone"
+              dataKey="temperature"
+              stroke={lineColor}
+              strokeWidth={2}
+              dot={{ r: 2, fill: lineColor }}
+              activeDot={{ r: 5 }}
+              connectNulls
+            />
+          </LineChart>
+        </ResponsiveContainer>
       )}
     </div>
   );
