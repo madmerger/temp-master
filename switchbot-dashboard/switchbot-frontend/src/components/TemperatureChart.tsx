@@ -9,8 +9,38 @@ import {
 } from 'recharts';
 import { useHistory } from '../hooks/useHistory';
 import { useTheme } from '../hooks/useTheme';
+import type { Theme } from '../hooks/useTheme';
 import type { TimeScale } from '../types';
 import { formatTimestamp } from '../utils/format';
+
+const CHART_PALETTE: Record<
+  Theme,
+  {
+    grid: string;
+    axis: string;
+    line: string;
+    tooltipBg: string;
+    tooltipBorder: string;
+    tooltipText: string;
+  }
+> = {
+  light: {
+    grid: 'rgba(17, 24, 39, 0.1)',
+    axis: '#6b7280',
+    line: '#dc2626',
+    tooltipBg: '#ffffff',
+    tooltipBorder: '#e5e7eb',
+    tooltipText: '#111827',
+  },
+  dark: {
+    grid: 'rgba(148, 163, 184, 0.2)',
+    axis: '#cbd5e1',
+    line: '#fb7185',
+    tooltipBg: '#111827',
+    tooltipBorder: '#374151',
+    tooltipText: '#f3f4f6',
+  },
+};
 
 interface Props {
   deviceId: string;
@@ -21,16 +51,7 @@ interface Props {
 export default function TemperatureChart({ deviceId, timeScale, refreshKey }: Props) {
   const { history, loading } = useHistory(deviceId, timeScale, refreshKey);
   const { theme } = useTheme();
-  const styles = getComputedStyle(document.documentElement);
-  const gridColor =
-    styles.getPropertyValue('--chart-grid').trim() ||
-    (theme === 'dark' ? 'rgba(148, 163, 184, 0.2)' : 'rgba(17, 24, 39, 0.1)');
-  const tickColor =
-    styles.getPropertyValue('--chart-axis').trim() ||
-    (theme === 'dark' ? '#cbd5e1' : '#6b7280');
-  const lineColor =
-    styles.getPropertyValue('--chart-line').trim() ||
-    (theme === 'dark' ? '#fb7185' : '#dc2626');
+  const colors = CHART_PALETTE[theme];
   const chartData = history
     .filter((point) => point.temperature !== null)
     .map((point) => ({
@@ -47,16 +68,16 @@ export default function TemperatureChart({ deviceId, timeScale, refreshKey }: Pr
       ) : (
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-            <CartesianGrid stroke={gridColor} strokeDasharray="3 3" />
+            <CartesianGrid stroke={colors.grid} strokeDasharray="3 3" />
             <XAxis
               dataKey="label"
-              tick={{ fill: tickColor, fontSize: 10 }}
+              tick={{ fill: colors.axis, fontSize: 10 }}
               tickLine={false}
-              axisLine={{ stroke: gridColor }}
+              axisLine={{ stroke: colors.grid }}
               minTickGap={20}
             />
             <YAxis
-              tick={{ fill: tickColor, fontSize: 10 }}
+              tick={{ fill: colors.axis, fontSize: 10 }}
               tickLine={false}
               axisLine={false}
               tickFormatter={(value: number) => `${value}°`}
@@ -64,18 +85,18 @@ export default function TemperatureChart({ deviceId, timeScale, refreshKey }: Pr
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: styles.getPropertyValue('--chart-tooltip-bg').trim(),
-                borderColor: styles.getPropertyValue('--border').trim(),
-                color: styles.getPropertyValue('--text').trim(),
+                backgroundColor: colors.tooltipBg,
+                borderColor: colors.tooltipBorder,
+                color: colors.tooltipText,
               }}
               formatter={(value) => [`${Number(value).toFixed(1)}°C`, 'Temperature']}
             />
             <Line
               type="monotone"
               dataKey="temperature"
-              stroke={lineColor}
+              stroke={colors.line}
               strokeWidth={2}
-              dot={{ r: 2, fill: lineColor }}
+              dot={{ r: 2, fill: colors.line }}
               activeDot={{ r: 5 }}
               connectNulls
             />

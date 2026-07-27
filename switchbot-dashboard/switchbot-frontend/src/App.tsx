@@ -34,7 +34,7 @@ export default function App() {
     return { activeMeters: active, staleMeters: stale };
   }, [meters]);
 
-  // Bump on each server refresh so child charts refetch their history.
+  // Use the latest successful poll time so child charts refetch their history.
   const refreshKey = lastRefresh ? lastRefresh.getTime() : 0;
 
   const metersCount = status?.meters_count ?? 0;
