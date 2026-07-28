@@ -67,16 +67,32 @@ jobs:
           gh label create severity:WARN --color FBCA04 --description "Last notified severity was WARN" || true
           gh label create severity:CRITICAL --color B60205 --description "Last notified severity was CRITICAL" || true
 
-          severity="$(python -c 'import json; print(json.load(open("monitoring-result.json"))["severity"])')"
-          summary="$(python -c 'import json; print(" / ".join(json.load(open("monitoring-result.json"))["reasons"]))')"
+          severity="$(python -c 'import json; print(json.load(open("monitoring-result.json", encoding="utf-8"))["severity"])')"
+          summary="$(python -c 'import json; print(" / ".join(json.load(open("monitoring-result.json", encoding="utf-8"))["reasons"]))')"
           open_issues="$(gh issue list --state open --label data-stale --json number,url,createdAt,title,labels --limit 1)"
           issue_number="$(OPEN_ISSUES="$open_issues" python -c 'import json,os; x=json.loads(os.environ["OPEN_ISSUES"]); print(x[0]["number"] if x else "")')"
           issue_pending="$(OPEN_ISSUES="$open_issues" python -c 'import json,os; x=json.loads(os.environ["OPEN_ISSUES"]); print("true" if x and any(label["name"] == "slack-pending" for label in x[0]["labels"]) else "false")')"
           recorded_severity="$(OPEN_ISSUES="$open_issues" python -c 'import json,os; x=json.loads(os.environ["OPEN_ISSUES"]); labels=x[0]["labels"] if x else []; found=[label["name"].split(":",1)[1] for label in labels if label["name"].startswith("severity:")]; print(found[0] if found else "")')"
+          if [ "$severity" = "WARN" ] && [ "$recorded_severity" = "CRITICAL" ]; then
+            gh issue edit "$issue_number" --remove-label severity:CRITICAL --add-label severity:WARN || true
+            recorded_severity=WARN
+          fi
 
           if [ "$severity" != "OK" ] && [ -z "$issue_number" ]; then
-            age_label="$(python -c 'import json; r=json.load(open("monitoring-result.json")); a=r["age_seconds"]; print("時刻不明" if a is None else (str(int(a // 86400)) + "日前" if a >= 86400 else str(int(a // 3600)) + "時間前"))')"
-            title="データ鮮度アラート [$severity] 最新データ $age_label"
+            title="$(RESULT_FILE=monitoring-result.json SEVERITY="$severity" python - <<'PY'
+          import json
+          import os
+
+          result = json.load(open(os.environ["RESULT_FILE"], encoding="utf-8"))
+          reasons = result["reasons"]
+          primary = reasons[0] if reasons else "データ鮮度に問題があります"
+          age_reasons = [reason for reason in reasons if reason.startswith("最新データが")]
+          title_reasons = [primary]
+          if age_reasons and age_reasons[0] != primary:
+              title_reasons.append(age_reasons[0])
+          print("データ鮮度アラート [" + os.environ["SEVERITY"] + "] " + " / ".join(title_reasons))
+          PY
+            )"
             body_file="$(mktemp)"
             RESULT_FILE=monitoring-result.json SUMMARY="$summary" RUN_URL="$RUN_URL" DASHBOARD_URL="$DASHBOARD_URL" DATA_SOURCE_URL="$DATA_SOURCE_URL" python - <<'PY' > "$body_file"
           import json

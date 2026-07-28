@@ -37,7 +37,8 @@ closes the issue, and posts a recovery notification.
 
 The notified severity is recorded with `severity:WARN` or
 `severity:CRITICAL`. A WARN-to-CRITICAL escalation adds an issue comment and
-Slack notification; CRITICAL-to-WARN de-escalation is intentionally silent.
+Slack notification; CRITICAL-to-WARN de-escalation is intentionally silent but
+updates the severity label, so a later re-escalation can notify again.
 Slack delivery failures or a missing webhook leave the `slack-pending` label so
 later unhealthy runs retry delivery.
 
