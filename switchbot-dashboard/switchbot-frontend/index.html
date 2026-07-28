@@ -152,6 +152,12 @@
       <span id="rate-limit-text">SwitchBot API rate limit reached.</span>
     </div>
 
+    <!-- Data Stale Warning -->
+    <div id="data-stale-warning" class="alert alert-warning" style="display: none;">
+      <strong><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span> データ収集が停止している可能性があります</strong>
+      <span id="data-stale-text"></span>
+    </div>
+
     <!-- Loading -->
     <div id="loading">
       <p class="text-muted">Loading temperature data...</p>
@@ -193,7 +199,10 @@
     var REFRESH_INTERVAL = 30000;
     var currentTimeScale = 'day';
     var STALE_METER_THRESHOLD_MS = 7 * 24 * 60 * 60 * 1000;
+    var DATA_STALE_ALERT_THRESHOLD_MS = 24 * 60 * 60 * 1000;
     var metersData = [];
+    var staleReferenceTime = Date.now();
+    var hasStaleReferenceTimestamp = false;
     var statusData = null;
     var charts = {}; // device_id -> Chart instance map
 
@@ -333,6 +342,7 @@
       fetchMeters(function(metersResp) {
         fetchStatus(function(statusResp) {
           metersData = (metersResp && metersResp.meters) ? metersResp.meters : [];
+          updateStaleReferenceTime();
           statusData = statusResp;
 
           $('#loading').hide();
@@ -340,6 +350,7 @@
           $('#connection-status').removeClass('label-danger').addClass('label-success').text('Connected');
 
           updateStatusBar();
+          updateDataStaleWarning();
           renderMeters();
           renderCharts();
         }, function(err) {
@@ -383,6 +394,32 @@
       } else {
         $('#rate-limit-warning').hide();
       }
+    }
+
+    function updateDataStaleWarning() {
+      if (!hasStaleReferenceTimestamp) {
+        $('#data-stale-warning').hide();
+        return;
+      }
+
+      var elapsed = Date.now() - staleReferenceTime;
+      if (elapsed < DATA_STALE_ALERT_THRESHOLD_MS) {
+        $('#data-stale-warning').hide();
+        return;
+      }
+
+      var latestDate = new Date(staleReferenceTime);
+      var latestText = latestDate.getFullYear() + '/' +
+        (latestDate.getMonth() + 1) + '/' +
+        latestDate.getDate() + ' ' +
+        pad2(latestDate.getHours()) + ':' +
+        pad2(latestDate.getMinutes());
+      var days = Math.floor(elapsed / (24 * 60 * 60 * 1000));
+      var hours = Math.floor(elapsed / (60 * 60 * 1000));
+      var relativeText = days > 0 ? days + '日前' : hours + '時間前';
+
+      $('#data-stale-text').text('最新データ: ' + latestText + '（' + relativeText + '）');
+      $('#data-stale-warning').show();
     }
 
     // ============================================================
@@ -431,7 +468,7 @@
       html += '<div class="meter-section">';
       html += '  <div class="meter-section-header">';
       html += '    <h3 class="meter-section-title"><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span> 未更新のメーター</h3>';
-      html += '    <p class="meter-section-subtitle">1週間以上更新されていないデバイス</p>';
+      html += '    <p class="meter-section-subtitle">最新データより1週間以上古いデバイス</p>';
       html += '  </div>';
       html += '  <div class="panel panel-warning stale-meters-panel">';
       html += '    <div class="panel-body">';
@@ -458,7 +495,7 @@
       html += '      <div class="meter-panel-title">';
       html += '        <strong>' + deviceName + '</strong>';
       if (isStale) {
-        html += '        <span class="label label-warning stale-meter-badge">7日以上未更新</span>';
+        html += '        <span class="label label-warning stale-meter-badge">最新データより7日以上前</span>';
       }
       html += '      </div>';
       html += '      <span class="device-type-tag">' + deviceType + '</span>';
@@ -499,6 +536,27 @@
       return html;
     }
 
+    function updateStaleReferenceTime() {
+      var latestTimestamp = null;
+      var currentTime = Date.now();
+
+      for (var i = 0; i < metersData.length; i++) {
+        var meter = metersData[i];
+        if (!meter.last_updated) {
+          continue;
+        }
+
+        var lastUpdated = new Date(meter.last_updated);
+        if (!isNaN(lastUpdated.getTime()) && lastUpdated.getTime() <= currentTime &&
+            (latestTimestamp === null || lastUpdated.getTime() > latestTimestamp)) {
+          latestTimestamp = lastUpdated.getTime();
+        }
+      }
+
+      hasStaleReferenceTimestamp = latestTimestamp !== null;
+      staleReferenceTime = hasStaleReferenceTimestamp ? latestTimestamp : currentTime;
+    }
+
     function isStaleMeter(meter) {
       if (!meter.last_updated) {
         return true;
@@ -509,7 +567,7 @@
         return true;
       }
 
-      return (Date.now() - lastUpdated.getTime()) >= STALE_METER_THRESHOLD_MS;
+      return (staleReferenceTime - lastUpdated.getTime()) >= STALE_METER_THRESHOLD_MS;
     }
 
     // ============================================================
