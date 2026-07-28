@@ -12,6 +12,7 @@ NOW = datetime.datetime(2026, 7, 28, 12, 0, tzinfo=datetime.timezone.utc)
 sys.path.insert(0, str(SCRIPT.parent))
 from check_data_freshness import (  # noqa: E402
     FetchError,
+    _duration_label,
     evaluate,
     evaluate_fetch_failure,
     fetch_json,
@@ -35,6 +36,12 @@ def payloads(updated="2026-07-28T11:30:00Z", status=None):
 def test_ok():
     meters, status = payloads()
     assert evaluate(meters, status, NOW)["severity"] == "OK"
+
+
+def test_duration_label_is_human_readable():
+    assert _duration_label(30 * 60) == "30分"
+    assert _duration_label(60 * 60) == "1時間"
+    assert _duration_label(5000) == "1.4時間"
 
 
 def test_one_hour_stale_is_warn():

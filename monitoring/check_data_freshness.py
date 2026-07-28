@@ -47,8 +47,12 @@ def _meter_list(meters_payload):
 
 
 def _duration_label(seconds):
-    hours = seconds / (60 * 60)
-    return str(int(hours)) + "時間" if hours.is_integer() else f"{hours:g}時間"
+    minutes = seconds / 60
+    if minutes < 60:
+        rounded_minutes = round(minutes, 1)
+        return f"{rounded_minutes:g}分"
+    rounded_hours = round(minutes / 60, 1)
+    return f"{rounded_hours:g}時間"
 
 
 def _result(

@@ -35,12 +35,20 @@ posts one Slack notification. Further unhealthy runs do not notify again.
 When the result becomes healthy, the workflow comments a recovery message,
 closes the issue, and posts a recovery notification.
 
+The notified severity is recorded with `severity:WARN` or
+`severity:CRITICAL`. A WARN-to-CRITICAL escalation adds an issue comment and
+Slack notification; CRITICAL-to-WARN de-escalation is intentionally silent.
+Slack delivery failures or a missing webhook leave the `slack-pending` label so
+later unhealthy runs retry delivery.
+
 Set the repository secret `SLACK_WEBHOOK_URL` to enable Slack notifications.
 If it is not set, the workflow logs a warning and continues successfully.
 
 Incoming Slack webhooks cannot reply in a thread. Recovery is therefore a
 separate Slack message that references the GitHub Issue; it is not a threaded
-reply to the original alert.
+reply to the original alert. Recovery duration is measured from issue creation,
+so `停止時間（概算）` can differ from the actual outage by up to the monitor
+interval at either end.
 
 ## Running locally
 
