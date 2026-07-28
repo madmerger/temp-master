@@ -135,6 +135,8 @@ def evaluate(
         interval = float(interval)
     except (TypeError, ValueError):
         interval = collection_interval_seconds
+    if interval <= 0:
+        interval = collection_interval_seconds
     effective_warn_threshold = min(
         max(warn_threshold_seconds, interval * 5),
         critical_threshold_seconds,

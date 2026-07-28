@@ -59,6 +59,13 @@ def test_reported_120_second_interval_keeps_one_hour_warn():
     assert result["warn_threshold_seconds_effective"] == 3600
 
 
+def test_non_positive_reported_interval_uses_fallback():
+    meters, status = payloads("2026-07-28T10:30:00Z", status={"collection_interval": 0})
+    result = evaluate(meters, status, NOW)
+    assert result["severity"] == "WARN"
+    assert result["warn_threshold_seconds_effective"] == 3600
+
+
 def test_reported_hour_interval_delays_warn_until_five_hours():
     meters, status = payloads("2026-07-28T10:00:00Z", status={"collection_interval": 3600})
     result = evaluate(meters, status, NOW)
