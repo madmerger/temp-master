@@ -18,9 +18,14 @@ The dashboard URL used in notifications is
   information in `lagging_meters`, but does not change severity. The dashboard
   already separates those meters into its stale-meter section.
 
+The effective WARN threshold is the larger of `--warn-hours` and five times
+the reported collection interval, capped at the CRITICAL threshold. This
+prevents a slower data source cadence from generating premature WARN alerts.
+
 The defaults can be changed with the script's CLI flags:
-`--warn-hours`, `--critical-hours`, `--lag-hours`, and
-`--collection-interval`.
+`--warn-hours`, `--critical-hours`, and `--lag-hours`. The
+`--collection-interval` value is only a fallback in seconds; the
+`collection_interval` reported by `/api/status` takes precedence.
 
 ## Notifications and deduplication
 

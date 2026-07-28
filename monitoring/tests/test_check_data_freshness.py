@@ -42,6 +42,38 @@ def test_one_hour_stale_is_warn():
     result = evaluate(meters, status, NOW)
     assert result["severity"] == "WARN"
     assert result["age_seconds"] == 5400
+    assert result["warn_threshold_seconds_effective"] == 3600
+
+
+def test_reported_120_second_interval_keeps_one_hour_warn():
+    meters, status = payloads("2026-07-28T10:59:59Z", status={"collection_interval": 120})
+    result = evaluate(meters, status, NOW)
+    assert result["severity"] == "WARN"
+    assert result["warn_threshold_seconds_effective"] == 3600
+
+
+def test_reported_hour_interval_delays_warn_until_five_hours():
+    meters, status = payloads("2026-07-28T10:00:00Z", status={"collection_interval": 3600})
+    result = evaluate(meters, status, NOW)
+    assert result["severity"] == "OK"
+    assert result["warn_threshold_seconds_effective"] == 18000
+
+    meters, status = payloads("2026-07-28T06:59:59Z", status={"collection_interval": 3600})
+    result = evaluate(meters, status, NOW)
+    assert result["severity"] == "WARN"
+    assert result["reasons"] == ["最新データが5時間以上古いです"]
+
+
+def test_effective_warn_threshold_cannot_exceed_critical_threshold():
+    meters, status = payloads("2026-07-28T08:59:59Z", status={"collection_interval": 3600})
+    result = evaluate(
+        meters,
+        status,
+        NOW,
+        critical_threshold_seconds=3 * 60 * 60,
+    )
+    assert result["severity"] == "CRITICAL"
+    assert result["warn_threshold_seconds_effective"] == 3 * 60 * 60
 
 
 def test_configured_warn_threshold_is_used_in_reason():

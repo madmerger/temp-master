@@ -51,12 +51,22 @@ def _duration_label(seconds):
     return str(int(hours)) + "時間" if hours.is_integer() else f"{hours:g}時間"
 
 
-def _result(severity, reasons, newest, age_seconds, meters_count, lagging, status):
+def _result(
+    severity,
+    reasons,
+    newest,
+    age_seconds,
+    meters_count,
+    lagging,
+    status,
+    warn_threshold_seconds_effective=None,
+):
     return {
         "severity": severity,
         "reasons": reasons,
         "newest_last_updated": _isoformat(newest),
         "age_seconds": age_seconds,
+        "warn_threshold_seconds_effective": warn_threshold_seconds_effective,
         "meters_count": meters_count,
         "lagging_meters": lagging,
         "configured": status.get("configured"),
@@ -121,6 +131,10 @@ def evaluate(
         interval = float(interval)
     except (TypeError, ValueError):
         interval = collection_interval_seconds
+    effective_warn_threshold = min(
+        max(warn_threshold_seconds, interval * 5),
+        critical_threshold_seconds,
+    )
     if last_api_call and current.timestamp() - last_api_call > interval * 3:
         critical = True
         reasons.append("データ収集ループの最終API呼び出しから長時間経過しています")
@@ -134,10 +148,10 @@ def evaluate(
             reasons.append(
                 "最新データが" + _duration_label(critical_threshold_seconds) + "以上古いです"
             )
-        elif age_seconds > warn_threshold_seconds:
+        elif age_seconds > effective_warn_threshold:
             warning = True
             reasons.append(
-                "最新データが" + _duration_label(warn_threshold_seconds) + "以上古いです"
+                "最新データが" + _duration_label(effective_warn_threshold) + "以上古いです"
             )
 
         for parsed, meter in timestamps:
@@ -148,7 +162,16 @@ def evaluate(
                     "device_name": meter.get("device_name"),
                 })
     severity = "CRITICAL" if critical else "WARN" if warning else "OK"
-    return _result(severity, reasons, newest, age_seconds, meters_count, lagging, status)
+    return _result(
+        severity,
+        reasons,
+        newest,
+        age_seconds,
+        meters_count,
+        lagging,
+        status,
+        effective_warn_threshold,
+    )
 
 
 def evaluate_fetch_failure(message):
@@ -161,6 +184,7 @@ def evaluate_fetch_failure(message):
         0,
         [],
         {},
+        None,
     )
 
 
@@ -191,7 +215,12 @@ def main(argv=None):
     parser.add_argument("--warn-hours", type=float, default=1)
     parser.add_argument("--critical-hours", type=float, default=24)
     parser.add_argument("--lag-hours", type=float, default=24)
-    parser.add_argument("--collection-interval", type=float, default=DEFAULT_COLLECTION_INTERVAL_SECONDS)
+    parser.add_argument(
+        "--collection-interval",
+        type=float,
+        default=DEFAULT_COLLECTION_INTERVAL_SECONDS,
+        help="Fallback collection interval in seconds; /api/status wins when present",
+    )
     parser.add_argument("--timeout", type=float, default=DEFAULT_TIMEOUT_SECONDS)
     parser.add_argument("--github-output", action="store_true")
     args = parser.parse_args(argv)
