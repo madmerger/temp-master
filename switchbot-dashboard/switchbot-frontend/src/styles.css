@@ -1,0 +1,363 @@
+:root {
+  --bg-color: #f5f5f5;
+  --text-color: #333333;
+  --muted-color: #777777;
+  --panel-bg: #ffffff;
+  --panel-heading-bg: #f8f8f8;
+  --border-color: #dddddd;
+  --navbar-bg: #f8f8f8;
+  --navbar-border: #e7e7e7;
+  --tag-bg: #eeeeee;
+  --info-bg: #d9edf7;
+  --info-border: #bce8f1;
+  --info-text: #31708f;
+  --warning-bg: #fcf8e3;
+  --warning-border: #f0ad4e;
+  --warning-text: #8a6d3b;
+  --danger-bg: #f2dede;
+  --danger-border: #ebccd1;
+  --danger-text: #a94442;
+  --label-danger: #d9534f;
+  --label-info: #5bc0de;
+  --label-success: #5cb85c;
+  --label-warning: #f0ad4e;
+  --btn-primary-bg: #337ab7;
+  --btn-default-bg: #ffffff;
+  --chart-line: #d9534f;
+  --chart-fill: rgba(217, 83, 79, 0.15);
+  --chart-grid: rgba(0, 0, 0, 0.08);
+  --chart-axis: #777777;
+  --tooltip-bg: #ffffff;
+}
+
+[data-theme='dark'] {
+  --bg-color: #16181d;
+  --text-color: #e4e6eb;
+  --muted-color: #9aa0a6;
+  --panel-bg: #22252b;
+  --panel-heading-bg: #2a2e35;
+  --border-color: #3a3f47;
+  --navbar-bg: #1d2026;
+  --navbar-border: #3a3f47;
+  --tag-bg: #343941;
+  --info-bg: #1e3a44;
+  --info-border: #2b5866;
+  --info-text: #9ad5e8;
+  --warning-bg: #40361c;
+  --warning-border: #a5822f;
+  --warning-text: #f2d999;
+  --danger-bg: #45252a;
+  --danger-border: #7a3b42;
+  --danger-text: #f0a7ad;
+  --label-danger: #e2645f;
+  --label-info: #3f9cb5;
+  --label-success: #43965a;
+  --label-warning: #b98a2c;
+  --btn-primary-bg: #2f6fa5;
+  --btn-default-bg: #2a2e35;
+  --chart-line: #ff7b76;
+  --chart-fill: rgba(255, 123, 118, 0.18);
+  --chart-grid: rgba(255, 255, 255, 0.12);
+  --chart-axis: #9aa0a6;
+  --tooltip-bg: #2a2e35;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding-top: 70px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, 'Hiragino Kaku Gothic ProN',
+    'Meiryo', sans-serif;
+  font-size: 14px;
+  line-height: 1.42857143;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.container-fluid {
+  padding: 0 15px;
+}
+
+/* Navbar */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-height: 50px;
+  padding: 0 15px;
+  background-color: var(--navbar-bg);
+  border-bottom: 1px solid var(--navbar-border);
+}
+
+.navbar-brand {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--text-color);
+  background-color: var(--btn-default-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.theme-toggle:hover {
+  border-color: var(--muted-color);
+}
+
+/* Panels */
+.panel {
+  margin-bottom: 20px;
+  background-color: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.panel-heading {
+  padding: 10px 15px;
+  background-color: var(--panel-heading-bg);
+  border-bottom: 1px solid var(--border-color);
+  border-radius: 3px 3px 0 0;
+}
+
+.panel-body {
+  padding: 15px;
+}
+
+/* Grid */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -10px;
+}
+
+.col {
+  width: 33.3333%;
+  padding: 0 10px;
+}
+
+@media (max-width: 991px) {
+  .col {
+    width: 50%;
+  }
+}
+
+@media (max-width: 600px) {
+  .col {
+    width: 100%;
+  }
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.controls label {
+  margin-right: 8px;
+}
+
+select,
+.btn {
+  padding: 6px 12px;
+  font-size: 14px;
+  color: var(--text-color);
+  background-color: var(--btn-default-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}
+
+.btn {
+  cursor: pointer;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.btn-primary {
+  color: #ffffff;
+  background-color: var(--btn-primary-bg);
+  border-color: var(--btn-primary-bg);
+}
+
+/* Alerts */
+.alert {
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+
+.alert-info {
+  display: flex;
+  justify-content: space-between;
+  color: var(--info-text);
+  background-color: var(--info-bg);
+  border-color: var(--info-border);
+}
+
+.alert-warning {
+  color: var(--warning-text);
+  background-color: var(--warning-bg);
+  border-color: var(--warning-border);
+}
+
+.alert-danger {
+  color: var(--danger-text);
+  background-color: var(--danger-bg);
+  border-color: var(--danger-border);
+}
+
+/* Labels */
+.label {
+  display: inline-block;
+  padding: 4px 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  border-radius: 3px;
+}
+
+.label-danger {
+  background-color: var(--label-danger);
+}
+
+.label-info {
+  background-color: var(--label-info);
+}
+
+.label-success {
+  background-color: var(--label-success);
+}
+
+.label-warning {
+  background-color: var(--label-warning);
+}
+
+/* Meter panels */
+.meter-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.meter-panel-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  font-weight: 700;
+}
+
+.meter-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.meter-chart-wrap {
+  position: relative;
+  height: 200px;
+}
+
+.meter-last-updated {
+  color: var(--muted-color);
+  font-size: 12px;
+  margin: 8px 0 0;
+}
+
+.device-type-tag {
+  font-size: 11px;
+  color: var(--muted-color);
+  background-color: var(--tag-bg);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+/* Stale meters */
+.meter-section {
+  margin-bottom: 20px;
+}
+
+.meter-section-header {
+  margin-bottom: 10px;
+}
+
+.meter-section-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--warning-text);
+}
+
+.meter-section-subtitle {
+  margin: 4px 0 0;
+  color: var(--warning-text);
+  font-size: 12px;
+}
+
+.stale-meters-panel {
+  border-color: var(--warning-border);
+  background-color: var(--warning-bg);
+}
+
+.stale-meter-badge {
+  margin-left: 8px;
+  font-size: 12px;
+}
+
+.stale-meter-empty {
+  color: var(--warning-text);
+  margin: 0;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--muted-color);
+}
+
+footer {
+  text-align: center;
+  color: var(--muted-color);
+  font-size: 12px;
+  margin: 30px 0 20px;
+}
+
+/* Recharts tooltip */
+.chart-tooltip {
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--text-color);
+  background-color: var(--tooltip-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+}

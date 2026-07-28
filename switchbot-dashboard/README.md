@@ -4,8 +4,10 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 
 ## Features
 
-- Temperature charts for all SwitchBot Meter devices using Recharts
-- Time scale switching (hour/day/month/year)
+- Temperature charts for all SwitchBot Meter devices using React + Recharts
+- Light / dark mode toggle (persisted in `localStorage`, defaults to `prefers-color-scheme`)
+- Time scale switching (hour/day/week/month/year)
+- Stale meter section for devices with no updates for over 7 days
 - Auto-refresh every 30 seconds (frontend) with background data collection every 2 minutes (backend)
 - Rate limiting protection with exponential backoff
 - All API calls are cached - GET endpoints never call SwitchBot API directly
@@ -51,10 +53,14 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
    npm install
    ```
 
-3. Copy `.env.example` to `.env`:
+3. Copy `.env.example` to `.env` and set the backend URL:
    ```bash
    cp .env.example .env
    ```
+
+   `VITE_API_URL` is the base URL for all API calls (default: `https://snakeroom.fly.dev`).
+   Use `VITE_API_URL=http://localhost:8000` to talk to a local backend, or set it to an
+   empty value to call the same origin that serves the app.
 
 4. Start the development server:
    ```bash
@@ -62,6 +68,23 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
    ```
 
 5. Open http://localhost:5173 in your browser
+
+The frontend is a React 18 + TypeScript + Vite app (charts via Recharts):
+
+- `src/api/` - API client (`/api/meters`, `/api/status`, `/api/meters/{id}/history`, `POST /api/meters/refresh`, `/api/backup`)
+- `src/components/` - `Navbar`, `Controls`, `StatusBar`, `RateLimitWarning`, `MeterGrid`, `MeterPanel`, `StaleMetersSection`, `TemperatureChart`
+- `src/context/ThemeContext.tsx` - light/dark theme state, persisted in `localStorage`
+- `src/constants.ts` - Japanese device display names, refresh/stale thresholds
+
+Other scripts:
+
+```bash
+npm run typecheck   # tsc --noEmit
+npm run build       # production build into dist/
+```
+
+Production builds are served by the backend: the Docker image builds `dist/` in a Node
+stage and copies it into the backend's `static/` directory.
 
 ## API Endpoints
 
