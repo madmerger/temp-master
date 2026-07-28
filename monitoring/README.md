@@ -51,6 +51,11 @@ reply to the original alert. Recovery duration is measured from issue creation,
 so `停止時間（概算）` can differ from the actual outage by up to the monitor
 interval at either end.
 
+## 今後の課題
+
+現在は1回の不健全なチェックだけで通知します。ノイズが問題になる場合は、
+不健全な判定を2回連続で確認してから通知する方式も検討できます。
+
 ## Running locally
 
 ```bash

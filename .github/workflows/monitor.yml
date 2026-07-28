@@ -149,8 +149,10 @@ jobs:
           elif [ "$severity" = "CRITICAL" ] && [ "$recorded_severity" = "WARN" ]; then
             issue_url="$(echo "$open_issues" | python -c 'import json,sys; print(json.load(sys.stdin)[0]["url"])')"
             escalation_comment="重大度が悪化しました: WARN → CRITICAL。理由: $summary"
-            gh issue comment "$issue_number" --body "$escalation_comment"
-            gh issue edit "$issue_number" --remove-label severity:WARN --add-label severity:CRITICAL || true
+            escalation_commented="$(gh issue view "$issue_number" --json comments | python -c 'import json,sys; comments=json.load(sys.stdin)["comments"]; print("true" if any("重大度が悪化しました: WARN → CRITICAL" in comment["body"] for comment in comments) else "false")')"
+            if [ "$escalation_commented" != "true" ]; then
+              gh issue comment "$issue_number" --body "$escalation_comment"
+            fi
             if [ -z "$SLACK_WEBHOOK_URL" ]; then
               echo "::warning::SLACK_WEBHOOK_URL is not configured; escalation Slack notification remains pending"
               gh issue edit "$issue_number" --add-label slack-pending || true
@@ -174,6 +176,7 @@ jobs:
               )"
               if post_slack "$escalation_text"; then
                 gh issue edit "$issue_number" --remove-label slack-pending || true
+                gh issue edit "$issue_number" --remove-label severity:WARN --add-label severity:CRITICAL || true
               else
                 gh issue edit "$issue_number" --add-label slack-pending || true
               fi
@@ -211,7 +214,7 @@ jobs:
             issue_url="$(echo "$open_issues" | python -c 'import json,sys; print(json.load(sys.stdin)[0]["url"])')"
             created_at="$(echo "$open_issues" | python -c 'import json,sys; print(json.load(sys.stdin)[0]["createdAt"])')"
             stale_duration="$(CREATED_AT="$created_at" python -c 'import datetime,os; then_=datetime.datetime.fromisoformat(os.environ["CREATED_AT"].replace("Z","+00:00")); print(str(datetime.datetime.now(datetime.timezone.utc)-then_).split(".")[0])')"
-            recovery="$(RESULT_FILE=monitoring-result.json ISSUE_URL="$issue_url" DASHBOARD_URL="$DASHBOARD_URL" DATA_SOURCE_URL="$DATA_SOURCE_URL" STALE_DURATION="$stale_duration" python - <<'PY'
+            recovery="$(RESULT_FILE=monitoring-result.json ISSUE_URL="$issue_url" DASHBOARD_URL="$DASHBOARD_URL" DATA_SOURCE_URL="$DATA_SOURCE_URL" STALE_DURATION="$stale_duration" SLACK_PENDING="$issue_pending" python - <<'PY'
           import json
           import os
 
@@ -224,6 +227,8 @@ jobs:
               "ダッシュボード: " + os.environ["DASHBOARD_URL"],
               "データ提供元: " + os.environ["DATA_SOURCE_URL"],
           ]))
+          if os.environ["SLACK_PENDING"] == "true":
+              print("初回アラートはSlackへ未配信でした")
           PY
             )"
             gh issue comment "$issue_number" --body "$recovery"
