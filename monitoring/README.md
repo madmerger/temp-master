@@ -4,6 +4,9 @@ This monitor checks the external Snakeroom backend (`https://snakeroom.fly.dev`)
 every 30 minutes from GitHub Actions. It evaluates the meter timestamps and
 status fields rather than only checking whether the HTTP request returns 200.
 
+The dashboard URL used in notifications is
+`https://temp-master.fly.dev/`; the Snakeroom URL is the data provider.
+
 ## Thresholds
 
 - Newest meter data older than 1 hour: `WARN`
@@ -11,7 +14,9 @@ status fields rather than only checking whether the HTTP request returns 200.
 - No meters, invalid configuration, or no valid timestamps: `CRITICAL`
 - `last_api_call` older than three collection intervals: `CRITICAL`
 - API rate limiting: `WARN`
-- An individual meter more than 24 hours behind the newest meter: `WARN`
+- An individual meter more than 24 hours behind the newest meter is recorded as
+  information in `lagging_meters`, but does not change severity. The dashboard
+  already separates those meters into its stale-meter section.
 
 The defaults can be changed with the script's CLI flags:
 `--warn-hours`, `--critical-hours`, `--lag-hours`, and

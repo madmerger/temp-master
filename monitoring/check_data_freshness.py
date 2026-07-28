@@ -46,6 +46,11 @@ def _meter_list(meters_payload):
     return meters if isinstance(meters, list) else []
 
 
+def _duration_label(seconds):
+    hours = seconds / (60 * 60)
+    return str(int(hours)) + "時間" if hours.is_integer() else f"{hours:g}時間"
+
+
 def _result(severity, reasons, newest, age_seconds, meters_count, lagging, status):
     return {
         "severity": severity,
@@ -126,10 +131,14 @@ def evaluate(
     else:
         if age_seconds > critical_threshold_seconds:
             critical = True
-            reasons.append("最新データが24時間以上古いです")
+            reasons.append(
+                "最新データが" + _duration_label(critical_threshold_seconds) + "以上古いです"
+            )
         elif age_seconds > warn_threshold_seconds:
             warning = True
-            reasons.append("最新データが1時間以上古いです")
+            reasons.append(
+                "最新データが" + _duration_label(warn_threshold_seconds) + "以上古いです"
+            )
 
         for parsed, meter in timestamps:
             lag_seconds = (newest - parsed).total_seconds()
@@ -138,10 +147,6 @@ def evaluate(
                     "device_id": meter.get("device_id"),
                     "device_name": meter.get("device_name"),
                 })
-        if lagging:
-            warning = True
-            reasons.append("最新データから24時間以上遅れているメーターがあります")
-
     severity = "CRITICAL" if critical else "WARN" if warning else "OK"
     return _result(severity, reasons, newest, age_seconds, meters_count, lagging, status)
 

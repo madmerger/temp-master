@@ -44,9 +44,23 @@ def test_one_hour_stale_is_warn():
     assert result["age_seconds"] == 5400
 
 
+def test_configured_warn_threshold_is_used_in_reason():
+    meters, status = payloads("2026-07-28T08:59:59Z")
+    result = evaluate(meters, status, NOW, warn_threshold_seconds=3 * 60 * 60)
+    assert result["severity"] == "WARN"
+    assert result["reasons"] == ["最新データが3時間以上古いです"]
+
+
 def test_24_hours_stale_is_critical():
     meters, status = payloads("2026-07-27T11:59:59Z")
     assert evaluate(meters, status, NOW)["severity"] == "CRITICAL"
+
+
+def test_configured_critical_threshold_is_used_in_reason():
+    meters, status = payloads("2026-07-28T08:00:00Z")
+    result = evaluate(meters, status, NOW, critical_threshold_seconds=3 * 60 * 60)
+    assert result["severity"] == "CRITICAL"
+    assert result["reasons"] == ["最新データが3時間以上古いです"]
 
 
 def test_zero_meters_is_critical():
@@ -89,11 +103,27 @@ def test_missing_last_api_call_is_unknown():
     assert evaluate(meters, status, NOW)["severity"] == "OK"
 
 
-def test_lagging_meter_is_warn():
+def test_lagging_meter_is_informational():
     meters, status = payloads()
     meters["meters"].append(meter("late", "2026-07-27T11:00:00Z"))
     result = evaluate(meters, status | {"meters_count": 2}, NOW)
-    assert result["severity"] == "WARN"
+    assert result["severity"] == "OK"
+    assert result["lagging_meters"] == [{"device_id": "late", "device_name": "late"}]
+
+
+def test_lagging_meter_with_frozen_fleet_is_critical():
+    meters = {"meters": [
+        meter("newest", "2026-07-20T12:00:00Z"),
+        meter("late", "2026-07-19T00:00:00Z"),
+    ]}
+    status = {
+        "configured": True,
+        "meters_count": 2,
+        "is_rate_limited": False,
+        "last_api_call": NOW.timestamp(),
+    }
+    result = evaluate(meters, status, NOW)
+    assert result["severity"] == "CRITICAL"
     assert result["lagging_meters"] == [{"device_id": "late", "device_name": "late"}]
 
 
