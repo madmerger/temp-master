@@ -1,0 +1,98 @@
+name: Data Freshness Monitor
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  monitor:
+    name: Monitor data freshness
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Evaluate freshness
+        id: freshness
+        run: |
+          python monitoring/check_data_freshness.py --github-output > monitoring-result.json
+          cat monitoring-result.json
+
+      - name: Notify and deduplicate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          DASHBOARD_URL: https://snakeroom.fly.dev/
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          set -e
+          gh label create data-stale --color D93F0B --description "Snakeroom data freshness incident" || true
+
+          severity="$(python -c 'import json; print(json.load(open("monitoring-result.json"))["severity"])')"
+          summary="$(python -c 'import json; print(" / ".join(json.load(open("monitoring-result.json"))["reasons"]))')"
+          open_issues="$(gh issue list --state open --label data-stale --json number,url,createdAt,title --limit 1)"
+          issue_number="$(OPEN_ISSUES="$open_issues" python -c 'import json,os; x=json.loads(os.environ["OPEN_ISSUES"]); print(x[0]["number"] if x else "")')"
+
+          if [ "$severity" != "OK" ] && [ -z "$issue_number" ]; then
+            age_label="$(python -c 'import json; r=json.load(open("monitoring-result.json")); a=r["age_seconds"]; print("時刻不明" if a is None else (str(int(a // 86400)) + "日前" if a >= 86400 else str(int(a // 3600)) + "時間前"))')"
+            title="データ鮮度アラート [$severity] 最新データ $age_label"
+            body_file="$(mktemp)"
+            RESULT_FILE=monitoring-result.json TITLE="$title" SUMMARY="$summary" RUN_URL="$RUN_URL" DASHBOARD_URL="$DASHBOARD_URL" python - <<'PY' > "$body_file"
+          import json
+          import os
+
+          result = json.load(open(os.environ["RESULT_FILE"], encoding="utf-8"))
+          print("## 症状")
+          print(os.environ["SUMMARY"])
+          print("")
+          print("## 判定結果")
+          print("```json")
+          print(json.dumps(result, ensure_ascii=False, indent=2))
+          print("```")
+          print("")
+          print("ダッシュボード: " + os.environ["DASHBOARD_URL"])
+          print("監視実行: " + os.environ["RUN_URL"])
+          PY
+            issue_url="$(gh issue create --title "$title" --body-file "$body_file" --label data-stale)"
+            if [ -z "$SLACK_WEBHOOK_URL" ]; then
+              echo "::warning::SLACK_WEBHOOK_URL is not configured; skipping Slack notification"
+            else
+              slack_text="🚨 データ鮮度アラート [$severity]
+          症状: $summary
+          最新データ時刻: $(python -c 'import json; print(json.load(open("monitoring-result.json"))["newest_last_updated"])')
+          メーター数: $(python -c 'import json; print(json.load(open("monitoring-result.json"))["meters_count"])')
+          ダッシュボード: $DASHBOARD_URL
+          Issue: $issue_url
+          実行: $RUN_URL"
+              SLACK_TEXT="$slack_text" python -c 'import json,os; print(json.dumps({"text": os.environ["SLACK_TEXT"]}, ensure_ascii=False))' | curl --fail --silent --show-error -X POST -H 'Content-Type: application/json' --data-binary @- "$SLACK_WEBHOOK_URL"
+            fi
+          elif [ "$severity" = "OK" ] && [ -n "$issue_number" ]; then
+            issue_url="$(echo "$open_issues" | python -c 'import json,sys; print(json.load(sys.stdin)[0]["url"])')"
+            created_at="$(echo "$open_issues" | python -c 'import json,sys; print(json.load(sys.stdin)[0]["createdAt"])')"
+            stale_duration="$(CREATED_AT="$created_at" python -c 'import datetime,os; then_=datetime.datetime.fromisoformat(os.environ["CREATED_AT"].replace("Z","+00:00")); print(str(datetime.datetime.now(datetime.timezone.utc)-then_).split(".")[0])')"
+            recovery="復旧しました。最新データ: $(python -c 'import json; print(json.load(open("monitoring-result.json"))["newest_last_updated"])')（停止時間: $stale_duration）
+          Issue: $issue_url
+          ダッシュボード: $DASHBOARD_URL"
+            gh issue comment "$issue_number" --body "$recovery"
+            gh issue close "$issue_number"
+            if [ -z "$SLACK_WEBHOOK_URL" ]; then
+              echo "::warning::SLACK_WEBHOOK_URL is not configured; skipping Slack recovery notification"
+            else
+              SLACK_TEXT="✅ データ鮮度が復旧しました
+          $recovery
+          実行: $RUN_URL" SLACK_WEBHOOK_URL="$SLACK_WEBHOOK_URL" python -c 'import json,os,urllib.request; data=json.dumps({"text":os.environ["SLACK_TEXT"]},ensure_ascii=False).encode(); req=urllib.request.Request(os.environ["SLACK_WEBHOOK_URL"],data=data,headers={"Content-Type":"application/json"}); urllib.request.urlopen(req).read()'
+            fi
+          else
+            echo "No issue state transition: severity=$severity issue=$issue_number"
+          fi
