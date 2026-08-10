@@ -5,7 +5,7 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 ## Features
 
 - Temperature charts for all SwitchBot Meter devices using Recharts
-- Time scale switching (hour/day/month/year)
+- Time scale switching (hour / day / week / month / year)
 - Auto-refresh every 30 seconds (frontend) with background data collection every 2 minutes (backend)
 - Rate limiting protection with exponential backoff
 - All API calls are cached - GET endpoints never call SwitchBot API directly
@@ -41,6 +41,8 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 
 ### Frontend
 
+The frontend is a Vite + React 18 + TypeScript SPA. It uses Tailwind CSS for styling (with `darkMode: 'class'`), Recharts for temperature charts, and TanStack Query for data fetching and 30-second polling.
+
 1. Navigate to the frontend directory:
    ```bash
    cd switchbot-frontend
@@ -51,9 +53,14 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
    npm install
    ```
 
-3. Copy `.env.example` to `.env`:
+3. Copy `.env.example` to `.env` and adjust `VITE_API_URL` if needed:
    ```bash
    cp .env.example .env
+   ```
+
+   The default API base is `https://snakeroom.fly.dev`. For local backend development, set:
+   ```
+   VITE_API_URL=http://localhost:8000
    ```
 
 4. Start the development server:
@@ -62,6 +69,20 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
    ```
 
 5. Open http://localhost:5173 in your browser
+
+6. Type-check the project:
+   ```bash
+   npm run typecheck
+   ```
+
+7. Build for production:
+   ```bash
+   npm run build
+   ```
+
+#### Theme toggle
+
+A light/dark theme toggle is available in the navbar. The selected theme is persisted to `localStorage` and defaults to the OS `prefers-color-scheme`. Tailwind's `dark:` variants are enabled via `darkMode: 'class'`. Recharts axis, grid, and line colors also update to remain visible in both themes.
 
 ## API Endpoints
 
