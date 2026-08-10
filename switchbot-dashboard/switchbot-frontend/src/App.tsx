@@ -40,11 +40,46 @@ export default function App() {
     }
   }
 
-  return <><Navbar connected={connected} /><main className="mx-auto max-w-[1400px] px-4 pb-4 pt-20">
-    <Controls timeScale={timeScale} onTimeScaleChange={setTimeScale} onRefresh={refresh} refreshing={refreshing} />
-    {statusQuery.data && <StatusBar count={statusQuery.data.meters_count} refreshedAt={new Date(Math.max(metersQuery.dataUpdatedAt, statusQuery.dataUpdatedAt))} />}
-    {statusQuery.data?.is_rate_limited && <RateLimitWarning remaining={statusQuery.data.backoff_remaining} />}
-    {metersQuery.isPending || statusQuery.isPending ? <div className="py-10 text-center text-gray-500">Loading temperature data...</div> : error ? <div className="rounded border border-red-300 bg-red-50 px-4 py-3 text-red-800 dark:border-red-700 dark:bg-red-950 dark:text-red-200"><strong>Error.</strong> Failed to fetch {metersQuery.error ? 'meters' : 'status'}: {error.message}</div> : <><MeterGrid meters={active} timeScale={timeScale} /><StaleMetersSection meters={stale} timeScale={timeScale} /></>}
-    <footer className="my-8 text-center text-xs text-gray-500">Temp Master Dashboard v1.0 - Built with React, Tailwind CSS, Recharts, and TanStack Query</footer>
-  </main></>;
+  return (
+    <>
+      <Navbar connected={connected} />
+      <main className="mx-auto max-w-[1400px] px-4 pb-4 pt-20">
+        <Controls
+          timeScale={timeScale}
+          onTimeScaleChange={setTimeScale}
+          onRefresh={refresh}
+          refreshing={refreshing}
+        />
+        {statusQuery.data && (
+          <StatusBar
+            count={statusQuery.data.meters_count}
+            refreshedAt={new Date(
+              Math.max(metersQuery.dataUpdatedAt, statusQuery.dataUpdatedAt),
+            )}
+          />
+        )}
+        {statusQuery.data?.is_rate_limited && (
+          <RateLimitWarning remaining={statusQuery.data.backoff_remaining} />
+        )}
+        {metersQuery.isPending || statusQuery.isPending ? (
+          <div className="py-10 text-center text-gray-500">
+            Loading temperature data...
+          </div>
+        ) : error ? (
+          <div className="rounded border border-red-300 bg-red-50 px-4 py-3 text-red-800 dark:border-red-700 dark:bg-red-950 dark:text-red-200">
+            <strong>Error.</strong> Failed to fetch{' '}
+            {metersQuery.error ? 'meters' : 'status'}: {error.message}
+          </div>
+        ) : (
+          <>
+            <MeterGrid meters={active} timeScale={timeScale} />
+            <StaleMetersSection meters={stale} timeScale={timeScale} />
+          </>
+        )}
+        <footer className="my-8 text-center text-xs text-gray-500">
+          Temp Master Dashboard v1.0 - Built with React, Tailwind CSS, Recharts, and TanStack Query
+        </footer>
+      </main>
+    </>
+  );
 }
