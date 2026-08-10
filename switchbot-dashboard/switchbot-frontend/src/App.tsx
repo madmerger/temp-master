@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { API_URL, triggerRefresh } from './api/client';
 import type { TimeScale } from './api/types';
@@ -15,14 +15,22 @@ import { isStaleMeter } from './utils/stale';
 export default function App() {
   const [timeScale, setTimeScale] = useState<TimeScale>('day');
   const [refreshing, setRefreshing] = useState(false);
+  const [refreshError, setRefreshError] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const metersQuery = useMeters();
   const statusQuery = useStatus();
-  const error = metersQuery.error || statusQuery.error;
+  const queryError = metersQuery.error || statusQuery.error;
+  const error = refreshError || queryError?.message;
   const meters = metersQuery.data?.meters ?? [];
   const active = meters.filter((meter) => !isStaleMeter(meter));
   const stale = meters.filter(isStaleMeter);
-  const connected = !error && !metersQuery.isPending && !statusQuery.isPending;
+  const connected = !error;
+
+  useEffect(() => {
+    if (metersQuery.dataUpdatedAt || statusQuery.dataUpdatedAt) {
+      setRefreshError(null);
+    }
+  }, [metersQuery.dataUpdatedAt, statusQuery.dataUpdatedAt]);
 
   async function refresh() {
     setRefreshing(true);
@@ -34,7 +42,11 @@ export default function App() {
         queryClient.invalidateQueries({ queryKey: ['history'] }),
       ]);
     } catch (refreshError) {
-      console.error(refreshError);
+      setRefreshError(
+        `Failed to refresh: ${
+          refreshError instanceof Error ? refreshError.message : String(refreshError)
+        }`,
+      );
     } finally {
       setRefreshing(false);
     }
@@ -67,8 +79,10 @@ export default function App() {
           </div>
         ) : error ? (
           <div className="rounded border border-red-300 bg-red-50 px-4 py-3 text-red-800 dark:border-red-700 dark:bg-red-950 dark:text-red-200">
-            <strong>Error.</strong> Failed to fetch{' '}
-            {metersQuery.error ? 'meters' : 'status'}: {error.message}
+            <strong>Error.</strong>{' '}
+            {refreshError
+              ? error
+              : `Failed to fetch ${metersQuery.error ? 'meters' : 'status'}: ${error}`}
           </div>
         ) : (
           <>

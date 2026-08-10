@@ -18,14 +18,31 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark');
-    localStorage.setItem(STORAGE_KEY, theme);
+
+    if (localStorage.getItem(STORAGE_KEY)) {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (event: MediaQueryListEvent) => {
+      setTheme(event.matches ? 'dark' : 'light');
+    };
+    mediaQuery.addEventListener('change', handleChange);
+
+    return () => mediaQuery.removeEventListener('change', handleChange);
   }, [theme]);
 
   return (
     <ThemeContext.Provider
       value={{
         theme,
-        toggleTheme: () => setTheme((value) => (value === 'dark' ? 'light' : 'dark')),
+        toggleTheme: () => {
+          setTheme((value) => {
+            const nextTheme = value === 'dark' ? 'light' : 'dark';
+            localStorage.setItem(STORAGE_KEY, nextTheme);
+            return nextTheme;
+          });
+        },
       }}
     >
       {children}
