@@ -30,7 +30,11 @@ function TemperatureTooltip({ active, payload, label }: TemperatureTooltipProps)
   }
 
   const value = payload[0].value
-  const formatted = typeof value === 'number' ? `${value.toFixed(1)}°C` : `${value}°C`
+  if (typeof value !== 'number') {
+    return null
+  }
+
+  const formatted = `${value.toFixed(1)}°C`
 
   return (
     <div className="rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2 shadow-sm text-xs">

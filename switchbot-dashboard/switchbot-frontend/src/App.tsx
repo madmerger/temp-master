@@ -18,18 +18,19 @@ import type { TimeScale } from './api/types'
 function App() {
   const [timeScale, setTimeScale] = useState<TimeScale>('day')
   const [refreshing, setRefreshing] = useState(false)
-  const [lastRefresh, setLastRefresh] = useState<Date | undefined>()
 
   const { theme, toggle } = useTheme()
   const {
     data: metersData,
     isLoading: metersLoading,
     isError: metersError,
+    dataUpdatedAt: metersUpdatedAt,
   } = useMeters()
   const {
     data: statusData,
     isLoading: statusLoading,
     isError: statusError,
+    dataUpdatedAt: statusUpdatedAt,
   } = useStatus()
 
   const meters = metersData?.meters ?? []
@@ -41,6 +42,11 @@ function App() {
     () => meters.filter((m) => isStaleMeter(m)),
     [meters],
   )
+
+  const lastRefresh = useMemo(() => {
+    const latest = Math.max(metersUpdatedAt, statusUpdatedAt)
+    return latest > 0 ? new Date(latest) : undefined
+  }, [metersUpdatedAt, statusUpdatedAt])
 
   const connected = !metersLoading && !statusLoading && !metersError && !statusError
 
@@ -55,7 +61,6 @@ function App() {
         queryClient.invalidateQueries({ queryKey: METERS_KEY }),
         queryClient.invalidateQueries({ queryKey: STATUS_KEY }),
       ])
-      setLastRefresh(new Date())
       setRefreshing(false)
     }
   }
@@ -63,6 +68,9 @@ function App() {
   const handleBackup = () => {
     window.open(`${API_URL}/api/backup`, '_blank')
   }
+
+  const isLoading = metersLoading || statusLoading
+  const hasData = metersData && statusData
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100">
@@ -77,7 +85,7 @@ function App() {
           refreshing={refreshing}
         />
 
-        {metersLoading && statusLoading && !metersData && !statusData && (
+        {isLoading && !hasData && (
           <div className="text-center py-10 text-gray-500 dark:text-gray-400">
             Loading temperature data...
           </div>
