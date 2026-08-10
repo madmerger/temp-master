@@ -30,8 +30,8 @@ export default function TemperatureChart({ readings, timeScale }: { readings: Re
             tickLine={false}
             axisLine={false}
             domain={['auto', 'auto']}
-            tickFormatter={(value) => `${value}°`}
-            width={35}
+            tickFormatter={(value: number) => `${value.toFixed(1)}°`}
+            width={44}
           />
           <Tooltip
             contentStyle={{
