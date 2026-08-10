@@ -101,9 +101,6 @@ function App() {
     window.open(`${API_URL}/api/backup`, '_blank')
   }
 
-  const isLoading = metersLoading || statusLoading
-  const hasData = metersData && statusData
-
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100">
       <Navbar connectionStatus={connectionStatus} theme={theme} toggle={toggle} />
@@ -117,7 +114,7 @@ function App() {
           refreshing={refreshing}
         />
 
-        {isLoading && !hasData && (
+        {((metersLoading && !metersData) || (statusLoading && !statusData)) && (
           <div className="text-center py-10 text-gray-500 dark:text-gray-400">
             Loading temperature data...
           </div>
