@@ -6,7 +6,7 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 
 - Temperature charts for all SwitchBot Meter devices using Recharts
 - Time scale switching (hour / day / week / month / year)
-- Auto-refresh every 30 seconds (frontend) with background data collection every 2 minutes (backend)
+- Auto-refresh every 30 seconds (frontend) with background data collection every 60 minutes / 3600 seconds (backend)
 - Rate limiting protection with exponential backoff
 - All API calls are cached - GET endpoints never call SwitchBot API directly
 
@@ -107,6 +107,6 @@ A light/dark theme toggle is available in the navbar. The selected theme is pers
 ## Notes
 
 - Temperature history is stored in memory and resets on backend restart
-- Backend data collection interval: 2 minutes minimum
+- Backend data collection interval: 3600 seconds (60 minutes)
 - Frontend refresh interval: 30 seconds
 - SwitchBot API has strict rate limits (~10000 requests/day)
