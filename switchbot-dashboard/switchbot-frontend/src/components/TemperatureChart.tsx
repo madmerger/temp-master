@@ -47,10 +47,26 @@ function TemperatureTooltip({ active, payload, label }: TemperatureTooltipProps)
 }
 
 export default function TemperatureChart({ deviceId, timeScale }: TemperatureChartProps) {
-  const { data } = useHistory(deviceId, timeScale)
+  const { data, isLoading, isError } = useHistory(deviceId, timeScale)
   const { isDark } = useTheme()
 
   const history = data?.history ?? []
+
+  if (isLoading && history.length === 0) {
+    return (
+      <div className="h-full flex items-center justify-center text-xs text-gray-500 dark:text-gray-400">
+        Loading history...
+      </div>
+    )
+  }
+
+  if (isError && history.length === 0) {
+    return (
+      <div className="h-full flex items-center justify-center text-xs text-red-600 dark:text-red-400">
+        Failed to load history
+      </div>
+    )
+  }
   const chartData: ChartPoint[] = history.map((reading) => ({
     label: formatTimestamp(reading.timestamp, timeScale),
     temperature: reading.temperature,

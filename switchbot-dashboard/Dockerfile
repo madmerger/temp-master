@@ -4,6 +4,8 @@ WORKDIR /frontend
 COPY switchbot-frontend/package.json switchbot-frontend/package-lock.json* ./
 RUN npm ci
 COPY switchbot-frontend/ ./
+ARG VITE_API_URL=https://snakeroom.fly.dev
+ENV VITE_API_URL=${VITE_API_URL}
 RUN npm run build
 
 # Build and run backend (serves frontend static files)

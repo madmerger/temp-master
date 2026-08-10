@@ -1,8 +1,16 @@
 import type { MeterHistoryResponse, MetersResponse, StatusResponse, TimeScale } from './types'
 
 const envUrl = (import.meta.env.VITE_API_URL as string | undefined)?.trim()
-export const API_URL =
-  envUrl !== undefined ? envUrl.replace(/\/+$/, '') : 'https://snakeroom.fly.dev'
+
+export const API_URL = (() => {
+  if (envUrl === undefined || envUrl === '') {
+    return 'https://snakeroom.fly.dev'
+  }
+  if (envUrl === '/') {
+    return ''
+  }
+  return envUrl.replace(/\/+$/, '')
+})()
 
 async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_URL}${url}`, init)

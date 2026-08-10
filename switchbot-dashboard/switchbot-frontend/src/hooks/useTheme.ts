@@ -48,11 +48,19 @@ function emit() {
   listeners.forEach((callback) => callback())
 }
 
-export function setTheme(theme: Theme) {
+// Internal update: apply to state and DOM without persisting.
+function applyTheme(theme: Theme) {
   if (currentTheme === theme) {
     return
   }
   currentTheme = theme
+  updateHtml(theme)
+  emit()
+}
+
+// Public API: update and persist the user's explicit choice.
+export function setTheme(theme: Theme) {
+  applyTheme(theme)
   if (isBrowser) {
     try {
       window.localStorage.setItem(STORAGE_KEY, theme)
@@ -60,8 +68,6 @@ export function setTheme(theme: Theme) {
       // ignore
     }
   }
-  updateHtml(theme)
-  emit()
 }
 
 export function toggleTheme() {
@@ -81,15 +87,20 @@ function handleStorageChange(event: StorageEvent) {
   if (event.key !== STORAGE_KEY) {
     return
   }
-  const next = (event.newValue as Theme | null) || getSystemTheme()
-  setTheme(next)
+  if (event.newValue === null) {
+    // localStorage entry was removed -> fall back to system theme
+    applyTheme(getSystemTheme())
+  } else {
+    applyTheme(event.newValue as Theme)
+  }
 }
 
 function handleSystemThemeChange(event: MediaQueryListEvent) {
+  // Only follow OS theme when the user has not made an explicit choice.
   if (getStoredTheme()) {
     return
   }
-  setTheme(event.matches ? 'dark' : 'light')
+  applyTheme(event.matches ? 'dark' : 'light')
 }
 
 if (isBrowser) {

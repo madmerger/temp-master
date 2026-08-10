@@ -13,7 +13,9 @@ import RateLimitWarning from './components/RateLimitWarning'
 import MeterGrid from './components/MeterGrid'
 import StaleMetersSection from './components/StaleMetersSection'
 import { isStaleMeter } from './utils/isStale'
-import type { TimeScale } from './api/types'
+import type { MeterDevice, TimeScale } from './api/types'
+
+const EMPTY_METERS: MeterDevice[] = []
 
 type ConnectionStatus = 'connecting' | 'connected' | 'disconnected'
 
@@ -48,7 +50,7 @@ function App() {
     dataUpdatedAt: statusUpdatedAt,
   } = useStatus()
 
-  const meters = metersData?.meters ?? []
+  const meters = metersData?.meters ?? EMPTY_METERS
   const activeMeters = useMemo(
     () => meters.filter((m) => !isStaleMeter(m)),
     [meters],

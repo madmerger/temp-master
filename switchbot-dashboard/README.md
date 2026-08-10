@@ -63,6 +63,15 @@ The frontend is a Vite + React 18 + TypeScript SPA. It uses Tailwind CSS for sty
    VITE_API_URL=http://localhost:8000
    ```
 
+   To make the SPA use the same origin (e.g. when served by the FastAPI backend in Docker), set `VITE_API_URL` to an empty value or `/`:
+   ```
+   VITE_API_URL=
+   ```
+   When building the Docker image, you can override the API base with a build argument:
+   ```bash
+   docker build --build-arg VITE_API_URL=http://localhost:8000 -t temp-master .
+   ```
+
 4. Start the development server:
    ```bash
    npm run dev
