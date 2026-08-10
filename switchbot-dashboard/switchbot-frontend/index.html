@@ -10,7 +10,7 @@
           const key = 'temp-master-theme'
           const stored = localStorage.getItem(key)
           const theme =
-            stored ||
+            (stored === 'dark' || stored === 'light' ? stored : null) ||
             (window.matchMedia('(prefers-color-scheme: dark)').matches
               ? 'dark'
               : 'light')

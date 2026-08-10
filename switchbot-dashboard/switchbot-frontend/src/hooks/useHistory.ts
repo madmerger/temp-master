@@ -7,5 +7,6 @@ export function useHistory(deviceId: string, timeScale: TimeScale) {
     queryKey: ['history', deviceId, timeScale] as const,
     queryFn: () => getHistory(deviceId, timeScale),
     enabled: !!deviceId,
+    placeholderData: (previousData) => previousData,
   })
 }

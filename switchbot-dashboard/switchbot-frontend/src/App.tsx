@@ -35,6 +35,7 @@ function getConnectionStatus(
 function App() {
   const [timeScale, setTimeScale] = useState<TimeScale>('day')
   const [refreshing, setRefreshing] = useState(false)
+  const [refreshError, setRefreshError] = useState<string | null>(null)
 
   const { theme, toggle } = useTheme()
   const {
@@ -79,10 +80,12 @@ function App() {
 
   const handleRefresh = async () => {
     setRefreshing(true)
+    setRefreshError(null)
     try {
       await refreshMeters()
-    } catch {
-      // Error handling is managed by the query error state
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to refresh data'
+      setRefreshError(`Failed to refresh: ${message}`)
     } finally {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: METERS_KEY }),
@@ -122,6 +125,12 @@ function App() {
         {(metersError || statusError) && (
           <div className="bg-red-50 dark:bg-red-900/30 text-red-900 dark:text-red-100 px-4 py-3 rounded mb-4">
             <strong>Error.</strong> <span>Failed to fetch data.</span>
+          </div>
+        )}
+
+        {refreshError && (
+          <div className="bg-red-50 dark:bg-red-900/30 text-red-900 dark:text-red-100 px-4 py-3 rounded mb-4">
+            <strong>Error.</strong> <span>{refreshError}</span>
           </div>
         )}
 
