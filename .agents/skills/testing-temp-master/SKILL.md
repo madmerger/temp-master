@@ -48,7 +48,7 @@ Then make the built files available to the backend. The easiest approach is to s
 
 ```bash
 cd switchbot-dashboard/switchbot-backend
-ln -s $(pwd)/../switchbot-frontend/dist ./static
+ln -s ../switchbot-frontend/dist ./static
 ```
 
 **Important:** The static directory check in `main.py` happens at module import time (`STATIC_DIR = Path(__file__).resolve().parent.parent / "static"`). If you create the symlink after starting the server, you must restart the server.
@@ -106,4 +106,4 @@ Expected: 97 tests pass.
 - Backend: FastAPI + aiosqlite (SQLite persistence at `/data/app.db` or local `app.db`)
 - Frontend: Vite + React 18 + TypeScript + Tailwind CSS + Recharts + TanStack Query
 - Deployment: Fly.io (see `fly.toml`)
-- Background data collection runs with 120s interval, with rate limiting and exponential backoff
+- Background data collection runs with 3600s interval, with rate limiting and exponential backoff
