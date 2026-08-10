@@ -14,7 +14,7 @@ export default function MeterGrid({ meters, timeScale }: MeterGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {meters.map((meter) => (
-        <MeterPanel key={meter.device_id} meter={meter} timeScale={timeScale} />
+        <MeterPanel key={meter.device_id} meter={meter} timeScale={timeScale} isStale={false} />
       ))}
     </div>
   )

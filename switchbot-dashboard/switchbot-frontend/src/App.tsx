@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { useMeters } from './hooks/useMeters'
 import { useStatus } from './hooks/useStatus'
 import { useTheme } from './hooks/useTheme'
-import { queryClient } from './queryClient'
 import { API_URL, refreshMeters } from './api/client'
 import { METERS_KEY } from './hooks/useMeters'
 import { STATUS_KEY } from './hooks/useStatus'
@@ -33,6 +33,7 @@ function getConnectionStatus(
 }
 
 function App() {
+  const queryClient = useQueryClient()
   const [timeScale, setTimeScale] = useState<TimeScale>('day')
   const [refreshing, setRefreshing] = useState(false)
   const [refreshError, setRefreshError] = useState<string | null>(null)

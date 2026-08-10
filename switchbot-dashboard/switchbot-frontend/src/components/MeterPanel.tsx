@@ -1,16 +1,14 @@
 import { getDisplayName } from '../utils/displayNames'
-import { isStaleMeter } from '../utils/isStale'
 import TemperatureChart from './TemperatureChart'
 import type { MeterDevice, TimeScale } from '../api/types'
 
 interface MeterPanelProps {
   meter: MeterDevice
   timeScale: TimeScale
-  isStale?: boolean
+  isStale: boolean
 }
 
 export default function MeterPanel({ meter, timeScale, isStale }: MeterPanelProps) {
-  const stale = isStale ?? isStaleMeter(meter)
   const displayName = getDisplayName(meter.device_name)
 
   return (
@@ -18,7 +16,7 @@ export default function MeterPanel({ meter, timeScale, isStale }: MeterPanelProp
       <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-start justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <strong className="text-gray-900 dark:text-white">{displayName}</strong>
-          {stale && (
+          {isStale && (
             <span className="inline-flex items-center rounded bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
               7日以上未更新
             </span>
@@ -48,7 +46,7 @@ export default function MeterPanel({ meter, timeScale, isStale }: MeterPanelProp
           )}
         </div>
 
-        {stale ? (
+        {isStale ? (
           <p className="text-sm text-gray-500 dark:text-gray-400 italic">
             履歴データの取得対象外
           </p>
@@ -62,7 +60,7 @@ export default function MeterPanel({ meter, timeScale, isStale }: MeterPanelProp
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
             Last updated: {new Date(meter.last_updated).toLocaleString()}
           </p>
-        ) : stale ? (
+        ) : isStale ? (
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
             値がありません（データ未受信）
           </p>
