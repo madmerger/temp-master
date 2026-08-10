@@ -67,9 +67,13 @@ The frontend is a Vite + React 18 + TypeScript SPA. It uses Tailwind CSS for sty
    ```
    VITE_API_URL=
    ```
-   When building the Docker image, the default is to use the same origin (because FastAPI serves the built SPA). Override with a build argument to point at a different backend:
+   When building the Docker image, the default is `https://snakeroom.fly.dev`. Override with a build argument to point at the same backend (same-origin) or a different backend:
    ```bash
-   docker build --build-arg VITE_API_URL=https://snakeroom.fly.dev -t temp-master .
+   # Use the FastAPI backend that serves the SPA (same origin)
+   docker build --build-arg VITE_API_URL= -t temp-master .
+
+   # Or point at a different backend
+   docker build --build-arg VITE_API_URL=http://localhost:8000 -t temp-master .
    ```
 
 4. Start the development server:

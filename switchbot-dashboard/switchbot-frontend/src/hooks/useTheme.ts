@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react'
 
+// Keep in sync with the inline theme initialization in index.html.
 const STORAGE_KEY = 'temp-master-theme'
 
 type Theme = 'light' | 'dark'

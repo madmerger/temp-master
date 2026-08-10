@@ -47,7 +47,7 @@ function TemperatureTooltip({ active, payload, label }: TemperatureTooltipProps)
 }
 
 export default function TemperatureChart({ deviceId, timeScale }: TemperatureChartProps) {
-  const { data, isLoading, isError } = useHistory(deviceId, timeScale)
+  const { data, isLoading, isError, isPlaceholderData } = useHistory(deviceId, timeScale)
   const { isDark } = useTheme()
 
   const history = data?.history ?? []
@@ -78,8 +78,9 @@ export default function TemperatureChart({ deviceId, timeScale }: TemperatureCha
   const fillColor = isDark ? 'rgba(248, 113, 113, 0.15)' : 'rgba(217, 83, 79, 0.15)'
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <AreaChart data={chartData} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
+    <div className={`h-full ${isPlaceholderData ? 'opacity-60' : ''}`}>
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={chartData} margin={{ top: 5, right: 5, bottom: 5, left: -20 }}>
         <CartesianGrid stroke={gridColor} />
         <XAxis
           dataKey="label"
@@ -103,6 +104,7 @@ export default function TemperatureChart({ deviceId, timeScale }: TemperatureCha
           activeDot={{ r: 5 }}
         />
       </AreaChart>
-    </ResponsiveContainer>
+      </ResponsiveContainer>
+    </div>
   )
 }

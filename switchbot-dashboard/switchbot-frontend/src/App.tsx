@@ -122,7 +122,7 @@ function App() {
           </div>
         )}
 
-        {(metersError || statusError) && (
+        {((metersError && !metersData) || (statusError && !statusData)) && (
           <div className="bg-red-50 dark:bg-red-900/30 text-red-900 dark:text-red-100 px-4 py-3 rounded mb-4">
             <strong>Error.</strong> <span>Failed to fetch data.</span>
           </div>
