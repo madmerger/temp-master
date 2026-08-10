@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useMeters } from './hooks/useMeters'
 import { useStatus } from './hooks/useStatus'
 import { useTheme } from './hooks/useTheme'
@@ -64,6 +64,11 @@ function App() {
   const lastRefresh = useMemo(() => {
     const latest = Math.max(metersUpdatedAt, statusUpdatedAt)
     return latest > 0 ? new Date(latest) : undefined
+  }, [metersUpdatedAt, statusUpdatedAt])
+
+  // Clear manual refresh error once an automatic or manual refetch succeeds.
+  useEffect(() => {
+    setRefreshError(null)
   }, [metersUpdatedAt, statusUpdatedAt])
 
   const connectionStatus: ConnectionStatus = useMemo(() => {
