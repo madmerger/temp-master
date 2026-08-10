@@ -39,7 +39,7 @@ export default function TemperatureChart({ readings, timeScale }: { readings: Re
               color: dark ? '#f9fafb' : '#111827',
             }}
             formatter={(value: unknown) => {
-              if (value === null || value === undefined || typeof value !== 'number') {
+              if (typeof value !== 'number') {
                 return ['', 'Temperature'];
               }
               return [`${value.toFixed(1)}°C`, 'Temperature'];

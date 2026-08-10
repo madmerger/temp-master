@@ -35,22 +35,19 @@ export default function App() {
   async function refresh() {
     setRefreshing(true);
     try {
-      try {
-        await triggerRefresh();
-      } catch (refreshError) {
-        setRefreshError(
-          `Failed to refresh: ${
-            refreshError instanceof Error ? refreshError.message : String(refreshError)
-          }`,
-        );
-      } finally {
-        await Promise.all([
-          queryClient.invalidateQueries({ queryKey: ['meters'] }),
-          queryClient.invalidateQueries({ queryKey: ['status'] }),
-          queryClient.invalidateQueries({ queryKey: ['history'] }),
-        ]);
-      }
+      await triggerRefresh();
+    } catch (refreshError) {
+      setRefreshError(
+        `Failed to refresh: ${
+          refreshError instanceof Error ? refreshError.message : String(refreshError)
+        }`,
+      );
     } finally {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['meters'] }),
+        queryClient.invalidateQueries({ queryKey: ['status'] }),
+        queryClient.invalidateQueries({ queryKey: ['history'] }),
+      ]);
       setRefreshing(false);
     }
   }
