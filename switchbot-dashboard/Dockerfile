@@ -4,7 +4,9 @@ WORKDIR /frontend
 COPY switchbot-frontend/package.json switchbot-frontend/package-lock.json* ./
 RUN npm ci
 COPY switchbot-frontend/ ./
-ARG VITE_API_URL=https://snakeroom.fly.dev
+# Default to same-origin API calls because FastAPI serves the built SPA at /.
+# Override at build time with e.g. --build-arg VITE_API_URL=https://snakeroom.fly.dev
+ARG VITE_API_URL
 ENV VITE_API_URL=${VITE_API_URL}
 RUN npm run build
 

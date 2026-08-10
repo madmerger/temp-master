@@ -3,10 +3,12 @@ import type { MeterHistoryResponse, MetersResponse, StatusResponse, TimeScale } 
 const envUrl = (import.meta.env.VITE_API_URL as string | undefined)?.trim()
 
 export const API_URL = (() => {
-  if (envUrl === undefined || envUrl === '') {
+  // When VITE_API_URL is not defined, fall back to the production backend.
+  if (envUrl === undefined) {
     return 'https://snakeroom.fly.dev'
   }
-  if (envUrl === '/') {
+  // Empty string or '/' means use the same origin (e.g. when served by FastAPI in Docker).
+  if (envUrl === '' || envUrl === '/') {
     return ''
   }
   return envUrl.replace(/\/+$/, '')

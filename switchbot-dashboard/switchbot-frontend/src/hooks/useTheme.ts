@@ -6,13 +6,17 @@ type Theme = 'light' | 'dark'
 
 const isBrowser = typeof window !== 'undefined'
 
+function isValidTheme(value: string | null): value is Theme {
+  return value === 'light' || value === 'dark'
+}
+
 function getStoredTheme(): Theme | null {
   if (!isBrowser) {
     return null
   }
   try {
-    const stored = window.localStorage.getItem(STORAGE_KEY) as Theme | null
-    return stored
+    const stored = window.localStorage.getItem(STORAGE_KEY)
+    return isValidTheme(stored) ? stored : null
   } catch {
     return null
   }
@@ -90,8 +94,8 @@ function handleStorageChange(event: StorageEvent) {
   if (event.newValue === null) {
     // localStorage entry was removed -> fall back to system theme
     applyTheme(getSystemTheme())
-  } else {
-    applyTheme(event.newValue as Theme)
+  } else if (isValidTheme(event.newValue)) {
+    applyTheme(event.newValue)
   }
 }
 
