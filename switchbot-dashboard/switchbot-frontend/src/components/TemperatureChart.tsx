@@ -29,6 +29,7 @@ export default function TemperatureChart({ readings, timeScale }: { readings: Re
             tick={{ fill: axis, fontSize: 10 }}
             tickLine={false}
             axisLine={false}
+            domain={['auto', 'auto']}
             tickFormatter={(value) => `${value}°`}
             width={35}
           />

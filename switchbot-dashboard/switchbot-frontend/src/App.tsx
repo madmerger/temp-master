@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { API_URL, triggerRefresh } from './api/client';
+import { triggerRefresh } from './api/client';
 import type { TimeScale } from './api/types';
 import Controls from './components/Controls';
 import MeterGrid from './components/MeterGrid';
