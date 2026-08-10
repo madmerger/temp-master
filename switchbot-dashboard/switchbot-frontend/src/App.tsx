@@ -15,6 +15,21 @@ import StaleMetersSection from './components/StaleMetersSection'
 import { isStaleMeter } from './utils/isStale'
 import type { TimeScale } from './api/types'
 
+type ConnectionStatus = 'connecting' | 'connected' | 'disconnected'
+
+function getConnectionStatus(
+  isLoading: boolean,
+  isError: boolean,
+): ConnectionStatus {
+  if (isError) {
+    return 'disconnected'
+  }
+  if (isLoading) {
+    return 'connecting'
+  }
+  return 'connected'
+}
+
 function App() {
   const [timeScale, setTimeScale] = useState<TimeScale>('day')
   const [refreshing, setRefreshing] = useState(false)
@@ -48,7 +63,17 @@ function App() {
     return latest > 0 ? new Date(latest) : undefined
   }, [metersUpdatedAt, statusUpdatedAt])
 
-  const connected = !metersLoading && !statusLoading && !metersError && !statusError
+  const connectionStatus: ConnectionStatus = useMemo(() => {
+    const metersStatus = getConnectionStatus(metersLoading, metersError)
+    const statusStatus = getConnectionStatus(statusLoading, statusError)
+    if (metersStatus === 'disconnected' || statusStatus === 'disconnected') {
+      return 'disconnected'
+    }
+    if (metersStatus === 'connecting' || statusStatus === 'connecting') {
+      return 'connecting'
+    }
+    return 'connected'
+  }, [metersLoading, metersError, statusLoading, statusError])
 
   const handleRefresh = async () => {
     setRefreshing(true)
@@ -60,6 +85,7 @@ function App() {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: METERS_KEY }),
         queryClient.invalidateQueries({ queryKey: STATUS_KEY }),
+        queryClient.invalidateQueries({ queryKey: ['history'] }),
       ])
       setRefreshing(false)
     }
@@ -74,7 +100,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100">
-      <Navbar connected={connected} theme={theme} toggle={toggle} />
+      <Navbar connectionStatus={connectionStatus} theme={theme} toggle={toggle} />
 
       <main className="max-w-7xl mx-auto px-4 pt-24 pb-8">
         <Controls

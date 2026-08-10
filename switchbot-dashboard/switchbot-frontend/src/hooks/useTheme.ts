@@ -1,19 +1,25 @@
-import { useCallback, useSyncExternalStore } from 'react'
+import { useSyncExternalStore } from 'react'
 
 const STORAGE_KEY = 'temp-master-theme'
 
 type Theme = 'light' | 'dark'
 
+const isBrowser = typeof window !== 'undefined'
+
 function getStoredTheme(): Theme | null {
-  if (typeof window === 'undefined') {
+  if (!isBrowser) {
     return null
   }
-  const stored = window.localStorage.getItem(STORAGE_KEY) as Theme | null
-  return stored
+  try {
+    const stored = window.localStorage.getItem(STORAGE_KEY) as Theme | null
+    return stored
+  } catch {
+    return null
+  }
 }
 
 function getSystemTheme(): Theme {
-  if (typeof window === 'undefined') {
+  if (!isBrowser) {
     return 'light'
   }
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
@@ -42,19 +48,23 @@ function emit() {
   listeners.forEach((callback) => callback())
 }
 
-function setTheme(theme: Theme) {
+export function setTheme(theme: Theme) {
   if (currentTheme === theme) {
     return
   }
   currentTheme = theme
-  if (typeof window !== 'undefined') {
-    window.localStorage.setItem(STORAGE_KEY, theme)
+  if (isBrowser) {
+    try {
+      window.localStorage.setItem(STORAGE_KEY, theme)
+    } catch {
+      // ignore
+    }
   }
   updateHtml(theme)
   emit()
 }
 
-function toggleTheme() {
+export function toggleTheme() {
   setTheme(currentTheme === 'light' ? 'dark' : 'light')
 }
 
@@ -67,6 +77,27 @@ function getSnapshot(): Theme {
   return currentTheme
 }
 
+function handleStorageChange(event: StorageEvent) {
+  if (event.key !== STORAGE_KEY) {
+    return
+  }
+  const next = (event.newValue as Theme | null) || getSystemTheme()
+  setTheme(next)
+}
+
+function handleSystemThemeChange(event: MediaQueryListEvent) {
+  if (getStoredTheme()) {
+    return
+  }
+  setTheme(event.matches ? 'dark' : 'light')
+}
+
+if (isBrowser) {
+  window.addEventListener('storage', handleStorageChange)
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+  mediaQuery.addEventListener('change', handleSystemThemeChange)
+}
+
 // Apply the initial theme to <html> as early as possible.
 updateHtml(currentTheme)
 
@@ -74,10 +105,8 @@ export function useTheme() {
   const theme = useSyncExternalStore(
     subscribe,
     getSnapshot,
-    () => getInitialTheme(),
+    getInitialTheme,
   )
 
-  const toggle = useCallback(toggleTheme, [])
-
-  return { theme, toggle, isDark: theme === 'dark' }
+  return { theme, toggle: toggleTheme, isDark: theme === 'dark' }
 }
