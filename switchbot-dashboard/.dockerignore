@@ -1,0 +1,12 @@
+switchbot-frontend/node_modules
+switchbot-frontend/dist
+switchbot-frontend/.env
+switchbot-frontend/.env.*
+!switchbot-frontend/.env.example
+switchbot-backend/.venv
+switchbot-backend/__pycache__
+switchbot-backend/*.pyc
+switchbot-backend/**/*.pyc
+switchbot-backend/.env
+switchbot-backend/app.db
+.git
