@@ -77,17 +77,22 @@ export default function App() {
           <div className="py-10 text-center text-gray-500">
             Loading temperature data...
           </div>
-        ) : error ? (
-          <div className="rounded border border-red-300 bg-red-50 px-4 py-3 text-red-800 dark:border-red-700 dark:bg-red-950 dark:text-red-200">
-            <strong>Error.</strong>{' '}
-            {refreshError
-              ? error
-              : `Failed to fetch ${metersQuery.error ? 'meters' : 'status'}: ${error}`}
-          </div>
         ) : (
           <>
-            <MeterGrid meters={active} timeScale={timeScale} />
-            <StaleMetersSection meters={stale} timeScale={timeScale} />
+            {error && (
+              <div className="mb-5 rounded border border-red-300 bg-red-50 px-4 py-3 text-red-800 dark:border-red-700 dark:bg-red-950 dark:text-red-200">
+                <strong>Error.</strong>{' '}
+                {refreshError
+                  ? error
+                  : `Failed to fetch ${metersQuery.error ? 'meters' : 'status'}: ${error}`}
+              </div>
+            )}
+            {meters.length > 0 && (
+              <>
+                <MeterGrid meters={active} timeScale={timeScale} />
+                <StaleMetersSection meters={stale} timeScale={timeScale} />
+              </>
+            )}
           </>
         )}
         <footer className="my-8 text-center text-xs text-gray-500">

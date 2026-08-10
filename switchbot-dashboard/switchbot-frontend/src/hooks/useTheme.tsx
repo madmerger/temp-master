@@ -32,17 +32,17 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, [theme]);
 
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    localStorage.setItem(STORAGE_KEY, nextTheme);
+  };
+
   return (
     <ThemeContext.Provider
       value={{
         theme,
-        toggleTheme: () => {
-          setTheme((value) => {
-            const nextTheme = value === 'dark' ? 'light' : 'dark';
-            localStorage.setItem(STORAGE_KEY, nextTheme);
-            return nextTheme;
-          });
-        },
+        toggleTheme,
       }}
     >
       {children}
