@@ -86,14 +86,15 @@ function App() {
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to refresh data'
       setRefreshError(`Failed to refresh: ${message}`)
-    } finally {
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: METERS_KEY }),
-        queryClient.invalidateQueries({ queryKey: STATUS_KEY }),
-        queryClient.invalidateQueries({ queryKey: ['history'] }),
-      ])
-      setRefreshing(false)
     }
+
+    // Trigger refetches without awaiting them so the refresh button re-enables quickly.
+    void Promise.all([
+      queryClient.invalidateQueries({ queryKey: METERS_KEY }),
+      queryClient.invalidateQueries({ queryKey: STATUS_KEY }),
+      queryClient.invalidateQueries({ queryKey: ['history'] }),
+    ])
+    setRefreshing(false)
   }
 
   const handleBackup = () => {
