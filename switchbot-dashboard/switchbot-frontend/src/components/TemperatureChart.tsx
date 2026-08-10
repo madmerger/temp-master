@@ -38,7 +38,12 @@ export default function TemperatureChart({ readings, timeScale }: { readings: Re
               borderColor: grid,
               color: dark ? '#f9fafb' : '#111827',
             }}
-            formatter={(value: number) => [`${value.toFixed(1)}°C`, 'Temperature']}
+            formatter={(value: unknown) => {
+              if (value === null || value === undefined || typeof value !== 'number') {
+                return ['', 'Temperature'];
+              }
+              return [`${value.toFixed(1)}°C`, 'Temperature'];
+            }}
           />
           <Line
             type="monotone"

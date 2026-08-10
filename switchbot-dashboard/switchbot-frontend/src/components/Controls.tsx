@@ -37,7 +37,7 @@ export default function Controls({ timeScale, onTimeScaleChange, onRefresh, refr
         </button>
         <button
           type="button"
-          onClick={() => window.open(`${API_URL}/api/backup`, '_blank')}
+          onClick={() => window.open(`${API_URL}/api/backup`, '_blank', 'noopener,noreferrer')}
           className="rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600"
         >
           Download Backup

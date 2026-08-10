@@ -24,7 +24,7 @@ export default function MeterPanel({ meter, timeScale, stale = false }: Props) {
             </span>
           )}
         </div>
-        <span className="rounded-full bg-gray-200 px-2 py-0.5 text-xs text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+        <span className="rounded-full bg-gray-200 px-2 py-0.5 text-xs text-gray-600 dark:bg-gray-600 dark:text-gray-100">
           {meter.device_type}
         </span>
       </header>
