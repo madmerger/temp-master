@@ -50,10 +50,20 @@ function App() {
       const activeMeters = metersResponse.meters.filter((meter) => !isStaleMeter(meter))
       const results = await Promise.all(activeMeters.map(async (meter) => {
         try { return [meter.device_id, (await fetchHistory(meter.device_id, timeScale)).history] as const }
-        catch { return [meter.device_id, []] as const }
+        catch { return null }
       }))
       if (requestId !== historyRequestId.current) return
-      setHistories(Object.fromEntries(results))
+      const activeDeviceIds = new Set(activeMeters.map((meter) => meter.device_id))
+      setHistories((currentHistories) => {
+        const nextHistories: Record<string, MeterReading[]> = {}
+        for (const [deviceId, history] of Object.entries(currentHistories)) {
+          if (activeDeviceIds.has(deviceId)) nextHistories[deviceId] = history
+        }
+        for (const result of results) {
+          if (result) nextHistories[result[0]] = result[1]
+        }
+        return nextHistories
+      })
       setHistoryLoading(false)
     } catch (cause) {
       if (requestId !== historyRequestId.current) return
