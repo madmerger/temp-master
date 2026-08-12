@@ -52,7 +52,7 @@ cd switchbot-dashboard/switchbot-backend
 poetry run fastapi run app/main.py --host 0.0.0.0 --port 8000
 ```
 
-The frontend is served at `http://localhost:8000/` and the API docs at `http://localhost:8000/docs`.
+The API docs are at `http://localhost:8000/docs`. The backend only serves a UI at `http://localhost:8000/` when `switchbot-backend/static/` exists (the Docker image copies the Vite `dist/` there); in a plain local checkout it does not, so use the Vite dev server at `http://localhost:5173` for UI testing. To exercise the FastAPI-served build locally instead, run `npm run build` and copy or symlink `switchbot-frontend/dist` to `switchbot-backend/static`.
 
 For frontend-only verification, use the production backend rather than the local backend because SwitchBot API rate limiting can leave local data empty. Set `VITE_API_URL=https://snakeroom.fly.dev` (the default) and use `http://localhost:5173`.
 
