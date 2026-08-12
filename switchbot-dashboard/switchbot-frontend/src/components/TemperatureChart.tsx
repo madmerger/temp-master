@@ -38,7 +38,7 @@ export function TemperatureChart({ history, timeScale, darkMode }: TemperatureCh
           <XAxis dataKey="label" tick={{ fill: axisColor, fontSize: 10 }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
           <YAxis tick={{ fill: axisColor, fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={(value: number) => `${value}°`} />
           <Tooltip
-            contentStyle={{ backgroundColor: darkMode ? '#1e293b' : '#fff', border: `1px solid ${gridColor}`, borderRadius: 10, color: darkMode ? '#f8fafc' : '#172033' }}
+            contentStyle={{ backgroundColor: darkMode ? '#1e293b' : '#fff', border: `1px solid ${gridColor}`, borderRadius: 10, color: darkMode ? '#f8fafc' : '#0f172a' }}
             formatter={(value: number) => [`${value.toFixed(1)}°C`, 'Temperature']}
           />
           <Line type="monotone" dataKey="temperature" stroke="#ef4444" strokeWidth={2} dot={{ r: 2.5, fill: '#ef4444' }} activeDot={{ r: 5, fill: '#06b6d4' }} connectNulls />

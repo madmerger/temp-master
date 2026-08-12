@@ -4,6 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Temp Master Dashboard</title>
+    <script>
+      const savedTheme = localStorage.getItem('temp-master-dark-mode')
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+      if (savedTheme === 'true' || (savedTheme === null && prefersDark)) {
+        document.documentElement.classList.add('dark')
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
