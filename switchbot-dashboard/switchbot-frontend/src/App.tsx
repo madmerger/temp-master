@@ -39,7 +39,6 @@ function App() {
   const historyRequestId = useRef(0)
   const loadData = useCallback(async () => {
     const requestId = ++historyRequestId.current
-    setHistoryLoading(true)
     try {
       const [metersResponse, statusResponse] = await Promise.all([fetchMeters(), fetchStatus()])
       if (requestId !== historyRequestId.current) return
