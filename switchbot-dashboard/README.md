@@ -6,6 +6,7 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 
 - Temperature charts for all SwitchBot Meter devices using Recharts
 - Time scale switching (hour/day/month/year)
+- Light and dark mode with system preference detection and persistence
 - Auto-refresh every 30 seconds (frontend) with background data collection every 2 minutes (backend)
 - Rate limiting protection with exponential backoff
 - All API calls are cached - GET endpoints never call SwitchBot API directly
@@ -51,10 +52,14 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
    npm install
    ```
 
+   The frontend is a Vite + React + TypeScript app styled with Tailwind CSS and charts rendered with Recharts.
+
 3. Copy `.env.example` to `.env`:
    ```bash
    cp .env.example .env
    ```
+
+   The default API origin is `https://snakeroom.fly.dev`; set `VITE_API_URL` in `.env` to use another backend.
 
 4. Start the development server:
    ```bash
