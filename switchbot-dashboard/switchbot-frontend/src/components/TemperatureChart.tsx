@@ -5,6 +5,7 @@ interface TemperatureChartProps {
   history: MeterReading[]
   timeScale: TimeScale
   darkMode: boolean
+  isLoading: boolean
 }
 
 export function formatTimestamp(timestamp: string, timeScale: TimeScale): string {
@@ -25,10 +26,11 @@ export function formatTimestamp(timestamp: string, timeScale: TimeScale): string
   }
 }
 
-export function TemperatureChart({ history, timeScale, darkMode }: TemperatureChartProps) {
+export function TemperatureChart({ history, timeScale, darkMode, isLoading }: TemperatureChartProps) {
   const axisColor = darkMode ? '#94a3b8' : '#64748b'
   const gridColor = darkMode ? '#334155' : '#e2e8f0'
   const data = history.map((reading) => ({ ...reading, label: formatTimestamp(reading.timestamp, timeScale) }))
+  if (isLoading) return <div className="flex h-52 items-center justify-center text-sm text-slate-400">Loading temperature history...</div>
   if (!data.length) return <div className="flex h-52 items-center justify-center text-sm text-slate-400">No history available</div>
   return (
     <div className="h-52 w-full">

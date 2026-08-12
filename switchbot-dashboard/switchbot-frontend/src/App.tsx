@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { fetchHistory, fetchMeters, fetchStatus, triggerRefresh, API_URL } from './api'
 import { MeterCard } from './components/MeterCard'
 import type { MeterDevice, MeterReading, StatusResponse, TimeScale } from './types'
@@ -25,6 +25,7 @@ function App() {
   const [meters, setMeters] = useState<MeterDevice[]>([])
   const [status, setStatus] = useState<StatusResponse | null>(null)
   const [histories, setHistories] = useState<Record<string, MeterReading[]>>({})
+  const [historyLoading, setHistoryLoading] = useState(true)
   const [timeScale, setTimeScale] = useState<TimeScale>('day')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -35,9 +36,13 @@ function App() {
     return saved === null ? window.matchMedia('(prefers-color-scheme: dark)').matches : saved === 'true'
   })
 
+  const historyRequestId = useRef(0)
   const loadData = useCallback(async () => {
+    const requestId = ++historyRequestId.current
+    setHistoryLoading(true)
     try {
       const [metersResponse, statusResponse] = await Promise.all([fetchMeters(), fetchStatus()])
+      if (requestId !== historyRequestId.current) return
       setMeters(metersResponse.meters)
       setStatus(statusResponse)
       setLastRefresh(new Date())
@@ -48,16 +53,19 @@ function App() {
         try { return [meter.device_id, (await fetchHistory(meter.device_id, timeScale)).history] as const }
         catch { return [meter.device_id, []] as const }
       }))
+      if (requestId !== historyRequestId.current) return
       setHistories(Object.fromEntries(results))
+      setHistoryLoading(false)
     } catch (cause) {
+      if (requestId !== historyRequestId.current) return
       setLoading(false)
+      setHistoryLoading(false)
       setError(cause instanceof Error ? cause.message : 'Failed to fetch data.')
     }
   }, [timeScale])
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode)
-    localStorage.setItem('temp-master-dark-mode', String(darkMode))
   }, [darkMode])
   useEffect(() => {
     void loadData()
@@ -70,9 +78,23 @@ function App() {
   const staleMeters = decoratedMeters.filter((meter) => meter.stale)
   const handleRefresh = async () => {
     setRefreshing(true)
-    try { await triggerRefresh(); await loadData() }
+    try { await triggerRefresh() }
     catch (cause) { setError(`Failed to refresh: ${cause instanceof Error ? cause.message : 'Unknown error'}`) }
-    finally { setRefreshing(false) }
+    finally {
+      await loadData()
+      setRefreshing(false)
+    }
+  }
+  const handleThemeToggle = () => {
+    const nextDarkMode = !darkMode
+    setDarkMode(nextDarkMode)
+    localStorage.setItem('temp-master-dark-mode', String(nextDarkMode))
+  }
+  const handleTimeScaleChange = (nextTimeScale: TimeScale) => {
+    historyRequestId.current += 1
+    setHistories({})
+    setHistoryLoading(true)
+    setTimeScale(nextTimeScale)
   }
   const refreshTime = lastRefresh?.toLocaleTimeString([], { hour12: false }) || ''
 
@@ -83,7 +105,7 @@ function App() {
           <div className="flex items-center gap-6"><a href="/" className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">Temp Master Dashboard</a><span className="hidden text-sm font-medium text-cyan-600 sm:inline dark:text-cyan-400">Dashboard</span></div>
           <div className="flex items-center gap-3">
             <span className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ${error ? 'bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'}`}><span className={`h-2 w-2 rounded-full ${error ? 'bg-red-500' : 'bg-emerald-500'}`} />{error ? 'Disconnected' : 'Connected'}</span>
-            <button type="button" onClick={() => setDarkMode((value) => !value)} className="rounded-lg border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800" aria-label="Toggle dark mode">{darkMode ? '☀' : '☾'}</button>
+            <button type="button" onClick={handleThemeToggle} className="rounded-lg border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800" aria-label="Toggle dark mode">{darkMode ? '☀' : '☾'}</button>
           </div>
         </div>
       </header>
@@ -91,7 +113,7 @@ function App() {
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-lg dark:border-slate-800 dark:bg-slate-900">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
             <label className="flex flex-1 flex-col gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">Time Range
-              <select value={timeScale} onChange={(event) => setTimeScale(event.target.value as TimeScale)} className="max-w-xs rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-cyan-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white">
+              <select value={timeScale} onChange={(event) => handleTimeScaleChange(event.target.value as TimeScale)} className="max-w-xs rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-cyan-500 dark:border-slate-600 dark:bg-slate-800 dark:text-white">
                 <option value="hour">Last Hour</option><option value="day">Last 24 Hours</option><option value="week">Last 7 Days</option><option value="month">Last 30 Days</option><option value="year">Last Year</option>
               </select>
             </label>
@@ -105,8 +127,8 @@ function App() {
         {status?.is_rate_limited && <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900/70 dark:bg-amber-950/40 dark:text-amber-100"><strong>Rate Limited.</strong> SwitchBot API rate limit reached. Retry in {status.backoff_remaining} seconds.</div>}
         {loading && <div className="py-12 text-center text-sm text-slate-500 dark:text-slate-400">Loading temperature data...</div>}
         {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900/70 dark:bg-red-950/40 dark:text-red-200"><strong>Error.</strong> {error}</div>}
-        {!loading && activeMeters.length > 0 && <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{activeMeters.map((meter) => <MeterCard key={meter.device_id} meter={meter} history={histories[meter.device_id] || []} timeScale={timeScale} darkMode={darkMode} stale={false} />)}</div>}
-        {!loading && staleMeters.length > 0 && <section className="space-y-3"><div><h2 className="text-lg font-semibold text-amber-800 dark:text-amber-200">⚠ 未更新のメーター</h2><p className="mt-1 text-xs text-amber-700 dark:text-amber-300">1週間以上更新されていないデバイス</p></div><div className="grid gap-5 rounded-2xl border border-amber-300 bg-amber-50/50 p-5 sm:grid-cols-2 lg:grid-cols-3 dark:border-amber-800/70 dark:bg-amber-950/20">{staleMeters.map((meter) => <MeterCard key={meter.device_id} meter={meter} history={[]} timeScale={timeScale} darkMode={darkMode} stale />)}</div></section>}
+        {!loading && activeMeters.length > 0 && <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{activeMeters.map((meter) => <MeterCard key={meter.device_id} meter={meter} history={histories[meter.device_id] || []} timeScale={timeScale} darkMode={darkMode} stale={false} historyLoading={historyLoading} />)}</div>}
+        {!loading && staleMeters.length > 0 && <section className="space-y-3"><div><h2 className="text-lg font-semibold text-amber-800 dark:text-amber-200">⚠ 未更新のメーター</h2><p className="mt-1 text-xs text-amber-700 dark:text-amber-300">1週間以上更新されていないデバイス</p></div><div className="grid gap-5 rounded-2xl border border-amber-300 bg-amber-50/50 p-5 sm:grid-cols-2 lg:grid-cols-3 dark:border-amber-800/70 dark:bg-amber-950/20">{staleMeters.map((meter) => <MeterCard key={meter.device_id} meter={meter} history={[]} timeScale={timeScale} darkMode={darkMode} stale historyLoading={false} />)}</div></section>}
       </main>
       <footer className="px-4 pb-8 text-center text-xs text-slate-400 dark:text-slate-500">Temp Master Dashboard v1.0</footer>
     </div>

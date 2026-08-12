@@ -1,0 +1,10 @@
+.git
+.gitignore
+.env
+**/.env
+**/__pycache__/
+**/*.pyc
+**/*.db
+**/.venv/
+switchbot-frontend/node_modules/
+switchbot-frontend/dist/
