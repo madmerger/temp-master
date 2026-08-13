@@ -14,30 +14,113 @@ export default function App() {
   const [timeScale, setTimeScale] = useState<TimeScale>('day')
   const [refreshing, setRefreshing] = useState(false)
   const [refreshedAt, setRefreshedAt] = useState<Date | null>(null)
+  const [refreshError, setRefreshError] = useState<string | null>(null)
   const queryClient = useQueryClient()
-  const meters = useQuery({ queryKey: ['meters'], queryFn: fetchMeters, refetchInterval: 30_000 })
-  const status = useQuery({ queryKey: ['status'], queryFn: fetchStatus, refetchInterval: 30_000 })
-  useEffect(() => { if (meters.data && status.data) setRefreshedAt(new Date()) }, [meters.data, status.data])
+
+  const meters = useQuery({
+    queryKey: ['meters'],
+    queryFn: fetchMeters,
+    refetchInterval: 30_000,
+  })
+  const status = useQuery({
+    queryKey: ['status'],
+    queryFn: fetchStatus,
+    refetchInterval: 30_000,
+  })
+
+  useEffect(() => {
+    if (meters.data && status.data) {
+      setRefreshedAt(new Date())
+    }
+  }, [meters.data, status.data])
+
   const [activeMeters, staleMeters] = useMemo(() => {
     const all = meters.data?.meters || []
-    return [all.filter((meter) => !isStaleMeter(meter)), all.filter((meter) => isStaleMeter(meter))]
+    return [
+      all.filter((meter) => !isStaleMeter(meter)),
+      all.filter((meter) => isStaleMeter(meter)),
+    ]
   }, [meters.data])
+
   const refresh = async () => {
     setRefreshing(true)
-    try { await triggerRefresh(); await queryClient.invalidateQueries({ queryKey: ['meters'] }); await queryClient.invalidateQueries({ queryKey: ['status'] }) }
-    catch (error) { queryClient.setQueryData(['dashboard-error'], error instanceof Error ? error.message : 'Failed to refresh') }
-    finally { setRefreshing(false) }
+    setRefreshError(null)
+    try {
+      await triggerRefresh()
+      await queryClient.invalidateQueries({ queryKey: ['meters'] })
+      await queryClient.invalidateQueries({ queryKey: ['status'] })
+      await queryClient.invalidateQueries({ queryKey: ['history'] })
+    } catch (error) {
+      setRefreshError(
+        `Failed to refresh: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      )
+    } finally {
+      setRefreshing(false)
+    }
   }
-  const error = meters.error || status.error
-  return <div className="app-shell">
-    <header className="app-header"><div><p className="eyebrow">ENVIRONMENTAL MONITORING</p><h1>Temp Master Dashboard</h1></div><div className="header-actions"><span className={`connection ${error ? 'disconnected' : 'connected'}`}>{error ? 'Disconnected' : 'Connected'}</span><ThemeSwitcher /></div></header>
-    <main>
-      <Controls timeScale={timeScale} onTimeScaleChange={setTimeScale} onRefresh={refresh} refreshing={refreshing} />
-      {status.data && <StatusBar status={status.data} refreshedAt={refreshedAt} />}
-      {status.data?.is_rate_limited && <RateLimitWarning seconds={status.data.backoff_remaining || 0} />}
-      {error && <div className="error"><strong>Error.</strong> Failed to fetch data: {error instanceof Error ? error.message : 'Unknown error'}</div>}
-      {meters.isLoading ? <div className="loading">Loading temperature data...</div> : <><MeterGrid meters={activeMeters} timeScale={timeScale} /><StaleMetersSection meters={staleMeters} timeScale={timeScale} /></>}
-    </main>
-    <footer>Temp Master Dashboard v1.0</footer>
-  </div>
+
+  const error = meters.error || status.error || refreshError
+
+  return (
+    <div className="min-h-screen bg-surface text-ink">
+      <header className="flex flex-col items-start justify-between gap-6 bg-header px-[clamp(20px,5vw,72px)] py-7 text-white sm:flex-row sm:items-center">
+        <div>
+          <p className="m-0 text-[.7rem] font-bold tracking-[.14em] text-accent">
+            ENVIRONMENTAL MONITORING
+          </p>
+          <h1 className="m-0 mt-1 text-[clamp(1.5rem,3vw,2.2rem)] font-bold tracking-[-.03em]">
+            Temp Master Dashboard
+          </h1>
+        </div>
+        <div className="flex w-full items-center justify-between gap-3 sm:w-auto">
+          <span
+            className={`rounded-full px-3 py-1.5 text-xs font-bold ${
+              error
+                ? 'bg-[#64251f] text-[#ffd1cd]'
+                : 'bg-[#174b32] text-[#9ef0bd]'
+            }`}
+          >
+            {error ? 'Disconnected' : 'Connected'}
+          </span>
+          <ThemeSwitcher />
+        </div>
+      </header>
+      <main className="mx-auto max-w-[1500px] px-[clamp(20px,5vw,72px)] py-7">
+        <Controls
+          timeScale={timeScale}
+          onTimeScaleChange={setTimeScale}
+          onRefresh={refresh}
+          refreshing={refreshing}
+        />
+        {status.data && (
+          <StatusBar status={status.data} refreshedAt={refreshedAt} />
+        )}
+        {status.data?.is_rate_limited && (
+          <RateLimitWarning seconds={status.data.backoff_remaining || 0} />
+        )}
+        {error && (
+          <div className="mt-4 rounded-lg bg-danger/15 px-4 py-3 text-danger">
+            <strong>Error.</strong>{' '}
+            {refreshError ||
+              `Failed to fetch data: ${
+                error instanceof Error ? error.message : 'Unknown error'
+              }`}
+          </div>
+        )}
+        {meters.isLoading ? (
+          <div className="py-[70px] text-center text-muted">
+            Loading temperature data...
+          </div>
+        ) : (
+          <>
+            <MeterGrid meters={activeMeters} timeScale={timeScale} />
+            <StaleMetersSection meters={staleMeters} timeScale={timeScale} />
+          </>
+        )}
+      </main>
+      <footer className="p-6 text-center text-xs text-muted">
+        Temp Master Dashboard v1.0
+      </footer>
+    </div>
+  )
 }
