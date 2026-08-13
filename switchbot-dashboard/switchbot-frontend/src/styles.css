@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root,
+[data-theme="light"] {
+  --color-surface-rgb: 244 247 251;
+  --color-surface-raised-rgb: 255 255 255;
+  --color-ink-rgb: 29 42 56;
+  --color-muted-rgb: 97 113 132;
+  --color-accent-rgb: 37 99 235;
+  --color-border-rgb: 216 224 234;
+  --color-header-rgb: 18 38 58;
+  --color-warning-rgb: 255 248 230;
+  --color-warning-ink-rgb: 138 90 0;
+  --color-danger-rgb: 180 35 24;
+  --color-success-rgb: 24 134 75;
+  --color-temperature-badge-rgb: 180 35 24;
+  --color-temperature-badge-ink-rgb: 255 255 255;
+  --color-humidity-badge-rgb: 39 120 170;
+  --color-humidity-badge-ink-rgb: 255 255 255;
+  --color-battery-badge-rgb: 24 134 75;
+  --color-battery-badge-ink-rgb: 255 255 255;
+}
+
+[data-theme="dark"] {
+  --color-surface-rgb: 16 25 35;
+  --color-surface-raised-rgb: 23 34 49;
+  --color-ink-rgb: 237 243 248;
+  --color-muted-rgb: 168 182 196;
+  --color-accent-rgb: 125 178 255;
+  --color-border-rgb: 51 68 86;
+  --color-header-rgb: 11 18 27;
+  --color-warning-rgb: 60 48 23;
+  --color-warning-ink-rgb: 255 216 115;
+  --color-danger-rgb: 255 129 120;
+  --color-success-rgb: 104 211 145;
+  --color-temperature-badge-rgb: 155 28 19;
+  --color-temperature-badge-ink-rgb: 255 255 255;
+  --color-humidity-badge-rgb: 0 105 160;
+  --color-humidity-badge-ink-rgb: 255 255 255;
+  --color-battery-badge-rgb: 11 107 58;
+  --color-battery-badge-ink-rgb: 255 255 255;
+}
+
+[data-theme="high-contrast"] {
+  --color-surface-rgb: 0 0 0;
+  --color-surface-raised-rgb: 17 17 17;
+  --color-ink-rgb: 255 255 255;
+  --color-muted-rgb: 238 238 238;
+  --color-accent-rgb: 0 255 255;
+  --color-border-rgb: 255 255 255;
+  --color-header-rgb: 0 0 0;
+  --color-warning-rgb: 51 43 0;
+  --color-warning-ink-rgb: 255 234 0;
+  --color-danger-rgb: 255 102 102;
+  --color-success-rgb: 102 255 153;
+  --color-temperature-badge-rgb: 255 77 77;
+  --color-temperature-badge-ink-rgb: 0 0 0;
+  --color-humidity-badge-rgb: 0 153 204;
+  --color-humidity-badge-ink-rgb: 0 0 0;
+  --color-battery-badge-rgb: 0 179 90;
+  --color-battery-badge-ink-rgb: 0 0 0;
+}
+
+[data-theme="industrial"] {
+  --color-surface-rgb: 38 50 56;
+  --color-surface-raised-rgb: 52 69 76;
+  --color-ink-rgb: 237 241 242;
+  --color-muted-rgb: 184 197 200;
+  --color-accent-rgb: 243 156 18;
+  --color-border-rgb: 81 97 107;
+  --color-header-rgb: 28 37 41;
+  --color-warning-rgb: 77 61 28;
+  --color-warning-ink-rgb: 255 210 122;
+  --color-danger-rgb: 255 138 128;
+  --color-success-rgb: 128 203 196;
+  --color-temperature-badge-rgb: 192 57 43;
+  --color-temperature-badge-ink-rgb: 255 255 255;
+  --color-humidity-badge-rgb: 0 105 160;
+  --color-humidity-badge-ink-rgb: 255 255 255;
+  --color-battery-badge-rgb: 0 121 107;
+  --color-battery-badge-ink-rgb: 255 255 255;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background-color: rgb(var(--color-surface-rgb));
+}
+
+body {
+  margin: 0;
+  background-color: rgb(var(--color-surface-rgb));
+  color: rgb(var(--color-ink-rgb));
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
+}

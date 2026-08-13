@@ -5,8 +5,9 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 ## Features
 
 - Temperature charts for all SwitchBot Meter devices using Recharts
-- Time scale switching (hour/day/month/year)
-- Auto-refresh every 30 seconds (frontend) with background data collection every 2 minutes (backend)
+- Time scale switching (hour/day/week/month/year)
+- Auto-refresh every 30 seconds (frontend) with background data collection (backend)
+- Vite + React 18 + TypeScript frontend with light, dark, high-contrast, and industrial themes
 - Rate limiting protection with exponential backoff
 - All API calls are cached - GET endpoints never call SwitchBot API directly
 
@@ -63,6 +64,11 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 
 5. Open http://localhost:5173 in your browser
 
+The frontend uses Vite, React 18, TypeScript, Recharts, and Tailwind CSS. It listens on
+port 5173 by default and uses `VITE_API_URL` for the backend URL (the default is
+`https://snakeroom.fly.dev`). Theme selection is persisted in local storage and the
+first visit respects the browser's preferred color scheme.
+
 ## API Endpoints
 
 - `GET /api/meters` - Returns list of all meter devices with current temperature (from cache)
@@ -73,6 +79,6 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 ## Notes
 
 - Temperature history is stored in memory and resets on backend restart
-- Backend data collection interval: 2 minutes minimum
+- Backend data collection interval is controlled by the server
 - Frontend refresh interval: 30 seconds
 - SwitchBot API has strict rate limits (~10000 requests/day)
