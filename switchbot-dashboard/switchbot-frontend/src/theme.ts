@@ -7,6 +7,13 @@ export const themes: Array<{ value: Theme; label: string }> = [
   { value: 'industrial', label: 'Industrial' },
 ]
 
+export const themeColors: Record<Theme, string> = {
+  light: '#f4f7fb',
+  dark: '#101923',
+  'high-contrast': '#000000',
+  industrial: '#263238',
+}
+
 export const chartColors: Record<Theme, { line: string; grid: string; axis: string; tooltip: string }> = {
   light: {
     line: '#d94841',

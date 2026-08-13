@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
-import { themes, type Theme } from './theme'
+import { themeColors, themes, type Theme } from './theme'
 
 interface ThemeContextValue {
   theme: Theme
@@ -9,7 +9,13 @@ interface ThemeContextValue {
 const ThemeContext = createContext<ThemeContextValue | null>(null)
 
 function getInitialTheme(): Theme {
-  const saved = localStorage.getItem('temp-master-theme') as Theme | null
+  let saved: Theme | null = null
+  try {
+    saved = localStorage.getItem('temp-master-theme') as Theme | null
+  } catch {
+    saved = null
+  }
+
   if (saved && themes.some((item) => item.value === saved)) {
     return saved
   }
@@ -21,7 +27,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
-    localStorage.setItem('temp-master-theme', theme)
+    document
+      .getElementById('theme-color')
+      ?.setAttribute('content', themeColors[theme])
+
+    try {
+      localStorage.setItem('temp-master-theme', theme)
+    } catch {
+      // Storage may be unavailable in privacy-restricted environments.
+    }
   }, [theme])
 
   return (
