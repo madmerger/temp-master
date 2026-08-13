@@ -15,6 +15,16 @@ export default {
         'warning-ink': 'rgb(var(--color-warning-ink-rgb) / <alpha-value>)',
         danger: 'rgb(var(--color-danger-rgb) / <alpha-value>)',
         success: 'rgb(var(--color-success-rgb) / <alpha-value>)',
+        'temperature-badge':
+          'rgb(var(--color-temperature-badge-rgb) / <alpha-value>)',
+        'temperature-badge-ink':
+          'rgb(var(--color-temperature-badge-ink-rgb) / <alpha-value>)',
+        'humidity-badge': 'rgb(var(--color-humidity-badge-rgb) / <alpha-value>)',
+        'humidity-badge-ink':
+          'rgb(var(--color-humidity-badge-ink-rgb) / <alpha-value>)',
+        'battery-badge': 'rgb(var(--color-battery-badge-rgb) / <alpha-value>)',
+        'battery-badge-ink':
+          'rgb(var(--color-battery-badge-ink-rgb) / <alpha-value>)',
       },
     },
   },

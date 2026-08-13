@@ -15,6 +15,12 @@
   --color-warning-ink-rgb: 138 90 0;
   --color-danger-rgb: 180 35 24;
   --color-success-rgb: 24 134 75;
+  --color-temperature-badge-rgb: 180 35 24;
+  --color-temperature-badge-ink-rgb: 255 255 255;
+  --color-humidity-badge-rgb: 39 132 184;
+  --color-humidity-badge-ink-rgb: 255 255 255;
+  --color-battery-badge-rgb: 24 134 75;
+  --color-battery-badge-ink-rgb: 255 255 255;
 }
 
 [data-theme="dark"] {
@@ -29,6 +35,12 @@
   --color-warning-ink-rgb: 255 216 115;
   --color-danger-rgb: 255 129 120;
   --color-success-rgb: 104 211 145;
+  --color-temperature-badge-rgb: 155 28 19;
+  --color-temperature-badge-ink-rgb: 255 255 255;
+  --color-humidity-badge-rgb: 0 105 160;
+  --color-humidity-badge-ink-rgb: 255 255 255;
+  --color-battery-badge-rgb: 11 107 58;
+  --color-battery-badge-ink-rgb: 255 255 255;
 }
 
 [data-theme="high-contrast"] {
@@ -43,6 +55,12 @@
   --color-warning-ink-rgb: 255 234 0;
   --color-danger-rgb: 255 102 102;
   --color-success-rgb: 102 255 153;
+  --color-temperature-badge-rgb: 255 77 77;
+  --color-temperature-badge-ink-rgb: 0 0 0;
+  --color-humidity-badge-rgb: 0 153 204;
+  --color-humidity-badge-ink-rgb: 0 0 0;
+  --color-battery-badge-rgb: 0 179 90;
+  --color-battery-badge-ink-rgb: 0 0 0;
 }
 
 [data-theme="industrial"] {
@@ -57,6 +75,12 @@
   --color-warning-ink-rgb: 255 210 122;
   --color-danger-rgb: 255 138 128;
   --color-success-rgb: 128 203 196;
+  --color-temperature-badge-rgb: 192 57 43;
+  --color-temperature-badge-ink-rgb: 255 255 255;
+  --color-humidity-badge-rgb: 0 105 160;
+  --color-humidity-badge-ink-rgb: 255 255 255;
+  --color-battery-badge-rgb: 0 121 107;
+  --color-battery-badge-ink-rgb: 255 255 255;
 }
 
 * {

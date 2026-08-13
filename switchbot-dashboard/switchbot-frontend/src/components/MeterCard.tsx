@@ -31,17 +31,17 @@ export function MeterCard({ meter, timeScale }: { meter: Meter; timeScale: TimeS
       </header>
       <div className="flex flex-wrap gap-2 pb-0 pt-3">
         {meter.current_temperature != null && (
-          <span className="rounded bg-danger px-2.5 py-1 text-sm font-bold text-white">
+          <span className="rounded bg-temperature-badge px-2.5 py-1 text-sm font-bold text-temperature-badge-ink">
             {meter.current_temperature}°C
           </span>
         )}
         {meter.current_humidity != null && (
-          <span className="rounded bg-[#2784b8] px-2.5 py-1 text-sm font-bold text-white">
+          <span className="rounded bg-humidity-badge px-2.5 py-1 text-sm font-bold text-humidity-badge-ink">
             {meter.current_humidity}%
           </span>
         )}
         {meter.battery != null && (
-          <span className="rounded bg-success px-2.5 py-1 text-sm font-bold text-white">
+          <span className="rounded bg-battery-badge px-2.5 py-1 text-sm font-bold text-battery-badge-ink">
             {meter.battery}%
           </span>
         )}
