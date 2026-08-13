@@ -33,7 +33,7 @@ export default function App() {
       setRefreshedAt(new Date())
       setRefreshError(null)
     }
-  }, [meters.data, status.data])
+  }, [meters.data, meters.dataUpdatedAt, status.data, status.dataUpdatedAt])
 
   const [activeMeters, staleMeters] = useMemo(() => {
     const all = meters.data?.meters || []
@@ -60,7 +60,8 @@ export default function App() {
     }
   }
 
-  const error = meters.error || status.error || refreshError
+  const connectionError = meters.error || status.error
+  const error = connectionError || refreshError
 
   return (
     <div className="min-h-screen bg-surface text-ink">
@@ -76,12 +77,12 @@ export default function App() {
         <div className="flex w-full items-center justify-between gap-3 sm:w-auto">
           <span
             className={`rounded-full px-3 py-1.5 text-xs font-bold ${
-              error
+              connectionError
                 ? 'bg-[#64251f] text-[#ffd1cd]'
                 : 'bg-[#174b32] text-[#9ef0bd]'
             }`}
           >
-            {error ? 'Disconnected' : 'Connected'}
+            {connectionError ? 'Disconnected' : 'Connected'}
           </span>
           <ThemeSwitcher />
         </div>
