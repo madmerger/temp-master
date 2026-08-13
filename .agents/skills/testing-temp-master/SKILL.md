@@ -71,7 +71,7 @@ serve the generated `dist/` files, or build and run the Docker image.
 ### API Connectivity
 - `GET /api/status` returns `configured: true` and `meters_count` > 0
 - `GET /api/meters` returns live meter data with temperature, humidity, battery
-- Connection status badge shows "Connected" (green, class `label-success`)
+- Connection status indicator shows "Connected" with a green appearance
 
 ### UI Functionality
 - Time Range selector: Last Hour / Last 24 Hours / Last 7 Days / Last 30 Days / Last Year
