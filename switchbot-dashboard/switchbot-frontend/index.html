@@ -3,8 +3,35 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#f4f7fb" />
+    <meta id="theme-color" name="theme-color" content="#f4f7fb" />
     <title>Temp Master Dashboard</title>
+    <script>
+      (() => {
+        const themes = ['light', 'dark', 'high-contrast', 'industrial']
+        const storageKey = 'temp-master-theme'
+        const themeColors = {
+          light: '#f4f7fb',
+          dark: '#101923',
+          'high-contrast': '#000000',
+          industrial: '#263238',
+        }
+        let savedTheme = null
+        try {
+          savedTheme = window.localStorage.getItem(storageKey)
+        } catch {
+          savedTheme = null
+        }
+        const theme = themes.includes(savedTheme)
+          ? savedTheme
+          : window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark'
+            : 'light'
+        document.documentElement.dataset.theme = theme
+        document
+          .getElementById('theme-color')
+          ?.setAttribute('content', themeColors[theme])
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

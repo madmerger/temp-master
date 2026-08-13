@@ -31,6 +31,7 @@ export default function App() {
   useEffect(() => {
     if (meters.data && status.data) {
       setRefreshedAt(new Date())
+      setRefreshError(null)
     }
   }, [meters.data, status.data])
 
