@@ -33,31 +33,39 @@ echo "SWITCHBOT_TOKEN=${SWITCHBOT_TOKEN}" > .env
 echo "SWITCHBOT_SECRET=${SWITCHBOT_SECRET}" >> .env
 ```
 
-### 3. Symlink frontend static files
-
-The Dockerfile copies `switchbot-frontend/` to `switchbot-backend/static/`, but locally this directory doesn't exist. You must create a symlink:
-
-```bash
-ln -s $(pwd)/switchbot-dashboard/switchbot-frontend switchbot-dashboard/switchbot-backend/static
-```
-
-**Important:** The static directory check in `main.py` happens at module import time (`STATIC_DIR = Path(__file__).resolve().parent.parent / "static"`). If you create the symlink after starting the server, you must restart the server.
-
-### 4. Start the server
+### 3. Start the backend server (optional)
 
 ```bash
 cd switchbot-dashboard/switchbot-backend
 poetry run fastapi run app/main.py --host 0.0.0.0 --port 8000
 ```
 
-The frontend is served at `http://localhost:8000/` and the API docs at `http://localhost:8000/docs`.
+The API is served at `http://localhost:8000/docs`. The local backend may not have
+meter data because of SwitchBot API rate limits; use the production backend for
+frontend-only verification.
+
+### 4. Start the frontend development server
+
+For frontend changes, use Vite and the production API directly:
+
+```bash
+cd switchbot-dashboard/switchbot-frontend
+npm install
+npm run dev -- --host 0.0.0.0
+```
+
+Open `http://localhost:5173`. The default API URL is
+`https://snakeroom.fly.dev`; override it with `VITE_API_URL` when needed.
+
+To verify frontend files through the backend instead, run `npm run build` and
+serve the generated `dist/` files, or build and run the Docker image.
 
 ## Key Test Points
 
 ### Branding Verification
 - Page title (`<title>` tag): should say "Temp Master Dashboard"
-- Navbar brand: should say "Temp Master Dashboard"
-- Footer: should say "Temp Master Dashboard v1.0 - Built with jQuery + Bootstrap 3"
+- Header: should say "Temp Master Dashboard"
+- Footer: should say "Temp Master Dashboard v1.0"
 - Verify no "Snake" or "SnakeRoom" text exists anywhere: `document.body.innerHTML.includes('Snake')` should be `false`
 
 ### API Connectivity
@@ -66,9 +74,9 @@ The frontend is served at `http://localhost:8000/` and the API docs at `http://l
 - Connection status badge shows "Connected" (green, class `label-success`)
 
 ### UI Functionality
-- View toggle: Default (equal 3-col grid) vs Shelf (featured meter + 3-col grid)
 - Time Range selector: Last Hour / Last 24 Hours / Last 7 Days / Last 30 Days / Last Year
-- Charts: Canvas elements rendered with Chart.js line charts
+- Theme selector: Light / Dark / High contrast / Industrial
+- Charts: Recharts line charts rendered with SVG elements
 - Refresh Data button triggers data reload
 
 ## Running Backend Tests
@@ -83,6 +91,7 @@ Expected: 97 tests pass.
 ## Architecture Notes
 
 - Backend: FastAPI + aiosqlite (SQLite persistence at `/data/app.db` or local `app.db`)
-- Frontend: jQuery + Bootstrap 3 (single `index.html` file)
+- Frontend: Vite + React 18 + TypeScript + Recharts + Tailwind CSS + TanStack Query
 - Deployment: Fly.io (see `fly.toml`)
-- Background data collection runs with 120s interval, with rate limiting and exponential backoff
+- Frontend polling runs every 30 seconds; backend collection and rate limiting
+  are managed by the FastAPI service

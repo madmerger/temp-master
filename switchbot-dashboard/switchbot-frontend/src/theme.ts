@@ -1,5 +1,6 @@
 export type Theme = 'light' | 'dark' | 'high-contrast' | 'industrial'
 
+// Keep theme names, colors, and storage key in sync with index.html.
 export const themes: Array<{ value: Theme; label: string }> = [
   { value: 'light', label: 'Light' },
   { value: 'dark', label: 'Dark' },
