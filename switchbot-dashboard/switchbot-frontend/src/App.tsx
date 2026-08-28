@@ -51,11 +51,18 @@ export default function App() {
         const response = await fetchHistory(meter.device_id, timeScale);
         return [meter.device_id, response.history ?? []] as const;
       } catch {
-        return [meter.device_id, []] as const;
+        return [meter.device_id, null] as const;
       }
     })).then((entries) => {
       if (!cancelled) {
-        setHistory(Object.fromEntries(entries));
+        setHistory((previous) => {
+          const fetchedHistory = new Map(entries);
+          const next: Record<string, HistoryReading[]> = {};
+          activeMeters.forEach((meter) => {
+            next[meter.device_id] = fetchedHistory.get(meter.device_id) ?? previous[meter.device_id] ?? [];
+          });
+          return next;
+        });
       }
     });
     return () => {
