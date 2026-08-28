@@ -102,11 +102,26 @@ last 1h/24h, otherwise those charts are empty even though `week`/`month` look fi
 ## Known performance trap: month/year scales
 
 Selecting "Last 30 Days" or especially "Last Year" makes ~18 Recharts charts render
-thousands of points each (year ≈ 24k rows per meter). The browser can become
-**unresponsive for several minutes** and computer-use actions may time out. This is not
-necessarily a functional bug — wait and retry `view` rather than concluding failure, and
-reload the page to return to the lighter default "Last 24 Hours". Worth flagging to the
-user as a UX/perf concern.
+thousands of points each (year ≈ 24k rows per meter). Without dot suppression the browser
+can become **unresponsive for several minutes** and computer-use actions may time out. That
+is not necessarily a functional bug — wait and retry `view` rather than concluding failure,
+and reload the page to return to the lighter default "Last 24 Hours".
+
+`TemperatureChart.tsx` mitigates this with a point-count threshold
+(`MAX_POINTS_WITH_DOTS`, currently 500) plus `isAnimationActive={false}`:
+
+- Measure render time by wall clock (shell `date`) around the select action; with the
+  threshold in place expect roughly ~15s for month and ~40s for year on 18 charts (mostly
+  API fetch time), versus minutes of freeze without it.
+- The threshold changes visible output on ANY scale whose series exceeds it. With hourly
+  collection "Last 24 Hours" is ~375 points and keeps its dots at the current threshold,
+  but denser data would silently lose them. Always count points per scale first
+  (`/api/meters/<id>/history?time_scale=day | jq '.history|length'`) before calling missing
+  dots a regression, and test the genuinely-small case ("Last Hour", ~12 points) to prove
+  dots still render.
+- Verify `activeDot` and the tooltip still work on the heavy scales by hovering: DOM check
+  `.recharts-active-dot circle` (fill `#5bc0de` light / `#38bdf8` dark) and
+  `.recharts-tooltip-wrapper` computed background/color.
 
 ## Theme toggle checks (light/dark)
 
