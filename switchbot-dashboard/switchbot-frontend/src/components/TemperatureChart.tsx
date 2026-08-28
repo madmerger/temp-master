@@ -1,4 +1,4 @@
-import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import type { ReactNode } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { formatTimestamp } from '../lib/constants';
@@ -22,7 +22,7 @@ export function TemperatureChart({ history, timeScale }: TemperatureChartProps) 
   return (
     <div className="h-52 w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
+        <AreaChart data={data} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
           <CartesianGrid stroke={colors.grid} strokeDasharray="3 3" />
           <XAxis
             dataKey="timestamp"
@@ -46,8 +46,8 @@ export function TemperatureChart({ history, timeScale }: TemperatureChartProps) 
             itemStyle={{ color: colors.tooltipText }}
             cursor={{ stroke: colors.grid }}
           />
-          <Line type="monotone" dataKey="temperatureValue" stroke={colors.line} fill={colors.fill} strokeWidth={2} dot={showDots ? { r: 3, fill: colors.line, stroke: colors.line } : false} activeDot={{ r: 5, fill: theme === 'dark' ? '#38bdf8' : '#5bc0de' }} isAnimationActive={false} name="Temperature" />
-        </LineChart>
+          <Area type="monotone" dataKey="temperatureValue" stroke={colors.line} strokeWidth={2} fill={colors.fill} fillOpacity={0.15} dot={showDots ? { r: 3, fill: colors.line, stroke: colors.line } : false} activeDot={{ r: 5, fill: theme === 'dark' ? '#38bdf8' : '#5bc0de' }} isAnimationActive={false} name="Temperature" />
+        </AreaChart>
       </ResponsiveContainer>
     </div>
   );
