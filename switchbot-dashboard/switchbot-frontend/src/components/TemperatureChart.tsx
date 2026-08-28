@@ -4,6 +4,8 @@ import { useTheme } from '../contexts/ThemeContext';
 import { formatTimestamp } from '../lib/constants';
 import type { HistoryReading, TimeScale } from '../types';
 
+const MAX_POINTS_WITH_DOTS = 500;
+
 interface TemperatureChartProps {
   history: HistoryReading[];
   timeScale: TimeScale;
@@ -15,7 +17,7 @@ export function TemperatureChart({ history, timeScale }: TemperatureChartProps) 
     ? { grid: '#475569', axis: '#cbd5e1', tooltipBackground: '#1e293b', tooltipBorder: '#64748b', tooltipText: '#f8fafc', line: '#f87171', fill: '#f87171' }
     : { grid: '#e2e8f0', axis: '#64748b', tooltipBackground: '#ffffff', tooltipBorder: '#cbd5e1', tooltipText: '#0f172a', line: '#d9534f', fill: '#d9534f' };
   const data = history.map((reading) => ({ ...reading, temperatureValue: reading.temperature }));
-  const showDots = data.length <= 200;
+  const showDots = data.length <= MAX_POINTS_WITH_DOTS;
 
   return (
     <div className="h-52 w-full">
