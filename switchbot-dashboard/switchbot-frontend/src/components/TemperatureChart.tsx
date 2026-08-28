@@ -15,6 +15,7 @@ export function TemperatureChart({ history, timeScale }: TemperatureChartProps) 
     ? { grid: '#475569', axis: '#cbd5e1', tooltipBackground: '#1e293b', tooltipBorder: '#64748b', tooltipText: '#f8fafc', line: '#f87171', fill: '#f87171' }
     : { grid: '#e2e8f0', axis: '#64748b', tooltipBackground: '#ffffff', tooltipBorder: '#cbd5e1', tooltipText: '#0f172a', line: '#d9534f', fill: '#d9534f' };
   const data = history.map((reading) => ({ ...reading, temperatureValue: reading.temperature }));
+  const showDots = data.length <= 200;
 
   return (
     <div className="h-52 w-full">
@@ -43,7 +44,7 @@ export function TemperatureChart({ history, timeScale }: TemperatureChartProps) 
             itemStyle={{ color: colors.tooltipText }}
             cursor={{ stroke: colors.grid }}
           />
-          <Line type="monotone" dataKey="temperatureValue" stroke={colors.line} fill={colors.fill} strokeWidth={2} dot={{ r: 3, fill: colors.line, stroke: colors.line }} activeDot={{ r: 5, fill: theme === 'dark' ? '#38bdf8' : '#5bc0de' }} name="Temperature" />
+          <Line type="monotone" dataKey="temperatureValue" stroke={colors.line} fill={colors.fill} strokeWidth={2} dot={showDots ? { r: 3, fill: colors.line, stroke: colors.line } : false} activeDot={{ r: 5, fill: theme === 'dark' ? '#38bdf8' : '#5bc0de' }} isAnimationActive={false} name="Temperature" />
         </LineChart>
       </ResponsiveContainer>
     </div>
