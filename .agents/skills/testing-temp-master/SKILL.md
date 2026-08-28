@@ -113,9 +113,11 @@ and reload the page to return to the lighter default "Last 24 Hours".
 - Measure render time by wall clock (shell `date`) around the select action; with the
   threshold in place expect roughly ~15s for month and ~40s for year on 18 charts (mostly
   API fetch time), versus minutes of freeze without it.
-- The threshold changes visible output on ANY scale whose series exceeds it. With hourly
-  collection "Last 24 Hours" is ~375 points and keeps its dots at the current threshold,
-  but denser data would silently lose them. Always count points per scale first
+- The threshold changes visible output on ANY scale whose series exceeds it. Point counts
+  depend on the density of the DB you test against, not on the current 1-hour collection
+  interval: the production backup contains much denser historical data (~375 points for
+  "Last 24 Hours", ~12 for "Last Hour" in a recent run), so counts differ from a freshly
+  collected local DB. Always count points per scale first
   (`/api/meters/<id>/history?time_scale=day | jq '.history|length'`) before calling missing
   dots a regression, and test the genuinely-small case ("Last Hour", ~12 points) to prove
   dots still render.
