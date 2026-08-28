@@ -33,9 +33,19 @@ echo "SWITCHBOT_TOKEN=${SWITCHBOT_TOKEN}" > .env
 echo "SWITCHBOT_SECRET=${SWITCHBOT_SECRET}" >> .env
 ```
 
-### 3. Symlink frontend static files
+### 3. Build the frontend
 
-The Dockerfile copies `switchbot-frontend/` to `switchbot-backend/static/`, but locally this directory doesn't exist. You must create a symlink:
+The React app must be built before it can be served; the build output goes to `switchbot-frontend/dist`:
+
+```bash
+cd switchbot-dashboard/switchbot-frontend
+npm ci
+npm run build
+```
+
+### 4. Symlink frontend static files
+
+The Dockerfile copies the built `switchbot-frontend/dist` to `switchbot-backend/static/`, but locally this directory doesn't exist. From the repository root, create a symlink:
 
 ```bash
 ln -s $(pwd)/switchbot-dashboard/switchbot-frontend/dist switchbot-dashboard/switchbot-backend/static
@@ -43,7 +53,7 @@ ln -s $(pwd)/switchbot-dashboard/switchbot-frontend/dist switchbot-dashboard/swi
 
 **Important:** The static directory check in `main.py` happens at module import time (`STATIC_DIR = Path(__file__).resolve().parent.parent / "static"`). If you create the symlink after starting the server, you must restart the server.
 
-### 4. Start the server
+### 5. Start the server
 
 ```bash
 cd switchbot-dashboard/switchbot-backend
@@ -64,7 +74,7 @@ The frontend is served at `http://localhost:8000/` and the API docs at `http://l
 ### API Connectivity
 - `GET /api/status` returns `configured: true` and `meters_count` > 0
 - `GET /api/meters` returns live meter data with temperature, humidity, battery
-- Connection status badge shows "Connected" (green, class `label-success`)
+- Connection status badge in the navbar shows "Connected" (green Tailwind badge, `bg-emerald-100 text-emerald-800`; `dark:bg-emerald-900/60 dark:text-emerald-200` in dark mode)
 
 ### UI Functionality
 - Time Range selector: Last Hour / Last 24 Hours / Last 7 Days / Last 30 Days / Last Year
