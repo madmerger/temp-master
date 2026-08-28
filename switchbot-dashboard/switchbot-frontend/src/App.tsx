@@ -4,7 +4,7 @@ import { MeterCard } from './components/MeterCard';
 import { Navbar } from './components/Navbar';
 import { StatusBar } from './components/StatusBar';
 import { fetchHistory, fetchMeters, fetchStatus, triggerRefresh } from './lib/api';
-import { API_BASE, isStaleMeter } from './lib/constants';
+import { API_BASE, REFRESH_INTERVAL, isStaleMeter } from './lib/constants';
 import type { HistoryReading, Meter, StatusResponse, TimeScale } from './types';
 
 export default function App() {
@@ -37,7 +37,7 @@ export default function App() {
 
   useEffect(() => {
     void loadData(true);
-    const intervalId = window.setInterval(() => void loadData(), 30000);
+    const intervalId = window.setInterval(() => void loadData(), REFRESH_INTERVAL);
     return () => window.clearInterval(intervalId);
   }, [loadData]);
 
