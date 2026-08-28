@@ -16,6 +16,7 @@ export default function App() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [connected, setConnected] = useState(true);
+  const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
 
   const loadData = useCallback(async (showLoading = false) => {
     if (showLoading) {
@@ -25,6 +26,7 @@ export default function App() {
       const [metersResponse, statusResponse] = await Promise.all([fetchMeters(), fetchStatus()]);
       setMeters(metersResponse.meters ?? []);
       setStatus(statusResponse);
+      setLastRefresh(new Date());
       setConnected(true);
       setError(null);
     } catch (loadError) {
@@ -92,7 +94,7 @@ export default function App() {
           onBackup={() => window.open(`${API_BASE}/api/backup`, '_blank')}
           refreshing={refreshing}
         />
-        <StatusBar status={status} />
+        <StatusBar status={status} lastRefresh={lastRefresh} />
         {error && <div className="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-950/50 dark:text-red-200"><strong>Error.</strong> {error}</div>}
         {loading && <p className="py-10 text-center text-slate-500 dark:text-slate-400">Loading temperature data...</p>}
         {!loading && (
