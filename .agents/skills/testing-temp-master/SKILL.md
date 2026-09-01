@@ -61,6 +61,22 @@ cd switchbot-dashboard/switchbot-frontend && npm run build
 ln -s $(pwd)/switchbot-dashboard/switchbot-frontend/dist switchbot-dashboard/switchbot-backend/static
 ```
 
+### Testing frontend-only changes against a production backend
+
+Local SwitchBot rate limits often leave the local backend without meter data, so point the dev proxy at a
+production backend instead. Check which one has data before starting:
+
+```bash
+curl -s https://temp-master.fly.dev/api/status
+curl -s 'https://temp-master.fly.dev/api/meters/<device_id>/history?time_scale=day'
+```
+
+If the history is empty, use `https://snakeroom.fly.dev` instead. Note `snakeroom.fly.dev` returns HTTP 401
+for `/api/backup`, so backup downloads cannot be verified there.
+
+The proxy change in `vite.config.ts` is test-only: always restore `target: 'http://localhost:8000'` (and drop
+any `secure: false`) and confirm `git status` is clean before committing.
+
 ## Key Test Points
 
 ### Branding Verification

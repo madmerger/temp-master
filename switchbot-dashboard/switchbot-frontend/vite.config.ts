@@ -8,9 +8,8 @@ export default defineConfig({
     // 開発時は同一オリジンの /api をローカルバックエンドへ転送する
     proxy: {
       '/api': {
-        target: 'https://snakeroom.fly.dev',
+        target: 'http://localhost:8000',
         changeOrigin: true,
-        secure: false,
       },
     },
   },
