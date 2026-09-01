@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-100 text-slate-800 antialiased dark:bg-slate-950 dark:text-slate-100;
+  }
+}
+
+@layer components {
+  /* Bootstrap 3 のパネル相当 */
+  .panel {
+    @apply rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900;
+  }
+  .panel-heading {
+    @apply rounded-t-lg border-b border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-800;
+  }
+  .panel-body {
+    @apply px-4 py-4;
+  }
+  /* Bootstrap 3 のラベルバッジ相当 */
+  .badge-base {
+    @apply inline-flex items-center rounded px-2 py-1 text-sm font-semibold text-white;
+  }
+  .btn {
+    @apply rounded-md px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-primary {
+    @apply btn bg-blue-600 text-white hover:bg-blue-700;
+  }
+  .btn-default {
+    @apply btn border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700;
+  }
+  .alert {
+    @apply rounded-md border px-4 py-3 text-sm;
+  }
+}
