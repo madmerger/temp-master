@@ -7,10 +7,15 @@
     <script>
       // ちらつき防止のため、React の描画前にテーマを適用する
       (function () {
-        var stored = localStorage.getItem('temp-master-theme');
+        var stored = null;
+        try {
+          stored = localStorage.getItem('temp-master-theme');
+        } catch (e) {
+          // localStorage が使えない環境では OS の設定にフォールバックする
+        }
         var dark =
           stored === 'dark' ||
-          (stored === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          (stored !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
         if (dark) document.documentElement.classList.add('dark');
       })();
     </script>

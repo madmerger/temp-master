@@ -27,6 +27,8 @@ export function useDashboardData(): DashboardData {
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const mounted = useRef(true);
+  // 並行した取得のうち、最後に開始したものだけを反映する
+  const latestRequest = useRef(0);
 
   useEffect(() => {
     mounted.current = true;
@@ -36,9 +38,10 @@ export function useDashboardData(): DashboardData {
   }, []);
 
   const reload = useCallback(async () => {
+    const requestId = ++latestRequest.current;
     try {
       const [metersResponse, statusResponse] = await Promise.all([fetchMeters(), fetchStatus()]);
-      if (!mounted.current) return;
+      if (!mounted.current || requestId !== latestRequest.current) return;
       setMeters(metersResponse.meters ?? []);
       setStatus(statusResponse);
       setDataVersion((version) => version + 1);
@@ -46,11 +49,11 @@ export function useDashboardData(): DashboardData {
       setError(null);
       setConnected(true);
     } catch (err) {
-      if (!mounted.current) return;
+      if (!mounted.current || requestId !== latestRequest.current) return;
       setError(`データの取得に失敗しました: ${err instanceof Error ? err.message : String(err)}`);
       setConnected(false);
     } finally {
-      if (mounted.current) {
+      if (mounted.current && requestId === latestRequest.current) {
         setLoading(false);
       }
     }
