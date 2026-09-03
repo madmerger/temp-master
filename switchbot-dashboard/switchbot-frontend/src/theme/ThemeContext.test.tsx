@@ -24,4 +24,18 @@ describe('ThemeProvider', () => {
     render(<ThemeProvider><ThemeToggle /></ThemeProvider>);
     expect(document.documentElement.dataset.theme).toBe('light');
   });
+
+  it('continues when storage is unavailable', async () => {
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('storage unavailable');
+    });
+    vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('storage unavailable');
+    });
+
+    render(<ThemeProvider><ThemeToggle /></ThemeProvider>);
+    expect(document.documentElement.dataset.theme).toBe('dark');
+    await userEvent.click(screen.getByRole('button', { name: 'Switch to light theme' }));
+    expect(document.documentElement.dataset.theme).toBe('light');
+  });
 });

@@ -30,9 +30,12 @@ export const Controls = ({ timeScale, onTimeScaleChange, refetch }: ControlsProp
     } catch (error) {
       setRefreshError(`Failed to refresh: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
-      await refetch();
-      await queryClient.invalidateQueries({ queryKey: ['history'] });
-      setIsRefreshing(false);
+      try {
+        await refetch();
+        await queryClient.invalidateQueries({ queryKey: ['history'] });
+      } finally {
+        setIsRefreshing(false);
+      }
     }
   };
 

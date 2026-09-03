@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Controls } from './components/Controls';
 import { ErrorAlert } from './components/ErrorAlert';
 import { Footer } from './components/Footer';
@@ -15,19 +15,17 @@ import type { TimeScale } from './types';
 export const App = () => {
   const [timeScale, setTimeScale] = useState<TimeScale>('day');
   const { meters, status, isLoading, error, lastRefresh, isConnected, refetch } = useDashboardData();
-  const { activeMeters, staleMeters } = useMemo(() => (
-    meters.reduce<{ activeMeters: typeof meters; staleMeters: typeof meters }>(
-      (result, meter) => {
-        if (isStaleMeter(meter)) {
-          result.staleMeters.push(meter);
-        } else {
-          result.activeMeters.push(meter);
-        }
-        return result;
-      },
-      { activeMeters: [], staleMeters: [] },
-    )
-  ), [meters]);
+  const { activeMeters, staleMeters } = meters.reduce<{ activeMeters: typeof meters; staleMeters: typeof meters }>(
+    (result, meter) => {
+      if (isStaleMeter(meter)) {
+        result.staleMeters.push(meter);
+      } else {
+        result.activeMeters.push(meter);
+      }
+      return result;
+    },
+    { activeMeters: [], staleMeters: [] },
+  );
 
   return (
     <>

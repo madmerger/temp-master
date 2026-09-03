@@ -33,8 +33,24 @@ export const chartColors: Record<Theme, {
   },
 };
 
+const readStoredTheme = (): Theme | null => {
+  try {
+    const stored = localStorage.getItem('theme');
+    return stored === 'light' || stored === 'dark' ? stored : null;
+  } catch {
+    return null;
+  }
+};
+
+const writeStoredTheme = (theme: Theme): void => {
+  try {
+    localStorage.setItem('theme', theme);
+  } catch {
+  }
+};
+
 const getInitialTheme = (): Theme => {
-  const stored = localStorage.getItem('theme');
+  const stored = readStoredTheme();
   if (stored === 'light' || stored === 'dark') {
     return stored;
   }
@@ -50,7 +66,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
-    localStorage.setItem('theme', theme);
+    writeStoredTheme(theme);
   }, [theme]);
 
   const value = useMemo(
