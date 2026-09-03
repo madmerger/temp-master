@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { fetchMeters, fetchStatus, getBackupUrl, triggerRefresh } from './api'
 import { REFRESH_INTERVAL, TIME_SCALES } from './constants'
 import type { Meter, StatusResponse, TimeScale } from './types'
@@ -12,10 +12,12 @@ export default function App() {
   const [timeScale, setTimeScale] = useState<TimeScale>('day')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [refreshError, setRefreshError] = useState<string | null>(null)
   const [connected, setConnected] = useState(false)
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
   const [refreshing, setRefreshing] = useState(false)
   const [refreshTick, setRefreshTick] = useState(0)
+  const requestIdRef = useRef(0)
 
   const showError = useCallback((message: string) => {
     setLoading(false)
@@ -24,6 +26,7 @@ export default function App() {
   }, [])
 
   const loadData = useCallback(async () => {
+    const id = ++requestIdRef.current
     try {
       const metersResponse = await fetchMeters()
       let statusResponse: StatusResponse
@@ -33,6 +36,9 @@ export default function App() {
         const message = statusError instanceof Error ? statusError.message : String(statusError)
         throw new Error(`status: ${message}`)
       }
+      if (id !== requestIdRef.current) {
+        return
+      }
       setMeters(metersResponse.meters || [])
       setStatus(statusResponse)
       setConnected(true)
@@ -41,6 +47,9 @@ export default function App() {
       setLastRefresh(new Date())
       setRefreshTick((tick) => tick + 1)
     } catch (loadError) {
+      if (id !== requestIdRef.current) {
+        return
+      }
       const message = loadError instanceof Error ? loadError.message : String(loadError)
       const isStatusError = message.startsWith('status: ')
       showError(
@@ -58,12 +67,13 @@ export default function App() {
   }, [loadData])
 
   const handleRefresh = async () => {
+    setRefreshError(null)
     setRefreshing(true)
     try {
       await triggerRefresh()
     } catch (refreshError) {
       const message = refreshError instanceof Error ? refreshError.message : String(refreshError)
-      showError(`Failed to refresh: ${message}`)
+      setRefreshError(`Failed to refresh: ${message}`)
     } finally {
       await loadData()
       setRefreshing(false)
@@ -169,6 +179,12 @@ export default function App() {
         {error && (
           <div className="alert alert-danger" id="error">
             <strong>Error.</strong> <span id="error-text">{error}</span>
+          </div>
+        )}
+
+        {refreshError && (
+          <div className="alert alert-danger" id="refresh-error">
+            <strong>Error.</strong> {refreshError}
           </div>
         )}
 
