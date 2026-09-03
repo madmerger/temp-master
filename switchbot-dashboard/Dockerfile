@@ -4,7 +4,6 @@ WORKDIR /frontend
 COPY switchbot-frontend/package*.json ./
 RUN npm ci
 COPY switchbot-frontend/ ./
-ENV VITE_API_URL=
 RUN npm run build
 
 # Build and run backend (serves frontend static files)

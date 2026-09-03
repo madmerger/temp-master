@@ -34,10 +34,12 @@ export default function Chart({ history, timeScale }: ChartProps) {
           />
           <YAxis
             tick={{ fontSize: 10, fill: '#777' }}
+            domain={['auto', 'auto']}
             tickFormatter={(value) => `${value}°`}
           />
           <Tooltip
             labelStyle={{ display: 'none' }}
+            separator=""
             formatter={(value) => [`${Number(value).toFixed(1)}°C`, '']}
           />
           <Area
