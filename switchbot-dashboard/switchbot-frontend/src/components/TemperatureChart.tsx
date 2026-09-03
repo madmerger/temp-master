@@ -31,7 +31,7 @@ export default function TemperatureChart({ deviceId, timeScale }: TemperatureCha
     return <span className={styles.message}>No data</span>;
   }
 
-  const history = downsample(data.history, MAX_POINTS);
+  const history = downsample(data.history, MAX_POINTS, (reading) => reading.temperature);
   const chartData = history.map((reading) => ({
     label: formatTimestamp(reading.timestamp, timeScale),
     temperature: reading.temperature,
