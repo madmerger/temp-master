@@ -1,0 +1,93 @@
+.panel {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 45px;
+  padding: 10px 15px;
+  background: #f8f8f8;
+  border-bottom: 1px solid #ddd;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+
+.title strong {
+  overflow-wrap: anywhere;
+}
+
+.deviceType {
+  flex-shrink: 0;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #eee;
+  color: #777;
+  font-size: 11px;
+}
+
+.body {
+  padding: 15px;
+}
+
+.stats {
+  margin-bottom: 10px;
+}
+
+.label,
+.staleBadge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 3px;
+  color: #fff;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.label {
+  margin-right: 6px;
+}
+
+.danger {
+  background: #d9534f;
+}
+
+.info {
+  background: #5bc0de;
+}
+
+.success {
+  background: #5cb85c;
+}
+
+.staleBadge {
+  background: #f0ad4e;
+}
+
+.chartWrap {
+  position: relative;
+  height: 200px;
+}
+
+.lastUpdated {
+  margin: 8px 0 0;
+  color: #777;
+  font-size: 12px;
+}
+
+.staleEmpty {
+  margin: 0;
+  color: #8a6d3b;
+}

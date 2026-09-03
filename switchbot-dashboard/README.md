@@ -5,7 +5,7 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 ## Features
 
 - Temperature charts for all SwitchBot Meter devices using Recharts
-- Time scale switching (hour/day/month/year)
+- Time scale switching (hour/day/week/month/year)
 - Auto-refresh every 30 seconds (frontend) with background data collection every 2 minutes (backend)
 - Rate limiting protection with exponential backoff
 - All API calls are cached - GET endpoints never call SwitchBot API directly
@@ -62,6 +62,8 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
    ```
 
 5. Open http://localhost:5173 in your browser
+
+Production builds are created by the Docker multi-stage build.
 
 ## API Endpoints
 

@@ -1,0 +1,64 @@
+.panel {
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.body {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 15px;
+}
+
+.group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 12px;
+}
+
+select,
+.primaryButton,
+.defaultButton {
+  min-height: 34px;
+  padding: 6px 12px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1.42857143;
+}
+
+select {
+  border-color: #ccc;
+  background: #fff;
+  color: #555;
+}
+
+.primaryButton {
+  border-color: #2e6da4;
+  background: #337ab7;
+  color: #fff;
+}
+
+.defaultButton {
+  border-color: #ccc;
+  background: #fff;
+  color: #333;
+}
+
+.primaryButton:hover:not(:disabled) {
+  background: #286090;
+}
+
+.defaultButton:hover {
+  background: #e6e6e6;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}

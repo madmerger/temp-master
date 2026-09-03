@@ -1,0 +1,74 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 1030;
+  min-height: 50px;
+  background: #fff;
+  border: 1px solid #e7e7e7;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  min-height: 50px;
+  padding: 0 15px;
+}
+
+.brand,
+.link {
+  display: block;
+  color: #777;
+  text-decoration: none;
+}
+
+.brand {
+  margin-right: 20px;
+  padding: 15px;
+  color: #5e5e5e;
+  font-size: 18px;
+  line-height: 20px;
+}
+
+.link {
+  padding: 15px;
+  line-height: 20px;
+}
+
+.link:hover,
+.link.active {
+  color: #333;
+  background: #e7e7e7;
+}
+
+.status {
+  margin-left: auto;
+  padding: 3px 7px;
+  border-radius: 3px;
+  color: #fff;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.success {
+  background: #5cb85c;
+}
+
+.danger {
+  background: #d9534f;
+}
+
+@media (max-width: 520px) {
+  .brand {
+    margin-right: 0;
+    padding-left: 5px;
+    padding-right: 8px;
+    font-size: 15px;
+  }
+
+  .link {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
