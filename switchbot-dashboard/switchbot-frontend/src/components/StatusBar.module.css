@@ -1,0 +1,21 @@
+.infoAlert,
+.warningAlert {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+
+.infoAlert {
+  display: flex;
+  justify-content: space-between;
+  background: #d9edf7;
+  border-color: #bce8f1;
+  color: #31708f;
+}
+
+.warningAlert {
+  background: #fcf8e3;
+  border-color: #faebcc;
+  color: #8a6d3b;
+}
