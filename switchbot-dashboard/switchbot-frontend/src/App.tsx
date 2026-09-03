@@ -38,7 +38,7 @@ export const App = () => {
         <RateLimitWarning status={status} />
         {isLoading && <Loading />}
         {error && <ErrorAlert message={error} />}
-        {!isLoading && !error && (
+        {!isLoading && (
           <>
             <MeterGrid meters={activeMeters} timeScale={timeScale} />
             <StaleMetersSection meters={staleMeters} timeScale={timeScale} />
