@@ -1,0 +1,407 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #f5f5f5;
+  color: #333;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.42857143;
+  margin: 0;
+  padding-top: 70px;
+}
+
+a {
+  color: #337ab7;
+  text-decoration: none;
+}
+
+a:hover,
+a:focus {
+  color: #23527c;
+  text-decoration: underline;
+}
+
+.container-fluid {
+  margin: 0 auto;
+  padding: 0 15px;
+  width: 100%;
+}
+
+.navbar {
+  border: 1px solid transparent;
+  min-height: 50px;
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 100%;
+  z-index: 1030;
+}
+
+.navbar-default {
+  background-color: #f8f8f8;
+  border-color: #e7e7e7;
+}
+
+.navbar-header {
+  float: left;
+}
+
+.navbar-brand {
+  color: #777;
+  float: left;
+  font-size: 18px;
+  height: 50px;
+  line-height: 20px;
+  padding: 15px;
+}
+
+.navbar-brand:hover,
+.navbar-brand:focus {
+  color: #5e5e5e;
+  text-decoration: none;
+}
+
+.nav {
+  list-style: none;
+  margin: 0;
+  padding-left: 0;
+}
+
+.navbar-nav {
+  float: left;
+}
+
+.navbar-nav > li {
+  float: left;
+}
+
+.navbar-nav > li > a {
+  color: #777;
+  display: block;
+  line-height: 20px;
+  padding: 15px;
+}
+
+.navbar-nav > li.active > a,
+.navbar-nav > li.active > a:hover,
+.navbar-nav > li.active > a:focus {
+  background-color: #e7e7e7;
+  color: #555;
+}
+
+.navbar-status {
+  margin-right: 15px;
+  margin-top: 15px;
+}
+
+.pull-right {
+  float: right !important;
+}
+
+.panel {
+  background-color: #fff;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  box-shadow: 0 1px 1px rgb(0 0 0 / 5%);
+  margin-bottom: 20px;
+}
+
+.panel-default {
+  border-color: #ddd;
+}
+
+.panel-heading {
+  border-bottom: 1px solid transparent;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  padding: 10px 15px;
+}
+
+.panel-default > .panel-heading {
+  background-color: #f8f8f8;
+  border-color: #ddd;
+}
+
+.panel-body {
+  padding: 15px;
+}
+
+.form-inline {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.form-group {
+  align-items: center;
+  display: flex;
+  margin-right: 10px;
+}
+
+.form-group label {
+  margin-right: 8px;
+}
+
+.form-control {
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 1px rgb(0 0 0 / 8%);
+  color: #555;
+  display: block;
+  font-size: 14px;
+  height: 34px;
+  line-height: 1.42857143;
+  padding: 6px 12px;
+  transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+}
+
+.btn {
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.42857143;
+  padding: 6px 12px;
+  text-align: center;
+  touch-action: manipulation;
+  user-select: none;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background-color: #337ab7;
+  border-color: #2e6da4;
+  color: #fff;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: #286090;
+  border-color: #204d74;
+  color: #fff;
+}
+
+.btn-default {
+  background-color: #fff;
+  border-color: #ccc;
+  color: #333;
+}
+
+.btn-default:hover,
+.btn-default:focus {
+  background-color: #e6e6e6;
+  border-color: #adadad;
+  color: #333;
+}
+
+.btn:disabled,
+.btn.disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.label {
+  border-radius: 0.25em;
+  color: #fff;
+  display: inline;
+  font-size: 75%;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.2em 0.6em 0.3em;
+  text-align: center;
+  vertical-align: baseline;
+  white-space: nowrap;
+}
+
+.label-success {
+  background-color: #5cb85c;
+}
+
+.label-danger {
+  background-color: #d9534f;
+}
+
+.label-info {
+  background-color: #5bc0de;
+}
+
+.label-warning {
+  background-color: #f0ad4e;
+  color: #fff;
+}
+
+.alert {
+  border: 1px solid transparent;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  padding: 15px;
+}
+
+.alert-info {
+  background-color: #d9edf7;
+  border-color: #bce8f1;
+  color: #31708f;
+}
+
+.alert-warning {
+  background-color: #fcf8e3;
+  border-color: #faebcc;
+  color: #8a6d3b;
+}
+
+.alert-danger {
+  background-color: #f2dede;
+  border-color: #ebccd1;
+  color: #a94442;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  margin: 0 -7.5px;
+}
+
+.row > [class*='col-'] {
+  min-width: 0;
+  padding: 0 7.5px;
+}
+
+.meter-panel-header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.meter-panel-title {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.meter-stats {
+  margin-bottom: 10px;
+}
+
+.meter-stats .label {
+  font-size: 14px;
+  margin-right: 6px;
+  padding: 4px 8px;
+}
+
+.meter-chart-wrap {
+  height: 200px;
+  position: relative;
+}
+
+.meter-last-updated {
+  color: #777;
+  font-size: 12px;
+  margin-bottom: 0;
+  margin-top: 8px;
+}
+
+.device-type-tag {
+  background-color: #eee;
+  border-radius: 10px;
+  color: #777;
+  font-size: 11px;
+  padding: 2px 8px;
+}
+
+.meter-section {
+  margin-bottom: 20px;
+}
+
+.meter-section-header {
+  margin-bottom: 10px;
+}
+
+.meter-section-title {
+  color: #8a6d3b;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.meter-section-subtitle {
+  color: #8a6d3b;
+  font-size: 12px;
+  margin: 4px 0 0;
+}
+
+.stale-meters-panel {
+  background-color: #fcf8e3;
+  border-color: #f0ad4e;
+}
+
+.stale-meters-panel > .panel-heading {
+  background-color: #fcf8e3;
+  border-bottom-color: #f0ad4e;
+}
+
+.stale-meter-badge {
+  display: inline-block;
+  margin-left: 8px;
+}
+
+.stale-meter-empty {
+  color: #8a6d3b;
+  margin: 0;
+}
+
+#loading {
+  padding: 40px 0;
+  text-align: center;
+}
+
+.text-muted {
+  color: #777;
+}
+
+footer {
+  color: #777;
+  font-size: 12px;
+  margin: 30px 0 20px;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 992px) {
+  .row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .navbar-header,
+  .navbar-nav,
+  .navbar-nav > li {
+    float: none;
+  }
+
+  .navbar {
+    min-height: 100px;
+  }
+
+  body {
+    padding-top: 120px;
+  }
+
+  .navbar-status {
+    margin-bottom: 10px;
+    margin-top: 0;
+  }
+}
