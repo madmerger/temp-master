@@ -1,0 +1,102 @@
+body {
+  background-color: #f5f5f5;
+  padding-top: 70px;
+}
+
+.meter-card {
+  margin-bottom: 20px;
+}
+
+.meter-card > .card-header {
+  background-color: #f8f8f8;
+}
+
+.meter-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.meter-panel-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.meter-stats {
+  margin-bottom: 10px;
+}
+
+.meter-stats .badge {
+  font-size: 14px;
+  margin-right: 6px;
+  padding: 4px 8px;
+}
+
+.meter-chart-wrap {
+  position: relative;
+  height: 200px;
+}
+
+.meter-last-updated {
+  color: #777;
+  font-size: 12px;
+  margin-top: 8px;
+  margin-bottom: 0;
+}
+
+footer {
+  text-align: center;
+  color: #777;
+  font-size: 12px;
+  margin: 30px 0 20px 0;
+}
+
+#loading {
+  text-align: center;
+  padding: 40px 0;
+}
+
+.device-type-tag {
+  font-size: 11px;
+  color: #777;
+  background-color: #eee;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.meter-section {
+  margin-bottom: 20px;
+}
+
+.meter-section-header {
+  margin-bottom: 10px;
+}
+
+.meter-section-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #8a6d3b;
+}
+
+.meter-section-subtitle {
+  margin: 4px 0 0;
+  color: #8a6d3b;
+  font-size: 12px;
+}
+
+.stale-meters-panel {
+  border-color: #f0ad4e;
+  background-color: #fcf8e3;
+}
+
+.stale-meter-badge {
+  display: inline-block;
+  margin-left: 8px;
+}
+
+.stale-meter-empty {
+  color: #8a6d3b;
+  margin: 0;
+}
