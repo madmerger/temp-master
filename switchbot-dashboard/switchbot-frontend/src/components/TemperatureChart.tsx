@@ -52,14 +52,14 @@ export function TemperatureChart({ deviceId, timeScale, refreshKey }: Props) {
   return (
     <div className="meter-chart-wrap">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -16 }}>
+        <LineChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: 0 }}>
           <CartesianGrid stroke="rgba(0, 0, 0, 0.05)" />
           <XAxis dataKey="label" tick={{ fontSize: 10, fill: '#777' }} interval="preserveStartEnd" minTickGap={24} />
           <YAxis
             tick={{ fontSize: 10, fill: '#777' }}
             tickFormatter={(v: number) => `${v}\u00b0`}
             domain={['auto', 'auto']}
-            width={40}
+            width={48}
           />
           <Tooltip
             formatter={(v) => [typeof v === 'number' ? `${v.toFixed(1)}\u00b0C` : '', 'Temperature']}
