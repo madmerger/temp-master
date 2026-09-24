@@ -76,6 +76,15 @@ The frontend is served at `http://localhost:8000/` and the API docs at `http://l
 - Charts: Canvas elements rendered with Chart.js v4 line charts (canvas)
 - Refresh Data button triggers data reload
 
+### Runtime verification tips
+
+- Reuse an existing server on port 8000 only after checking its working directory and that `static` points to the current frontend `dist`. Rebuild after source changes.
+- A fresh local database may contain only one reading per device, so a chart initially renders a point rather than a line. One UI-triggered **Refresh Data** collection can provide a second real reading; do not fabricate readings merely to demonstrate a line.
+- Record the **Refreshing...** disabled state while the collection is in progress. A MutationObserver or Playwright observer can capture the transient state without modifying app behavior.
+- For auto-refresh, compare the displayed **Last refresh** before and after at least 35 seconds without clicking. Observe the browser's `/api/meters`, `/api/status`, and history requests; the meter's **Last updated** is a different timestamp and need not advance.
+- For the initial theme, clear only `localStorage.theme`, emulate `prefers-color-scheme`, and reload. Keep the emulating CDP/Playwright connection alive through the reload and assertion; disconnecting it can reset media emulation. Also verify that an explicitly saved theme overrides the OS preference.
+- **Download Backup** opens a new target that Chrome may close automatically when the download starts. Verify `/api/backup`, the browser download history, and the actual downloaded SQLite file. If an automation tool's copied artifact is empty or unavailable, inspect the file path shown in Chrome's download history before treating it as an application failure.
+
 ## Running Backend Tests
 
 ```bash
