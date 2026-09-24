@@ -5,7 +5,8 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 ## Features
 
 - Temperature charts for all SwitchBot Meter devices using Recharts
-- Time scale switching (hour/day/month/year)
+- Time scale switching (hour/day/week/month/year)
+- Stale meters (no update for 7+ days) are shown in a separate warning panel without a chart
 - Auto-refresh every 30 seconds (frontend) with background data collection every 2 minutes (backend)
 - Rate limiting protection with exponential backoff
 - All API calls are cached - GET endpoints never call SwitchBot API directly
@@ -51,10 +52,14 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
    npm install
    ```
 
-3. Copy `.env.example` to `.env`:
+3. Copy `.env.example` to `.env` and set the backend URL:
    ```bash
    cp .env.example .env
    ```
+
+   `VITE_API_URL` is the base URL of the FastAPI backend (default in `.env.example`:
+   `https://snakeroom.fly.dev`). Leave it empty to use the same origin; the Vite dev
+   server then proxies `/api` to `http://localhost:8000`.
 
 4. Start the development server:
    ```bash
@@ -63,12 +68,32 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 
 5. Open http://localhost:5173 in your browser
 
+6. Production build (outputs to `dist/`):
+   ```bash
+   npm run build
+   ```
+
+Stack: Vite + React 18 + TypeScript + Recharts + Bootstrap 5.
+
+### Docker
+
+The `Dockerfile` is a multi-stage build: Node builds the frontend (`npm run build`),
+then the `dist/` output is copied into `static/` of the FastAPI image, which serves it at `/`.
+`VITE_API_URL` is baked in at build time and defaults to `https://snakeroom.fly.dev`;
+override with `--build-arg VITE_API_URL=...` (an empty value calls the backend that serves the app).
+
+```bash
+docker build -t temp-master .
+docker run -p 8000:8000 --env-file switchbot-backend/.env temp-master
+```
+
 ## API Endpoints
 
 - `GET /api/meters` - Returns list of all meter devices with current temperature (from cache)
 - `GET /api/meters/{device_id}/history` - Returns temperature history with time_scale parameter
 - `POST /api/meters/refresh` - Triggers immediate data collection
 - `GET /api/status` - Returns backend status and configuration
+- `GET /api/backup` - Downloads the SQLite database
 
 ## Notes
 

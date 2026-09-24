@@ -1,4 +1,18 @@
-# Build and run backend (serves frontend static files)
+# Stage 1: build the React frontend
+FROM node:22-alpine AS frontend
+WORKDIR /frontend
+
+COPY switchbot-frontend/package.json switchbot-frontend/package-lock.json ./
+RUN npm ci
+
+COPY switchbot-frontend/ ./
+# VITE_API_URL is baked in at build time. Pass an empty value to call the
+# FastAPI backend that serves the app (same origin).
+ARG VITE_API_URL=https://snakeroom.fly.dev
+ENV VITE_API_URL=${VITE_API_URL}
+RUN npm run build
+
+# Stage 2: backend (serves frontend static files)
 FROM python:3.12-slim
 WORKDIR /app
 
@@ -14,8 +28,8 @@ RUN poetry config virtualenvs.create true && \
 # Copy backend application code
 COPY switchbot-backend/app/ ./app/
 
-# Copy frontend to root: served at /
-COPY switchbot-frontend/ ./static/
+# Copy built frontend to root: served at /
+COPY --from=frontend /frontend/dist/ ./static/
 
 EXPOSE 8000
 
