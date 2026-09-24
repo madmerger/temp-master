@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { fetchMeters, fetchStatus, triggerRefresh, type Meter, type Status, type TimeScale } from '../api'
 import { splitMeters } from '../utils/meters'
 import { Controls } from './Controls'
@@ -22,10 +22,14 @@ export function Dashboard() {
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
   const [refreshing, setRefreshing] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
+  const [refreshError, setRefreshError] = useState<string | null>(null)
+  const requestSeq = useRef(0)
 
   const fetchData = useCallback(async () => {
+    const seq = ++requestSeq.current
     try {
       const [metersRes, statusRes] = await Promise.all([fetchMeters(), fetchStatus()])
+      if (seq !== requestSeq.current) return
       setMeters(metersRes.meters ?? [])
       setStatus(statusRes)
       setLastRefresh(new Date())
@@ -33,10 +37,11 @@ export function Dashboard() {
       setConnected(true)
       setRefreshKey((k) => k + 1)
     } catch (err) {
+      if (seq !== requestSeq.current) return
       setError(`Failed to fetch data: ${errorMessage(err)}`)
       setConnected(false)
     } finally {
-      setLoading(false)
+      if (seq === requestSeq.current) setLoading(false)
     }
   }, [])
 
@@ -50,9 +55,9 @@ export function Dashboard() {
     setRefreshing(true)
     try {
       await triggerRefresh()
+      setRefreshError(null)
     } catch (err) {
-      setError(`Failed to refresh: ${errorMessage(err)}`)
-      setConnected(false)
+      setRefreshError(`Failed to refresh: ${errorMessage(err)}`)
     }
     await fetchData()
     setRefreshing(false)
@@ -100,6 +105,12 @@ export function Dashboard() {
         {error && (
           <div className="alert alert-danger" role="alert">
             <strong>Error.</strong> {error}
+          </div>
+        )}
+
+        {refreshError && (
+          <div className="alert alert-danger" role="alert">
+            <strong>Error.</strong> {refreshError}
           </div>
         )}
 

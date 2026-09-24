@@ -20,7 +20,7 @@ interface Props {
 const COLOR = '#d9534f'
 
 export function TemperatureChart({ deviceId, timeScale, refreshKey }: Props) {
-  const [history, setHistory] = useState<HistoryPoint[]>([])
+  const [loaded, setLoaded] = useState<{ timeScale: TimeScale; history: HistoryPoint[] } | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export function TemperatureChart({ deviceId, timeScale, refreshKey }: Props) {
     fetchHistory(deviceId, timeScale)
       .then((res) => {
         if (!cancelled) {
-          setHistory(res.history ?? [])
+          setLoaded({ timeScale, history: res.history ?? [] })
           setError(null)
         }
       })
@@ -44,6 +44,7 @@ export function TemperatureChart({ deviceId, timeScale, refreshKey }: Props) {
     return <p className="text-muted small mb-0">履歴の取得に失敗しました: {error}</p>
   }
 
+  const history = loaded?.timeScale === timeScale ? loaded.history : []
   const data = history.map((p) => ({
     ...p,
     label: formatTimestamp(p.timestamp, timeScale),
