@@ -1,0 +1,8 @@
+switchbot-frontend/node_modules
+switchbot-frontend/dist
+switchbot-frontend/test-results
+switchbot-frontend/playwright-report
+switchbot-frontend/e2e-artifacts
+**/.venv
+**/__pycache__
+*.db
