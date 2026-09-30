@@ -67,6 +67,7 @@ export interface MockOptions {
   refreshStatus?: number
   rateLimited?: boolean
   refreshDelayMs?: number
+  meterResponseOverrides?: Array<{ delayMs?: number; firstMeterTemperature?: number }>
 }
 
 export interface HistoryRequest {
@@ -77,11 +78,12 @@ export interface HistoryRequest {
 export interface MockBackend {
   historyRequests: HistoryRequest[]
   meterRequests: number
+  completedMeterRequests: number
   refreshRequests: number
 }
 
 export async function mockBackend(page: Page, options: MockOptions = {}): Promise<MockBackend> {
-  const state: MockBackend = { historyRequests: [], meterRequests: 0, refreshRequests: 0 }
+  const state: MockBackend = { historyRequests: [], meterRequests: 0, completedMeterRequests: 0, refreshRequests: 0 }
   const meters = [...activeMeters, ...staleMeters]
   await page.context().route('**/api/backup', (route) => route.fulfill({
     status: 200,
@@ -95,12 +97,22 @@ export async function mockBackend(page: Page, options: MockOptions = {}): Promis
 
     if (path === '/api/meters' && request.method() === 'GET') {
       state.meterRequests += 1
+      const override = options.meterResponseOverrides?.[state.meterRequests - 1]
+      if (override?.delayMs) {
+        await new Promise((resolveDelay) => setTimeout(resolveDelay, override.delayMs))
+      }
       const status = options.metersStatus ?? 200
+      const responseMeters = override?.firstMeterTemperature === undefined
+        ? meters
+        : meters.map((meter, index) => index === 0
+          ? { ...meter, current_temperature: override.firstMeterTemperature }
+          : meter)
       await route.fulfill({
         status,
         contentType: 'application/json',
-        body: JSON.stringify(status === 200 ? { meters, last_updated: dateDaysAgo(0) } : { detail: 'Meters unavailable' }),
+        body: JSON.stringify(status === 200 ? { meters: responseMeters, last_updated: dateDaysAgo(0) } : { detail: 'Meters unavailable' }),
       })
+      state.completedMeterRequests += 1
       return
     }
 

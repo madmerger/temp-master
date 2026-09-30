@@ -165,3 +165,31 @@ test('手動更新・バックアップ・自動更新 / Refresh, backup and aut
   await page.clock.fastForward(30000)
   await expect.poll(() => backend.meterRequests).toBe(previousCount + 1)
 })
+
+test('新しい dashboard reload が古い応答に上書きされない / Newer reload wins over a stale response', async ({ page }) => {
+  const backend = await mockBackend(page, {
+    meterResponseOverrides: [
+      {},
+      { delayMs: 750, firstMeterTemperature: 19.8 },
+      { firstMeterTemperature: 25 },
+    ],
+  })
+  await page.clock.install()
+  await page.goto('/')
+  await expect(page.getByTestId('loading')).toBeHidden()
+  const bedroomCard = page.getByTestId('meter-card-meter-bedroom')
+  await expect(bedroomCard).toContainText('19.8°C')
+
+  await page.clock.fastForward(30000)
+  await expect.poll(() => backend.meterRequests).toBe(2)
+
+  await page.getByTestId('btn-refresh').click()
+  await expect.poll(() => backend.refreshRequests).toBe(1)
+  await expect.poll(() => backend.meterRequests).toBe(3)
+  await expect(bedroomCard).toContainText('25°C')
+  await expect(page.getByTestId('btn-refresh')).toHaveText('Refresh Data')
+
+  await expect.poll(() => backend.completedMeterRequests).toBe(3)
+  await page.clock.runFor(50)
+  await expect(bedroomCard).toContainText('25°C')
+})

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { REFRESH_INTERVAL } from '../config'
 import { fetchMeters, fetchStatus } from '../lib/api'
 import type { DashboardStatus, Meter } from '../types'
@@ -26,7 +26,9 @@ export function useDashboardData(): DashboardData {
   const [error, setError] = useState<string | null>(null)
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null)
   const [reloadToken, setReloadToken] = useState(0)
+  const latestRequestRef = useRef(0)
   const reload = useCallback(async () => {
+    const requestId = ++latestRequestRef.current
     try {
       const [metersResponse, statusResponse] = await Promise.all([
         fetchMeters().catch((cause: unknown) => {
@@ -40,12 +42,14 @@ export function useDashboardData(): DashboardData {
           throw failure
         }),
       ])
+      if (requestId !== latestRequestRef.current) return
       setMeters(metersResponse.meters || [])
       setStatus(statusResponse)
       setError(null)
       setLastRefresh(new Date())
       setReloadToken((value) => value + 1)
     } catch (cause) {
+      if (requestId !== latestRequestRef.current) return
       const failure = cause as LoadFailure
       const source = failure.source === 'meters' ? 'meters' : 'status'
       setError(`Failed to fetch ${source}: ${failure.message}`)
