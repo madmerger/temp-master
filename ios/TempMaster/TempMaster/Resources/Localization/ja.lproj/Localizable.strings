@@ -1,0 +1,100 @@
+/* ja.lproj — full Japanese (stale-section strings identical to en). */
+
+/* App chrome */
+"dashboard.title" = "Temp Master Dashboard";
+"tab.dashboard" = "ダッシュボード";
+"tab.latency" = "レイテンシ";
+"tab.import" = "インポート";
+"tab.settings" = "設定";
+"footer.text" = "Temp Master Dashboard v1.0 - Built with SwiftUI";
+
+/* Connection / dashboard controls */
+"connection.connected" = "接続中";
+"connection.disconnected" = "切断";
+"timerange.label" = "期間:";
+"timerange.last_hour" = "過去1時間";
+"timerange.last_24_hours" = "過去24時間";
+"timerange.last_7_days" = "過去7日間";
+"timerange.last_30_days" = "過去30日間";
+"timerange.last_year" = "過去1年間";
+"dashboard.refresh_button" = "データ更新";
+"dashboard.refreshing" = "更新中...";
+"dashboard.backup_button" = "バックアップをダウンロード";
+"dashboard.last_refresh_fmt" = "最終更新: %@";
+"dashboard.loading" = "温度データを読み込み中...";
+
+/* Rate limit */
+"ratelimit.title" = "レート制限中。";
+"ratelimit.message" = "SwitchBot API のレート制限に達しました。%d 秒後に再試行してください。";
+
+/* Errors */
+"error.title" = "エラー。";
+"error.fetch_meters" = "メーターの取得に失敗しました";
+"error.fetch_status" = "ステータスの取得に失敗しました";
+"error.refresh" = "更新に失敗しました";
+
+/* Stale meters (identical to en) */
+"stale.section_title" = "未更新のメーター";
+"stale.section_subtitle" = "1週間以上更新されていないデバイス";
+"stale.badge" = "7日以上未更新";
+"stale.no_history" = "履歴データの取得対象外";
+"stale.no_value" = "値がありません（データ未受信）";
+
+/* Meter card */
+"meter.last_updated_fmt" = "最終更新: %@";
+
+/* Latency */
+"latency.title" = "レイテンシ";
+"latency.stats_section" = "統計";
+"latency.filters_section" = "フィルタ";
+"latency.filter_endpoint" = "エンドポイント";
+"latency.filter_device_id" = "デバイスID";
+"latency.filter_limit" = "件数";
+"latency.filter_start" = "開始";
+"latency.filter_end" = "終了";
+"latency.use_start" = "開始時刻で絞り込み";
+"latency.use_end" = "終了時刻で絞り込み";
+"latency.apply" = "適用";
+"latency.stat_total" = "総呼び出し数";
+"latency.stat_avg" = "平均レイテンシ (ms)";
+"latency.stat_min" = "最小レイテンシ (ms)";
+"latency.stat_max" = "最大レイテンシ (ms)";
+"latency.stat_success" = "成功";
+"latency.stat_failed" = "失敗";
+"latency.stat_rate" = "成功率";
+
+/* Import */
+"import.title" = "インポート";
+"import.file_section" = "ファイルから";
+"import.choose_file" = "JSONファイルを選択";
+"import.paste_section" = "JSONを貼り付け";
+"import.button" = "インポート";
+"import.result_fmt" = "%d 台のデバイス、%d 件のデータをインポートしました";
+"import.invalid" = "インポートデータが不正です";
+
+/* Settings */
+"settings.title" = "設定";
+"settings.data_source" = "データソース";
+"settings.source.remote" = "リモート";
+"settings.source.standalone" = "スタンドアロン";
+"settings.backend_url" = "バックエンド URL";
+"settings.invalid_url" = "正しい http(s) の URL を入力してください";
+"settings.credentials" = "SwitchBot クレデンシャル";
+"settings.token" = "SwitchBot トークン";
+"settings.secret" = "SwitchBot シークレット";
+"settings.save" = "保存";
+"settings.clear" = "削除";
+"settings.credentials_saved" = "クレデンシャルはキーチェーンに保存されています";
+"settings.apply" = "適用";
+"settings.test_connection" = "接続テスト";
+"settings.status" = "ステータス";
+"settings.configured" = "設定済み";
+"settings.meters_count" = "メーター数";
+"settings.rate_limited" = "レート制限";
+"settings.backoff_remaining" = "バックオフ残り (秒)";
+"settings.last_api_call" = "最終 API 呼び出し";
+"settings.collection_interval" = "収集間隔 (秒)";
+"settings.version" = "バージョン";
+"settings.yes" = "はい";
+"settings.no" = "いいえ";
+"settings.no_status" = "ステータスがありません";
