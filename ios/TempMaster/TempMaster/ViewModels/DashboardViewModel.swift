@@ -17,6 +17,14 @@ final class DashboardViewModel: ObservableObject {
     var service: any MeterService
     var now: () -> Date = { Date() }
 
+    /// POSIX locale so a 12-hour clock user setting can't alter HH:mm:ss.
+    private let refreshFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: "en_US_POSIX")
+        f.dateFormat = "HH:mm:ss"
+        return f
+    }()
+
     init(service: any MeterService) {
         self.service = service
     }
@@ -94,10 +102,8 @@ final class DashboardViewModel: ObservableObject {
 
     var lastRefreshText: String {
         guard let lastRefresh else { return "" }
-        let f = DateFormatter()
-        f.dateFormat = "HH:mm:ss"
         return String(format: "dashboard.last_refresh_fmt".localizedString,
-                      f.string(from: lastRefresh))
+                      refreshFormatter.string(from: lastRefresh))
     }
 
     var isRateLimited: Bool { status?.isRateLimited ?? false }

@@ -86,6 +86,7 @@
 "settings.save" = "Save";
 "settings.clear" = "Clear";
 "settings.credentials_saved" = "Credentials saved in Keychain";
+"settings.credentials_save_failed" = "Failed to save credentials";
 "settings.apply" = "Apply";
 "settings.test_connection" = "Test Connection";
 "settings.status" = "Status";

@@ -10,16 +10,17 @@ enum KeychainStore {
         case secret = "switchbot.secret"
     }
 
-    static func save(_ value: String, for account: Account) {
+    @discardableResult
+    static func save(_ value: String, for account: Account) -> Bool {
         delete(account)
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
             kSecAttrAccount as String: account.rawValue,
             kSecValueData as String: Data(value.utf8),
-            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock,
+            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
         ]
-        SecItemAdd(query as CFDictionary, nil)
+        return SecItemAdd(query as CFDictionary, nil) == errSecSuccess
     }
 
     static func load(_ account: Account) -> String? {

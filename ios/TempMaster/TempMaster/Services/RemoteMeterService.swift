@@ -38,8 +38,16 @@ struct RemoteMeterService: MeterService {
         }
     }
 
+    /// Joins an already-encoded `path` onto the base URL without
+    /// re-encoding `%` sequences.
+    private static func url(base: URL, path: String) -> URL {
+        var baseStr = base.absoluteString
+        while baseStr.hasSuffix("/") { baseStr.removeLast() }
+        return URL(string: baseStr + path)!
+    }
+
     private func dataTask(path: String, query: [URLQueryItem] = []) async throws -> (Data, URLResponse) {
-        var comps = URLComponents(url: baseURL.appendingPathComponent(path), resolvingAgainstBaseURL: false)!
+        var comps = URLComponents(url: Self.url(base: baseURL, path: path), resolvingAgainstBaseURL: false)!
         if !query.isEmpty { comps.queryItems = query }
         var request = URLRequest(url: comps.url!)
         request.httpMethod = "GET"
@@ -52,7 +60,7 @@ struct RemoteMeterService: MeterService {
 
     private func dataTask<B: Encodable>(path: String, method: String,
                                         body: B?) async throws -> (Data, URLResponse) {
-        var request = URLRequest(url: baseURL.appendingPathComponent(path))
+        var request = URLRequest(url: Self.url(base: baseURL, path: path))
         request.httpMethod = method
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         if let body {
@@ -83,7 +91,7 @@ struct RemoteMeterService: MeterService {
     }
 
     func fetchHistory(deviceID: String, timeScale: TimeScale) async throws -> HistoryResponse {
-        try await get("/api/meters/\(deviceID)/history",
+        try await get("/api/meters/\(PathSegment.encode(deviceID))/history",
                       query: [URLQueryItem(name: "time_scale", value: timeScale.rawValue)])
     }
 
@@ -141,7 +149,7 @@ struct RemoteMeterService: MeterService {
     /// B-10: download /api/backup to a temp file; filename from
     /// Content-Disposition when present, else generated.
     func exportBackup() async throws -> URL {
-        let request = URLRequest(url: baseURL.appendingPathComponent("/api/backup"))
+        let request = URLRequest(url: Self.url(base: baseURL, path: "/api/backup"))
         let (tmp, response): (URL, URLResponse)
         do {
             (tmp, response) = try await session.download(for: request)
@@ -152,16 +160,31 @@ struct RemoteMeterService: MeterService {
             let data = (try? Data(contentsOf: tmp)) ?? Data()
             throw Self.httpError(data: data, response: response)
         }
-        var filename = Self.backupFilename()
-        if let cd = http.value(forHTTPHeaderField: "Content-Disposition"),
-           let m = cd.range(of: #"filename="?([^";]+)"?"#,
-                            options: .regularExpression) {
-            filename = String(cd[m].replacingOccurrences(of: "filename=", with: "")
-                                .replacingOccurrences(of: "\"", with: ""))
-        }
+        let filename = Self.sanitizedFilename(
+            http.value(forHTTPHeaderField: "Content-Disposition"))
         let dest = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
         try? FileManager.default.removeItem(at: dest)
         try FileManager.default.moveItem(at: tmp, to: dest)
         return dest
+    }
+
+    /// Strips directory components and rejects anything but a plain safe
+    /// filename (avoids Content-Disposition path traversal).
+    static func sanitizedFilename(_ header: String?) -> String {
+        guard let header,
+              let m = header.range(of: #"filename="?([^";]+)"?"#,
+                                   options: .regularExpression) else {
+            return backupFilename()
+        }
+        var name = String(header[m])
+            .replacingOccurrences(of: "filename=", with: "")
+            .replacingOccurrences(of: "\"", with: "")
+        name = (name as NSString).lastPathComponent
+        guard !name.isEmpty, name != ".", name != "..",
+              name.range(of: #"^[A-Za-z0-9._-]+$"#,
+                         options: .regularExpression) != nil else {
+            return backupFilename()
+        }
+        return name
     }
 }

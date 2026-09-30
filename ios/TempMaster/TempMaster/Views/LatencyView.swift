@@ -26,7 +26,7 @@ struct LatencyView: View {
                         .accessibilityIdentifier("latency-filter-device-id")
                     Stepper(value: $vm.limit, in: 1...1000) {
                         Text("latency.filter_limit".localized)
-                            + Text(" \(vm.limit)")
+                            + Text(verbatim: " \(vm.limit)")
                     }
                     Toggle("latency.use_start".localized, isOn: $vm.useStart)
                     if vm.useStart {
@@ -54,7 +54,7 @@ struct LatencyView: View {
                                       ? "checkmark.circle.fill"
                                       : "xmark.circle.fill")
                                     .foregroundStyle(log.success ? .green : .red)
-                                Text("\(log.statusCode)")
+                                Text(verbatim: "\(log.statusCode)")
                                     .font(.caption.monospacedDigit())
                             }
                             HStack {

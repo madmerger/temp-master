@@ -85,6 +85,7 @@
 "settings.save" = "保存";
 "settings.clear" = "削除";
 "settings.credentials_saved" = "クレデンシャルはキーチェーンに保存されています";
+"settings.credentials_save_failed" = "クレデンシャルの保存に失敗しました";
 "settings.apply" = "適用";
 "settings.test_connection" = "接続テスト";
 "settings.status" = "ステータス";

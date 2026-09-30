@@ -42,6 +42,7 @@ struct DashboardView: View {
                 .padding()
             }
             .navigationTitle("dashboard.title".localized)
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     connectionBadge

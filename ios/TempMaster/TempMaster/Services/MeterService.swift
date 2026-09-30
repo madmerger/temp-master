@@ -37,6 +37,17 @@ protocol MeterService: Sendable {
     func exportBackup() async throws -> URL
 }
 
+/// Percent-encodes a value for use as a single URL path segment
+/// (encodes "/", "?", "#", "%", spaces, etc.) — same role as the
+/// legacy frontend's encodeURIComponent.
+enum PathSegment {
+    static func encode(_ value: String) -> String {
+        var allowed = CharacterSet.urlPathAllowed
+        allowed.remove(charactersIn: "%/?#")
+        return value.addingPercentEncoding(withAllowedCharacters: allowed) ?? value
+    }
+}
+
 extension MeterService {
     static func backupFilename(now: Date = Date()) -> String {
         var cal = Calendar(identifier: .gregorian)

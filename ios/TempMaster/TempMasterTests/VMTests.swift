@@ -104,6 +104,19 @@ final class DashboardViewModelTests: XCTestCase {
 }
 
 @MainActor
+final class SettingsViewModelTests: XCTestCase {
+    /// SettingsViewModel must be constructible without an AppEnvironment —
+    /// a second environment would start a second standalone collector.
+    func testConstructsWithoutEnvironment() {
+        let vm = SettingsViewModel()
+        XCTAssertNil(vm.environment)
+        XCTAssertEqual(vm.mode, AppSettings.shared.dataSource)
+        XCTAssertEqual(vm.backendURLText,
+                       AppSettings.shared.backendURL.absoluteString)
+    }
+}
+
+@MainActor
 final class ImportViewModelTests: XCTestCase {
     func testPastedJSONSuccess() async {
         let vm = ImportViewModel(service: MockMeterService())

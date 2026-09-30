@@ -7,8 +7,7 @@ struct SettingsView: View {
     @StateObject private var vm: SettingsViewModel
 
     init() {
-        _vm = StateObject(wrappedValue: SettingsViewModel(
-            environment: AppEnvironment()))
+        _vm = StateObject(wrappedValue: SettingsViewModel())
     }
 
     var body: some View {
@@ -66,6 +65,12 @@ struct SettingsView: View {
                             Text("settings.credentials_saved".localized)
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
+                        }
+                        if let saveError = vm.saveError {
+                            Text(verbatim: saveError)
+                                .font(.caption)
+                                .foregroundStyle(.red)
+                                .accessibilityIdentifier("settings-save-error")
                         }
                     }
                 }

@@ -100,6 +100,18 @@ final class SwitchBotClientTests: XCTestCase {
         XCTAssertEqual(logs[0].errorMessage, "Rate limited. Backing off for 120 seconds")
     }
 
+    func testDeviceStatusPathEncodesDeviceID() async throws {
+        var captured: URLRequest?
+        let (client, _) = try makeClient { req in
+            captured = req
+            return (StubURLProtocol.response(url: req.url!),
+                    StubURLProtocol.json(["statusCode": 100, "body": [:]]))
+        }
+        _ = try await client.fetchDeviceStatus("a/b c")
+        XCTAssertTrue(captured!.url!.absoluteString
+            .contains("/devices/a%2Fb%20c/status"))
+    }
+
     func testNon200LogsError() async throws {
         let (client, store) = try makeClient { req in
             (StubURLProtocol.response(url: req.url!, status: 500), Data("oops".utf8))

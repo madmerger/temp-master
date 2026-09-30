@@ -117,6 +117,44 @@ final class RemoteMeterServiceTests: XCTestCase {
         XCTAssertNil(devices[0]["deviceID"])
     }
 
+    func testHistoryPathEncodesDeviceID() async throws {
+        // Device IDs are percent-encoded as a single path segment
+        // (legacy uses encodeURIComponent).
+        StubURLProtocol.handler = { req in
+            self.requests.append(req)
+            return (StubURLProtocol.response(url: req.url!),
+                    StubURLProtocol.json([
+                        "device_id": "a/b c", "time_scale": "day",
+                        "history": [], "device": nil]))
+        }
+        let svc = RemoteMeterService(baseURL: URL(string: "http://localhost:8000")!,
+                                     session: StubURLProtocol.session())
+        _ = try await svc.fetchHistory(deviceID: "a/b c", timeScale: .day)
+        XCTAssertTrue(requests.last!.url!.absoluteString
+            .contains("/api/meters/a%2Fb%20c/history"))
+    }
+
+    func testExportBackupSanitizesContentDispositionFilename() async throws {
+        // A traversal-y filename must be reduced to a safe name directly
+        // inside temporaryDirectory.
+        StubURLProtocol.handler = { req in
+            let resp = HTTPURLResponse(
+                url: req.url!, statusCode: 200, httpVersion: nil,
+                headerFields: [
+                    "Content-Disposition": "attachment; filename=\"../../evil.db\""
+                ])!
+            return (resp, Data("SQLite format 3\0".utf8))
+        }
+        let svc = RemoteMeterService(baseURL: URL(string: "http://localhost:8000")!,
+                                     session: StubURLProtocol.session())
+        let url = try await svc.exportBackup()
+        XCTAssertEqual(url.lastPathComponent, "evil.db")
+        XCTAssertEqual(
+            url.deletingLastPathComponent().standardizedFileURL.path,
+            FileManager.default.temporaryDirectory.standardizedFileURL.path)
+        try? FileManager.default.removeItem(at: url)
+    }
+
     func testLatencyLogsQueryItems() async throws {
         StubURLProtocol.handler = { req in
             self.requests.append(req)

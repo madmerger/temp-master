@@ -55,7 +55,8 @@ final class SwitchBotClient: @unchecked Sendable {
             token: creds.token, secret: creds.secret,
             timestampMs: timestampMs, nonce: nonce())
 
-        var request = URLRequest(url: Self.baseURL.appendingPathComponent(endpoint))
+        // endpoint is already percent-encoded; join without re-encoding.
+        var request = URLRequest(url: URL(string: Self.baseURL.absoluteString + endpoint)!)
         for (k, v) in headers { request.setValue(v, forHTTPHeaderField: k) }
 
         let started = ContinuousClock.now
@@ -143,7 +144,9 @@ final class SwitchBotClient: @unchecked Sendable {
     }
 
     func fetchDeviceStatus(_ deviceID: String) async throws -> [String: Any] {
-        let json = try await get(endpoint: "/devices/\(deviceID)/status", deviceID: deviceID)
+        let json = try await get(
+            endpoint: "/devices/\(PathSegment.encode(deviceID))/status",
+            deviceID: deviceID)
         guard (json["statusCode"] as? Int) == 100 else {
             throw MeterServiceError.http(
                 status: 500,

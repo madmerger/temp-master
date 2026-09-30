@@ -47,7 +47,7 @@ struct MeterChartView: View {
                 AxisGridLine().foregroundStyle(Color.black.opacity(0.05))
                 AxisValueLabel {
                     if let v = value.as(Double.self) {
-                        Text("\(Int(v))°").font(.system(size: 10))
+                        Text(verbatim: "\(Int(v))°").font(.system(size: 10))
                     }
                 }
             }

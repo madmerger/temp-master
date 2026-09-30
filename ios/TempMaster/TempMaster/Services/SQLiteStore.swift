@@ -326,14 +326,18 @@ final class SQLiteStore: @unchecked Sendable {
     func deleteReadings(olderThan cutoff: Date) throws {
         try withStatement("DELETE FROM readings WHERE timestamp < ?") { stmt in
             bind(stmt, 1, JSONCoding.format(cutoff))
-            sqlite3_step(stmt)
+            if sqlite3_step(stmt) != SQLITE_DONE {
+                throw MeterServiceError.invalidImport(Self.lastError(db))
+            }
         }
     }
 
     func deleteLatencyLogs(olderThan cutoff: Date) throws {
         try withStatement("DELETE FROM latency_logs WHERE timestamp < ?") { stmt in
             bind(stmt, 1, JSONCoding.format(cutoff))
-            sqlite3_step(stmt)
+            if sqlite3_step(stmt) != SQLITE_DONE {
+                throw MeterServiceError.invalidImport(Self.lastError(db))
+            }
         }
     }
 
@@ -355,16 +359,28 @@ final class SQLiteStore: @unchecked Sendable {
         var importedReadings = 0
         var thrown: Error?
         queue.sync {
-            sqlite3_exec(db, "BEGIN IMMEDIATE TRANSACTION", nil, nil, nil)
             do {
+                guard sqlite3_exec(db, "BEGIN IMMEDIATE TRANSACTION", nil, nil, nil)
+                        == SQLITE_OK else {
+                    throw MeterServiceError.invalidImport(Self.lastError(db))
+                }
+                var committed = false
+                defer {
+                    if !committed {
+                        sqlite3_exec(db, "ROLLBACK", nil, nil, nil)
+                    }
+                }
                 for device in data.devices {
                     var stmt: OpaquePointer?
-                    sqlite3_prepare_v2(db, """
+                    guard sqlite3_prepare_v2(db, """
                         INSERT OR REPLACE INTO devices
                         (device_id, device_name, device_type, hub_device_id,
                          current_temperature, current_humidity, battery, last_updated)
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                        """, -1, &stmt, nil)
+                        """, -1, &stmt, nil) == SQLITE_OK else {
+                        throw MeterServiceError.invalidImport(Self.lastError(db))
+                    }
+                    defer { sqlite3_finalize(stmt) }
                     bind(stmt, 1, device.deviceID)
                     bind(stmt, 2, device.deviceName)
                     bind(stmt, 3, device.deviceType)
@@ -376,15 +392,17 @@ final class SQLiteStore: @unchecked Sendable {
                     guard sqlite3_step(stmt) == SQLITE_DONE else {
                         throw MeterServiceError.invalidImport(Self.lastError(db))
                     }
-                    sqlite3_finalize(stmt)
                     importedDevices += 1
                     for reading in device.readings {
                         var rstmt: OpaquePointer?
-                        sqlite3_prepare_v2(db, """
+                        guard sqlite3_prepare_v2(db, """
                             INSERT INTO readings
                             (device_id, timestamp, temperature, humidity, battery)
                             VALUES (?, ?, ?, ?, ?)
-                            """, -1, &rstmt, nil)
+                            """, -1, &rstmt, nil) == SQLITE_OK else {
+                            throw MeterServiceError.invalidImport(Self.lastError(db))
+                        }
+                        defer { sqlite3_finalize(rstmt) }
                         bind(rstmt, 1, device.deviceID)
                         // Normalise Z -> +00:00 so stored strings are comparable
                         let ts = JSONCoding.parse(reading.timestamp)!
@@ -395,13 +413,14 @@ final class SQLiteStore: @unchecked Sendable {
                         guard sqlite3_step(rstmt) == SQLITE_DONE else {
                             throw MeterServiceError.invalidImport(Self.lastError(db))
                         }
-                        sqlite3_finalize(rstmt)
                         importedReadings += 1
                     }
                 }
-                sqlite3_exec(db, "COMMIT", nil, nil, nil)
+                guard sqlite3_exec(db, "COMMIT", nil, nil, nil) == SQLITE_OK else {
+                    throw MeterServiceError.invalidImport(Self.lastError(db))
+                }
+                committed = true
             } catch {
-                sqlite3_exec(db, "ROLLBACK", nil, nil, nil)
                 thrown = error
             }
         }

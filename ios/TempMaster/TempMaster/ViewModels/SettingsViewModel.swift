@@ -7,23 +7,25 @@ final class SettingsViewModel: ObservableObject {
     @Published var token = ""
     @Published var secret = ""
     @Published private(set) var hasCredentials = KeychainStore.credentials() != nil
+    @Published private(set) var saveError: String?
     @Published private(set) var testResult: String?
     @Published private(set) var testInFlight = false
     @Published private(set) var status: ServiceStatus?
 
-    var environment: AppEnvironment
+    /// Bound by the view's .task so the single AppEnvironment owned by the
+    /// app is the only one that exists.
+    var environment: AppEnvironment?
     private var settings: AppSettings
 
-    init(environment: AppEnvironment) {
-        self.environment = environment
-        self.settings = environment.settings
+    init(settings: AppSettings = .shared) {
+        self.settings = settings
         self.mode = settings.dataSource
         self.backendURLText = settings.backendURL.absoluteString
     }
 
     /// Resync view fields after the environment (service) is rebuilt.
     func reloadFromEnvironment() {
-        settings = environment.settings
+        if let environment { settings = environment.settings }
         mode = settings.dataSource
         backendURLText = settings.backendURL.absoluteString
         hasCredentials = KeychainStore.credentials() != nil
@@ -43,27 +45,36 @@ final class SettingsViewModel: ObservableObject {
         if let url = URL(string: backendURLText), isBackendURLValid {
             settings.backendURL = url
         }
-        environment.rebuild()
+        environment?.rebuild()
     }
 
     func saveCredentials() {
         guard !token.isEmpty, !secret.isEmpty else { return }
-        KeychainStore.save(token, for: .token)
-        KeychainStore.save(secret, for: .secret)
-        token = ""
-        secret = ""
-        hasCredentials = true
-        environment.rebuild()
+        let ok = KeychainStore.save(token, for: .token)
+            && KeychainStore.save(secret, for: .secret)
+        if ok {
+            token = ""
+            secret = ""
+            hasCredentials = true
+            saveError = nil
+            environment?.rebuild()
+        } else {
+            saveError = "settings.credentials_save_failed".localizedString
+        }
     }
 
     func clearCredentials() {
         KeychainStore.delete(.token)
         KeychainStore.delete(.secret)
         hasCredentials = false
-        environment.rebuild()
+        environment?.rebuild()
     }
 
     func testConnection() async {
+        guard let environment else {
+            testResult = "Error"
+            return
+        }
         testInFlight = true
         defer { testInFlight = false }
         do {
@@ -74,6 +85,6 @@ final class SettingsViewModel: ObservableObject {
     }
 
     func loadStatus() async {
-        status = try? await environment.service.fetchStatus()
+        status = try? await environment?.service.fetchStatus()
     }
 }

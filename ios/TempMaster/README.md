@@ -21,8 +21,12 @@ Shared scheme `TempMaster` runs both test targets.
 
 ```bash
 ./scripts/check_localization.sh
+
+# Verified with the Xcode 27 RC toolchain and an iPhone 17 / iOS 27.0
+# simulator. Any installed iOS 17+ simulator works.
+export DEVELOPER_DIR=/Applications/Xcode-27.0-RC.app/Contents/Developer
 xcodebuild test -project TempMaster.xcodeproj -scheme TempMaster \
-  -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.5'
+  -destination 'platform=iOS Simulator,name=iPhone 17'
 ```
 
 `scripts/check_localization.sh` enforces key parity across
