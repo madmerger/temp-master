@@ -1,88 +1,53 @@
 ---
 name: testing-temp-master
-description: Test the Temp Master SwitchBot dashboard locally. Use when verifying UI changes, API connectivity, or branding updates.
+description: Test the Temp Master SwitchBot dashboard locally (Vite + React frontend, FastAPI backend). Use when verifying UI changes, API connectivity, or branding updates.
 ---
 
 # Testing Temp Master Dashboard
 
-## Prerequisites
+## Frontend-only changes (no local backend needed)
 
-- Python 3.12+
-- Poetry (dependency management)
-- SwitchBot API credentials
+The frontend API base is `VITE_API_URL`, defaulting to `https://snakeroom.fly.dev` (see `src/api.ts`). Its read-only endpoints are public and have live data, so no backend or SwitchBot credentials are needed.
 
-## Devin Secrets Needed
+```bash
+cd switchbot-dashboard/switchbot-frontend
+npm install
+npm run dev -- --host 0.0.0.0   # http://localhost:5173
+```
 
-- `SWITCHBOT_TOKEN` - SwitchBot API token
-- `SWITCHBOT_SECRET` - SwitchBot API secret
+- Restart Vite after changing `.env` / `VITE_API_URL`.
+- Error-state check: run a second instance against an unreachable API, e.g. `VITE_API_URL=http://localhost:9 npm run dev -- --port 5174` → red "Disconnected" badge + error alert.
+- Local backend instead: set `VITE_API_URL=` (empty); the dev server proxies `/api` to `http://localhost:8000`.
 
-## Local Development Setup
+## Key Test Points
 
-### 1. Install dependencies
+- Navbar: "Temp Master Dashboard", Connected/Disconnected badge, dark-mode toggle (top right).
+- Status bar "Monitoring N meters" + "Last refresh"; rate-limit warning when `is_rate_limited`.
+- Meter cards: `DISPLAY_NAMES` mapping (`src/meters.ts`), temp/humidity/battery badges, Recharts line chart (SVG, not canvas), 200px tall.
+- Stale meters (`last_updated` missing or ≥7 days old) appear in the "未更新のメーター" section without a chart and without history requests. Cross-check with `curl https://snakeroom.fly.dev/api/meters`; verify by `device_id` since names can repeat.
+- Time Range (hour/day/week/month/year): X axis `HH:MM` / `Mon 13` / `Sep 30`.
+- Refresh Data: POST `/api/meters/refresh`, button disabled ("Refreshing...") then data refetched.
+- Auto refresh: `/api/meters` and `/api/status` requested in parallel every 30s (capture a timestamped network log over 3 cycles).
+- Dark mode: remove `localStorage.theme` and emulate `prefers-color-scheme` to check the initial value; a saved `light`/`dark` value takes priority and persists across reloads.
+- Download Backup opens `<API>/api/backup` in a new tab. The snakeroom backend returns 401 `Not authenticated` for unauthenticated requests — report URL behavior and actual download separately; a 401 is not a UI regression.
+
+## Full stack / Docker
+
+```bash
+cd switchbot-dashboard
+docker build -t temp-master-test .   # multi-stage: builds frontend dist -> static/
+docker run --rm -p 8000:8000 temp-master-test
+```
+
+## Backend tests
 
 ```bash
 cd switchbot-dashboard/switchbot-backend
 poetry install --no-interaction
-```
-
-### 2. Create .env file
-
-```bash
-cd switchbot-dashboard/switchbot-backend
-echo "SWITCHBOT_TOKEN=${SWITCHBOT_TOKEN}" > .env
-echo "SWITCHBOT_SECRET=${SWITCHBOT_SECRET}" >> .env
-```
-
-### 3. Symlink frontend static files
-
-The Dockerfile copies `switchbot-frontend/` to `switchbot-backend/static/`, but locally this directory doesn't exist. You must create a symlink:
-
-```bash
-ln -s $(pwd)/switchbot-dashboard/switchbot-frontend switchbot-dashboard/switchbot-backend/static
-```
-
-**Important:** The static directory check in `main.py` happens at module import time (`STATIC_DIR = Path(__file__).resolve().parent.parent / "static"`). If you create the symlink after starting the server, you must restart the server.
-
-### 4. Start the server
-
-```bash
-cd switchbot-dashboard/switchbot-backend
-poetry run fastapi run app/main.py --host 0.0.0.0 --port 8000
-```
-
-The frontend is served at `http://localhost:8000/` and the API docs at `http://localhost:8000/docs`.
-
-## Key Test Points
-
-### Branding Verification
-- Page title (`<title>` tag): should say "Temp Master Dashboard"
-- Navbar brand: should say "Temp Master Dashboard"
-- Footer: should say "Temp Master Dashboard v1.0 - Built with jQuery + Bootstrap 3"
-- Verify no "Snake" or "SnakeRoom" text exists anywhere: `document.body.innerHTML.includes('Snake')` should be `false`
-
-### API Connectivity
-- `GET /api/status` returns `configured: true` and `meters_count` > 0
-- `GET /api/meters` returns live meter data with temperature, humidity, battery
-- Connection status badge shows "Connected" (green, class `label-success`)
-
-### UI Functionality
-- View toggle: Default (equal 3-col grid) vs Shelf (featured meter + 3-col grid)
-- Time Range selector: Last Hour / Last 24 Hours / Last 7 Days / Last 30 Days / Last Year
-- Charts: Canvas elements rendered with Chart.js line charts
-- Refresh Data button triggers data reload
-
-## Running Backend Tests
-
-```bash
-cd switchbot-dashboard/switchbot-backend
 poetry run pytest -v
 ```
 
-Expected: 97 tests pass.
+## Devin Secrets Needed
 
-## Architecture Notes
-
-- Backend: FastAPI + aiosqlite (SQLite persistence at `/data/app.db` or local `app.db`)
-- Frontend: jQuery + Bootstrap 3 (single `index.html` file)
-- Deployment: Fly.io (see `fly.toml`)
-- Background data collection runs with 120s interval, with rate limiting and exponential backoff
+- Frontend verification against the public API: none.
+- Local backend collecting from real devices only: `SWITCHBOT_TOKEN`, `SWITCHBOT_SECRET` in `switchbot-backend/.env`.
