@@ -5,7 +5,8 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 ## Features
 
 - Temperature charts for all SwitchBot Meter devices using Recharts
-- Time scale switching (hour/day/month/year)
+- Time scale switching (hour/day/week/month/year)
+- Dark mode toggle (saved to `localStorage`, defaults to `prefers-color-scheme`)
 - Auto-refresh every 30 seconds (frontend) with background data collection every 2 minutes (backend)
 - Rate limiting protection with exponential backoff
 - All API calls are cached - GET endpoints never call SwitchBot API directly
@@ -41,6 +42,8 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 
 ### Frontend
 
+Vite + React 18 + TypeScript + Recharts + Tailwind CSS.
+
 1. Navigate to the frontend directory:
    ```bash
    cd switchbot-frontend
@@ -51,10 +54,18 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
    npm install
    ```
 
-3. Copy `.env.example` to `.env`:
+3. Copy `.env.example` to `.env` and set the backend API base URL:
    ```bash
    cp .env.example .env
    ```
+
+   ```bash
+   # .env
+   VITE_API_URL=https://snakeroom.fly.dev
+   ```
+
+   - Defaults to `https://snakeroom.fly.dev` when `VITE_API_URL` is not set
+   - Set `VITE_API_URL=` (empty) to use same-origin requests; the dev server proxies `/api` to `http://localhost:8000` (local backend)
 
 4. Start the development server:
    ```bash
@@ -62,6 +73,12 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
    ```
 
 5. Open http://localhost:5173 in your browser
+
+Other scripts:
+
+- `npm run build` - Type-check and build static assets into `dist/` (served by the backend in the Docker image)
+- `npm run preview` - Preview the production build locally
+- `npm run typecheck` - Run the TypeScript type checker
 
 ## API Endpoints
 
