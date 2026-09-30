@@ -28,6 +28,7 @@ const scenarioDescriptions = {
   'refresh API エラー / Refresh request error': '更新API失敗時の専用エラー表示を確認',
   'レート制限の警告 / Rate limit warning': 'バックオフ残り時間のレート制限警告を確認',
   '手動更新・バックアップ・自動更新 / Refresh, backup and auto refresh': '更新POSTと再取得、更新中ボタン、バックアップURL、30秒間隔を確認',
+  '新しい dashboard reload が古い応答に上書きされない / Newer reload wins over a stale response': '並行リロードで遅れて到着した古い応答が新しいメーター値を上書きしないことを確認',
 }
 
 if (!existsSync(resultPath)) {
@@ -115,20 +116,20 @@ const html = `<!doctype html>
     * { box-sizing: border-box; }
     body { margin: 0; color: #1f2937; font: 12px/1.6 "Noto Sans CJK JP", "Noto Sans JP", sans-serif; }
     h1 { margin: 0 0 8px; color: #123b62; font-size: 24px; }
-    h2 { margin: 24px 0 10px; border-bottom: 2px solid #dbeafe; padding-bottom: 5px; color: #123b62; font-size: 17px; }
+    h2 { margin: 18px 0 7px; border-bottom: 2px solid #dbeafe; padding-bottom: 5px; color: #123b62; font-size: 17px; }
     .meta, .summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px 20px; }
     .summary { grid-template-columns: repeat(5, 1fr); margin-top: 15px; }
     .tile { border: 1px solid #dbe3ec; border-radius: 6px; padding: 9px; background: #f8fafc; }
     .tile strong { display: block; color: #123b62; font-size: 17px; }
     table { width: 100%; border-collapse: collapse; font-size: 10px; }
-    th, td { border: 1px solid #d5dde5; padding: 5px 7px; text-align: left; vertical-align: top; }
+    th, td { border: 1px solid #d5dde5; padding: 4px 7px; text-align: left; vertical-align: top; }
     th { background: #eff6ff; }
     .status { font-weight: bold; text-transform: capitalize; }
     .passed { color: #15803d; } .failed, .timedOut { color: #b91c1c; } .skipped { color: #a16207; }
     figure { margin: 12px 0 22px; page-break-inside: avoid; }
     figure img { display: block; width: 100%; max-height: 155mm; object-fit: contain; border: 1px solid #d1d5db; }
     figcaption { margin-top: 4px; text-align: center; color: #4b5563; }
-    li { margin: 3px 0; }
+    li { margin: 2px 0; }
     .page-break { page-break-before: always; }
   </style>
 </head>
