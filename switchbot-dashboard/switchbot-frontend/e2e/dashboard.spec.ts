@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { activeMeters, mockBackend, saveScenarioScreenshot, staleMeters } from './fixtures'
+import { activeMeters, mockBackend, saveScenarioScreenshot, staleMeters, waitForChartHistory } from './fixtures'
 
 test('初期表示 / Initial dashboard', async ({ page }) => {
   await mockBackend(page)
@@ -17,6 +17,8 @@ test('初期表示 / Initial dashboard', async ({ page }) => {
 test('メーターカード描画 / Meter cards', async ({ page }) => {
   await mockBackend(page)
   await page.goto('/')
+  await expect(page.getByTestId('loading')).toBeHidden()
+  await waitForChartHistory(page)
 
   await expect(page.getByText('第1蒸留塔 (T-101)')).toBeVisible()
   await expect(page.getByText('屋外モニター (EM-1101)')).toBeVisible()
@@ -65,6 +67,9 @@ test('ダークテーマ / Theme preference and persistence', async ({ page }, t
   await expect(page.locator('html')).toHaveClass(/dark/)
   await expect(page.getByTestId('theme-toggle-dark')).toHaveAttribute('aria-pressed', 'true')
   await expect.poll(() => page.evaluate(() => localStorage.getItem('theme'))).toBe('dark')
+  await expect(page.getByTestId('chart-meter-bedroom')).toBeVisible()
+  await expect(page.getByTestId('chart-meter-outside')).toBeVisible()
+  await expect(page.getByTestId('chart-meter-unknown')).toBeVisible()
   const bodyBackgroundLuminance = await page.locator('body').evaluate((element) => {
     const canvas = document.createElement('canvas')
     const context = canvas.getContext('2d')

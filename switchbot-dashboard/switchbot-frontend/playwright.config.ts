@@ -13,6 +13,7 @@ export default defineConfig({
     timezoneId: 'Asia/Tokyo',
     locale: 'ja-JP',
     viewport: { width: 1280, height: 800 },
+    reducedMotion: 'reduce',
     screenshot: 'only-on-failure',
   },
   projects: [{ name: 'chromium', use: { browserName: 'chromium' } }],

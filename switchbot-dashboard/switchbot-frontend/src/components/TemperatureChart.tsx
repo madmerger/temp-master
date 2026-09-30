@@ -11,6 +11,7 @@ import {
 } from 'chart.js'
 import { Line } from 'react-chartjs-2'
 import { useMeterHistory } from '../hooks/useMeterHistory'
+import { useReducedMotion } from '../hooks/useReducedMotion'
 import { useTheme } from '../hooks/useTheme'
 import { formatTimestamp } from '../lib/format'
 import type { TimeScale } from '../types'
@@ -26,6 +27,7 @@ interface TemperatureChartProps {
 
 export default function TemperatureChart({ deviceId, displayName, timeScale, reloadToken }: TemperatureChartProps) {
   const history = useMeterHistory(deviceId, timeScale, reloadToken)
+  const reducedMotion = useReducedMotion()
   const { resolvedTheme } = useTheme()
   const dark = resolvedTheme === 'dark'
   const lineColor = dark ? '#f87171' : '#d9534f'
@@ -52,6 +54,7 @@ export default function TemperatureChart({ deviceId, displayName, timeScale, rel
   }), [fillColor, history, lineColor, timeScale])
 
   const options = useMemo(() => ({
+    animation: reducedMotion ? false as const : undefined,
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -81,10 +84,10 @@ export default function TemperatureChart({ deviceId, displayName, timeScale, rel
         },
       },
     },
-  }), [gridColor, tickColor])
+  }), [gridColor, reducedMotion, tickColor])
 
   return (
-    <div className="relative h-[200px]">
+    <div className="relative h-[200px]" data-points={history.length}>
       <Line
         data={data}
         options={options}

@@ -1,5 +1,6 @@
 import { mkdirSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { expect } from '@playwright/test'
 import type { Page, TestInfo } from '@playwright/test'
 
 const dateDaysAgo = (days: number) => new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString()
@@ -159,8 +160,17 @@ export async function mockBackend(page: Page, options: MockOptions = {}): Promis
 }
 
 export async function saveScenarioScreenshot(page: Page, testInfo: TestInfo, name: string): Promise<void> {
+  await waitForChartHistory(page)
   const screenshotPath = resolve('e2e-artifacts/screenshots', `${name}.png`)
   mkdirSync(resolve('e2e-artifacts/screenshots'), { recursive: true })
   const screenshot = await page.screenshot({ path: screenshotPath, fullPage: true })
   await testInfo.attach(name, { body: screenshot, contentType: 'image/png' })
+}
+
+export async function waitForChartHistory(page: Page): Promise<void> {
+  const charts = page.locator('canvas[data-testid^="chart-"]')
+  const chartCount = await charts.count()
+  for (let index = 0; index < chartCount; index += 1) {
+    await expect(charts.nth(index).locator('xpath=..')).toHaveAttribute('data-points', '24')
+  }
 }
