@@ -121,8 +121,10 @@ struct LatencyView: View {
         .accessibilityIdentifier("latency-stats")
     }
 
+    /// Avg/min/max use JS-style number formatting so full precision shows
+    /// (e.g. 137.625); integral values render without decimals.
     private func format(_ v: Double?) -> String {
         guard let v else { return "-" }
-        return String(format: "%.1f", v)
+        return NumberFormatting.jsString(v)
     }
 }

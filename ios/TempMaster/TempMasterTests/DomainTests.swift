@@ -130,3 +130,31 @@ final class DisplayNamesTests: XCTestCase {
         XCTAssertEqual(DisplayNames.displayName(for: "Tag <b>&</b>"), "Tag <b>&</b>")
     }
 }
+
+final class ChartAxisDatesTests: XCTestCase {
+    private func readings(_ n: Int) -> [MeterReading] {
+        (0..<n).map { i in
+            MeterReading(timestamp: Date(timeIntervalSince1970: 1_700_000_000 + Double(i * 3600)),
+                         temperature: 20, humidity: 50, battery: nil)
+        }
+    }
+
+    func testEmptyReturnsNil() {
+        XCTAssertNil(MeterChartView.xAxisDates([]))
+    }
+
+    func testSinglePointReturnsOneDate() {
+        let r = readings(1)
+        XCTAssertEqual(MeterChartView.xAxisDates(r), r.map(\.timestamp))
+    }
+
+    func testFivePointsReturnsAllDates() {
+        let r = readings(5)
+        XCTAssertEqual(MeterChartView.xAxisDates(r)?.count, 5)
+        XCTAssertEqual(MeterChartView.xAxisDates(r), r.map(\.timestamp))
+    }
+
+    func testNinePointsReturnsNil() {
+        XCTAssertNil(MeterChartView.xAxisDates(readings(9)))
+    }
+}
