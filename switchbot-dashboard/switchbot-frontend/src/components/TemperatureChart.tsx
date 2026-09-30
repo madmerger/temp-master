@@ -80,7 +80,7 @@ export default function TemperatureChart({ deviceId, displayName, timeScale, rel
         ticks: {
           font: { size: 10 },
           color: tickColor,
-          callback: (value: string | number) => `${value}°`,
+          callback: (value: string | number) => `${Number(Number(value).toFixed(2))}°`,
         },
       },
     },
