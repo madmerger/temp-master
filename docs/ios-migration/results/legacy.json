@@ -1,0 +1,445 @@
+{
+  "TC-01": {
+    "name": "起動時ダッシュボード表示",
+    "expected": {
+      "title": "Temp Master Dashboard",
+      "connection": "Connected",
+      "status_text": "Monitoring 6 meters",
+      "last_refresh_regex": "^Last refresh: \\d{2}:\\d{2}:\\d{2}$",
+      "rate_limit_warning_visible": false,
+      "error_visible": false
+    },
+    "actual": {
+      "title": "Temp Master Dashboard",
+      "connection": "Connected",
+      "status_text": "Monitoring 6 meters",
+      "last_refresh_regex": "Last refresh: 21:21:08",
+      "rate_limit_warning_visible": false,
+      "error_visible": false
+    },
+    "pass": true
+  },
+  "TC-02": {
+    "name": "アクティブメーターカード (表示名変換あり)",
+    "expected": {
+      "display_name": "第1蒸留塔 (T-101)",
+      "device_type": "MeterPlus",
+      "labels": [
+        "22.3°C",
+        "80%",
+        "20%"
+      ],
+      "last_updated_prefix": "Last updated: ",
+      "has_chart": true
+    },
+    "actual": {
+      "display_name": "第1蒸留塔 (T-101)",
+      "device_type": "MeterPlus",
+      "labels": [
+        "22.3°C",
+        "80%",
+        "20%"
+      ],
+      "last_updated_prefix": "Last updated: ",
+      "has_chart": true
+    },
+    "pass": true
+  },
+  "TC-03": {
+    "name": "表示名マッピング無し・バッテリー null",
+    "expected": {
+      "display_name": "Study Hub",
+      "device_type": "Hub 3",
+      "labels": [
+        "23.2°C",
+        "75%"
+      ],
+      "has_chart": true
+    },
+    "actual": {
+      "display_name": "Study Hub",
+      "device_type": "Hub 3",
+      "labels": [
+        "23.2°C",
+        "75%"
+      ],
+      "has_chart": true
+    },
+    "pass": true
+  },
+  "TC-04": {
+    "name": "特殊文字を含むデバイス名のエスケープ",
+    "expected": {
+      "display_name": "Tag <b>&</b>",
+      "device_type": "Meter Pro CO2",
+      "labels": [
+        "25°C",
+        "40%",
+        "100%"
+      ]
+    },
+    "actual": {
+      "display_name": "Tag <b>&</b>",
+      "device_type": "Meter Pro CO2",
+      "labels": [
+        "25°C",
+        "40%",
+        "100%"
+      ]
+    },
+    "pass": true
+  },
+  "TC-05": {
+    "name": "未更新メーターセクション",
+    "expected": {
+      "section_title": "未更新のメーター",
+      "section_subtitle": "1週間以上更新されていないデバイス",
+      "stale_display_names": [
+        "冷却塔 (CT-401)",
+        "コンプレッサー (C-601)"
+      ],
+      "badge": "7日以上未更新",
+      "no_history_text": "履歴データの取得対象外",
+      "active_count": 4
+    },
+    "actual": {
+      "section_title": "未更新のメーター",
+      "section_subtitle": "1週間以上更新されていないデバイス",
+      "stale_display_names": [
+        "冷却塔 (CT-401)",
+        "コンプレッサー (C-601)"
+      ],
+      "badge": "7日以上未更新",
+      "no_history_text": "履歴データの取得対象外",
+      "active_count": 4
+    },
+    "pass": true
+  },
+  "TC-06": {
+    "name": "データ未受信の未更新メーター",
+    "expected": {
+      "display_name": "コンプレッサー (C-601)",
+      "labels": [],
+      "no_value_text": "値がありません（データ未受信）",
+      "has_last_updated": false,
+      "has_chart": false
+    },
+    "actual": {
+      "display_name": "コンプレッサー (C-601)",
+      "labels": [],
+      "no_value_text": "値がありません（データ未受信）",
+      "has_last_updated": false,
+      "has_chart": false
+    },
+    "pass": true
+  },
+  "TC-07": {
+    "name": "値ありの未更新メーター (数値表記)",
+    "expected": {
+      "display_name": "冷却塔 (CT-401)",
+      "labels": [
+        "19°C",
+        "60%",
+        "5%"
+      ],
+      "has_last_updated": true,
+      "has_chart": false
+    },
+    "actual": {
+      "display_name": "冷却塔 (CT-401)",
+      "labels": [
+        "19°C",
+        "60%",
+        "5%"
+      ],
+      "has_last_updated": true,
+      "has_chart": false
+    },
+    "pass": true
+  },
+  "TC-08": {
+    "name": "Time Range 選択肢と初期値",
+    "expected": {
+      "options": [
+        "Last Hour",
+        "Last 24 Hours",
+        "Last 7 Days",
+        "Last 30 Days",
+        "Last Year"
+      ],
+      "default": "Last 24 Hours"
+    },
+    "actual": {
+      "options": [
+        "Last Hour",
+        "Last 24 Hours",
+        "Last 7 Days",
+        "Last 30 Days",
+        "Last Year"
+      ],
+      "default": "Last 24 Hours"
+    },
+    "pass": true
+  },
+  "TC-09": {
+    "name": "Time Range 切替でのグラフ点数とラベル書式 (SEED-D1)",
+    "expected": {
+      "points": {
+        "hour": 1,
+        "day": 2,
+        "week": 3,
+        "month": 4,
+        "year": 5
+      },
+      "label_regex": {
+        "hour": "^\\d{2}:\\d{2}$",
+        "day": "^\\d{2}:\\d{2}$",
+        "week": "^(Sun|Mon|Tue|Wed|Thu|Fri|Sat) \\d{2}$",
+        "month": "^[A-Z][a-z]{2} \\d{1,2}$",
+        "year": "^[A-Z][a-z]{2} \\d{1,2}$"
+      }
+    },
+    "actual": {
+      "points": {
+        "hour": 1,
+        "day": 2,
+        "week": 3,
+        "month": 4,
+        "year": 5
+      },
+      "label_regex": {
+        "hour": [
+          "20:51"
+        ],
+        "day": [
+          "19:21",
+          "20:51"
+        ],
+        "week": [
+          "Sat 21",
+          "Tue 19",
+          "Tue 20"
+        ],
+        "month": [
+          "Sep 19",
+          "Sep 26",
+          "Sep 29",
+          "Sep 29"
+        ],
+        "year": [
+          "Jun 21",
+          "Sep 19",
+          "Sep 26",
+          "Sep 29",
+          "Sep 29"
+        ]
+      }
+    },
+    "pass": true
+  },
+  "TC-10": {
+    "name": "Refresh Data (バックエンド未設定クレデンシャル)",
+    "expected": {
+      "refresh_http_status": 500,
+      "button_during": "Refreshing...",
+      "final_button": "Refresh Data",
+      "final_connection": "Connected",
+      "final_error_visible": false
+    },
+    "actual": {
+      "refresh_http_status": 500,
+      "button_during": "Refreshing...",
+      "final_button": "Refresh Data",
+      "final_connection": "Connected",
+      "final_error_visible": false
+    },
+    "pass": true
+  },
+  "TC-11": {
+    "name": "バックエンド停止時のエラー表示",
+    "expected": {
+      "connection": "Disconnected",
+      "error_prefix": "Failed to "
+    },
+    "actual": {
+      "connection": "Disconnected",
+      "error_prefix": "Failed to ",
+      "error_text": "Failed to fetch meters: error"
+    },
+    "pass": true
+  },
+  "TC-13": {
+    "name": "Download Backup",
+    "expected": {
+      "http_status": 200,
+      "filename_regex": "^switchbot_backup_\\d{8}_\\d{6}\\.db$",
+      "sqlite_header": true
+    },
+    "actual": {
+      "http_status": 200,
+      "filename_regex": "switchbot_backup_20260930_042109.db",
+      "sqlite_header": true
+    },
+    "pass": true
+  },
+  "TC-14": {
+    "name": "レイテンシ統計",
+    "expected": {
+      "total_calls": 4,
+      "avg_latency_ms": 137.625,
+      "min_latency_ms": 50.0,
+      "max_latency_ms": 300.0,
+      "successful_calls": 2,
+      "failed_calls": 2,
+      "success_rate": 50.0
+    },
+    "actual": {
+      "total_calls": 4,
+      "avg_latency_ms": 137.625,
+      "min_latency_ms": 50.0,
+      "max_latency_ms": 300.0,
+      "successful_calls": 2,
+      "failed_calls": 2,
+      "success_rate": 50.0
+    },
+    "pass": true
+  },
+  "TC-15": {
+    "name": "レイテンシログ一覧とフィルタ",
+    "expected": {
+      "order_endpoints": [
+        "/devices/SEED-D3/status",
+        "/devices/SEED-D2/status",
+        "/devices/SEED-D1/status",
+        "/devices"
+      ],
+      "filter_endpoint_count": 1,
+      "filter_device_count": 1,
+      "limit2_count": 2
+    },
+    "actual": {
+      "order_endpoints": [
+        "/devices/SEED-D3/status",
+        "/devices/SEED-D2/status",
+        "/devices/SEED-D1/status",
+        "/devices"
+      ],
+      "filter_endpoint_count": 1,
+      "filter_device_count": 1,
+      "limit2_count": 2
+    },
+    "pass": true
+  },
+  "TC-16": {
+    "name": "データインポート",
+    "expected": {
+      "imported_devices": 1,
+      "imported_readings": 2,
+      "new_display_name": "遠心分離機 (S-701)",
+      "status_text": "Monitoring 7 meters"
+    },
+    "actual": {
+      "imported_devices": 1,
+      "imported_readings": 2,
+      "new_display_name": "遠心分離機 (S-701)",
+      "status_text": "Monitoring 7 meters"
+    },
+    "pass": true
+  },
+  "TC-17": {
+    "name": "ヘルスチェック・ステータス",
+    "expected": {
+      "healthz": "ok",
+      "configured": false,
+      "meters_count": 6,
+      "is_rate_limited": false,
+      "collection_interval": 3600
+    },
+    "actual": {
+      "healthz": "ok",
+      "configured": false,
+      "meters_count": 6,
+      "is_rate_limited": false,
+      "collection_interval": 3600
+    },
+    "pass": true
+  },
+  "TC-18": {
+    "name": "Standalone: SwitchBot 実機からの収集",
+    "expected": {
+      "all_active_have_temperature": true
+    },
+    "actual": {
+      "refresh_http_status": 200,
+      "meter_device_ids": [
+        "C76B0046301A",
+        "CE2A4586263B",
+        "D12D0346415D",
+        "D13234351576",
+        "D22E81062E47",
+        "D22E81865125",
+        "D22E84065428",
+        "D22E84463D31",
+        "D22E84860F7A",
+        "D22E84862F2E",
+        "D22E84866915",
+        "E3FD0C2CD631",
+        "E77600C6218C",
+        "E77601464004",
+        "E85502860E4E",
+        "E87606062677",
+        "ED2E86065D68",
+        "F19D2B915CE6"
+      ],
+      "device_types": {
+        "C76B0046301A": "MeterPlus",
+        "CE2A4586263B": "Meter",
+        "D12D0346415D": "Meter",
+        "D13234351576": "Meter",
+        "D22E81062E47": "Meter",
+        "D22E81865125": "Meter",
+        "D22E84065428": "Meter",
+        "D22E84463D31": "Meter",
+        "D22E84860F7A": "MeterPlus",
+        "D22E84862F2E": "Meter",
+        "D22E84866915": "Meter",
+        "E3FD0C2CD631": "Meter",
+        "E77600C6218C": "Meter",
+        "E77601464004": "Meter",
+        "E85502860E4E": "Meter",
+        "E87606062677": "Meter",
+        "ED2E86065D68": "Meter",
+        "F19D2B915CE6": "Meter"
+      },
+      "all_active_have_temperature": true,
+      "active_count": 18,
+      "configured": true
+    },
+    "pass": true
+  },
+  "TC-19": {
+    "name": "30秒自動更新",
+    "expected": {
+      "last_refresh_changed": true
+    },
+    "actual": {
+      "last_refresh_changed": true,
+      "before": "Last refresh: 21:21:08",
+      "after": "Last refresh: 21:21:38"
+    },
+    "pass": true
+  },
+  "TC-20": {
+    "name": "本番 snakeroom への Remote 接続 (読み取りのみ)",
+    "expected": {
+      "status_text": "Monitoring {GET /api/status の meters_count} meters",
+      "connection": "Connected"
+    },
+    "actual": {
+      "status_text": "Monitoring 22 meters",
+      "connection": "Connected",
+      "meters_count_api": 22
+    },
+    "pass": true
+  }
+}
