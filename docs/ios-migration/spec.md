@@ -29,3 +29,7 @@ JSON は移行元と同じ snake_case。日時は ISO-8601 (小数秒 0〜6 桁�
 - ユニットテスト (XCTest): 署名・バックオフ・期間・未更新判定・ラベル書式・表示名・数値表記・JSON デコード・SQLite ストア・収集 (URLProtocol スタブ)・Remote クライアント・ViewModel・インポート。
 - UI テスト (XCUITest, モック): ダッシュボード表示、Time Range、未更新セクション、レート制限、タブ遷移、ja 表示。
 - E2E / クロス検証: `cases.json` をレガシー (Playwright 実測) と iOS (testing_agent) で実行し比較。
+
+## 既知の仕様差（レガシー実測で判明）
+- 本番 `/api/meters` には `Hub 3` 種別が含まれるが、バックエンド `METER_DEVICE_TYPES` には無い（本番の収集ロジックがリポジトリと異なる可能性）。iOS Standalone の収集対象は `METER_DEVICE_TYPES` + `Hub 3` とし、Remote は API が返すものをそのまま表示する。
+- 本番 `/api/status` は `user_configured` を追加で返し、`collection_interval` は 120（リポジトリは 3600）。iOS の Codable は未知フィールドを無視する。
