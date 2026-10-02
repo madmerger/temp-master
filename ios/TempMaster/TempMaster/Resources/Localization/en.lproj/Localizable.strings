@@ -1,0 +1,102 @@
+/* en.lproj — legacy English strings verbatim (legacy Japanese stale-section
+   strings are kept as-is; they are the product copy). */
+
+/* App chrome */
+"dashboard.title" = "Temp Master Dashboard";
+"tab.dashboard" = "Dashboard";
+"tab.latency" = "Latency";
+"tab.import" = "Import";
+"tab.settings" = "Settings";
+"footer.text" = "Temp Master Dashboard v1.0 - Built with SwiftUI";
+
+/* Connection / dashboard controls */
+"connection.connected" = "Connected";
+"connection.disconnected" = "Disconnected";
+"timerange.label" = "Time Range:";
+"timerange.last_hour" = "Last Hour";
+"timerange.last_24_hours" = "Last 24 Hours";
+"timerange.last_7_days" = "Last 7 Days";
+"timerange.last_30_days" = "Last 30 Days";
+"timerange.last_year" = "Last Year";
+"dashboard.refresh_button" = "Refresh Data";
+"dashboard.refreshing" = "Refreshing...";
+"dashboard.backup_button" = "Download Backup";
+"dashboard.last_refresh_fmt" = "Last refresh: %@";
+"dashboard.loading" = "Loading temperature data...";
+
+/* Rate limit */
+"ratelimit.title" = "Rate Limited.";
+"ratelimit.message" = "SwitchBot API rate limit reached. Retry in %d seconds.";
+
+/* Errors */
+"error.title" = "Error.";
+"error.fetch_meters" = "Failed to fetch meters";
+"error.fetch_status" = "Failed to fetch status";
+"error.refresh" = "Failed to refresh";
+
+/* Stale meters (legacy Japanese strings verbatim) */
+"stale.section_title" = "未更新のメーター";
+"stale.section_subtitle" = "1週間以上更新されていないデバイス";
+"stale.badge" = "7日以上未更新";
+"stale.no_history" = "履歴データの取得対象外";
+"stale.no_value" = "値がありません（データ未受信）";
+
+/* Meter card */
+"meter.last_updated_fmt" = "Last updated: %@";
+
+/* Latency */
+"latency.title" = "Latency";
+"latency.stats_section" = "Statistics";
+"latency.filters_section" = "Filters";
+"latency.filter_endpoint" = "Endpoint";
+"latency.filter_device_id" = "Device ID";
+"latency.filter_limit" = "Limit";
+"latency.filter_start" = "Start";
+"latency.filter_end" = "End";
+"latency.use_start" = "Filter start time";
+"latency.use_end" = "Filter end time";
+"latency.apply" = "Apply";
+"latency.stat_total" = "Total Calls";
+"latency.stat_avg" = "Avg Latency (ms)";
+"latency.stat_min" = "Min Latency (ms)";
+"latency.stat_max" = "Max Latency (ms)";
+"latency.stat_success" = "Successful";
+"latency.stat_failed" = "Failed";
+"latency.stat_rate" = "Success Rate";
+
+/* Import */
+"import.title" = "Import";
+"import.file_section" = "From File";
+"import.choose_file" = "Choose JSON File";
+"import.paste_section" = "Paste JSON";
+"import.button" = "Import";
+"import.result_fmt" = "Imported %d devices, %d readings";
+"import.invalid" = "Invalid import data";
+
+/* Settings */
+"settings.title" = "Settings";
+"settings.data_source" = "Data Source";
+"settings.source.remote" = "Remote";
+"settings.source.standalone" = "Standalone";
+"settings.backend_url" = "Backend URL";
+"settings.invalid_url" = "Enter a valid http(s) URL";
+"settings.credentials" = "SwitchBot Credentials";
+"settings.token" = "SwitchBot Token";
+"settings.secret" = "SwitchBot Secret";
+"settings.save" = "Save";
+"settings.clear" = "Clear";
+"settings.credentials_saved" = "Credentials saved in Keychain";
+"settings.credentials_save_failed" = "Failed to save credentials";
+"settings.apply" = "Apply";
+"settings.test_connection" = "Test Connection";
+"settings.status" = "Status";
+"settings.configured" = "Configured";
+"settings.meters_count" = "Meters";
+"settings.rate_limited" = "Rate Limited";
+"settings.backoff_remaining" = "Backoff Remaining (s)";
+"settings.last_api_call" = "Last API Call";
+"settings.collection_interval" = "Collection Interval (s)";
+"settings.version" = "Version";
+"settings.yes" = "Yes";
+"settings.no" = "No";
+"settings.no_status" = "No status available";

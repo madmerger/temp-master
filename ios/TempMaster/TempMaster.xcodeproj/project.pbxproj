@@ -1,0 +1,797 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		01F2674C11AD5613CD41D4BA /* BackoffPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85491CCB048B4AA091B3C520 /* BackoffPolicy.swift */; };
+		0CBDDAAC833579046B12BBF9 /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19FB7A5FF1627E0C8CDCB9E /* DashboardViewModel.swift */; };
+		177775D5D1BB4C912FBBE543 /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF0704B58A5646BA8BEB58C6 /* RootTabView.swift */; };
+		21B317D0974E435D5B85A16F /* ShareSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7528CC839F049F6EED4E9D46 /* ShareSheet.swift */; };
+		237DD32A9990BC34F00FE39A /* DisplayNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = 771143F79D971703AF19948E /* DisplayNames.swift */; };
+		271C00CFDCCC483DC727372B /* ClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EC0DDD5F7FFD4A69A5841EE /* ClientTests.swift */; };
+		32F21ECCB18E9236A0B90B23 /* DataCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48AD7F3C8EFEF851CEBF77EF /* DataCollector.swift */; };
+		3433626AB39D58F61D7B1E0F /* LatencyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48F38D38FD89C30C34C28658 /* LatencyView.swift */; };
+		3B98BBDF68DD9349791DA574 /* MeterChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B39F6EE3E732EC31A2DC77C /* MeterChartView.swift */; };
+		4548BA933C076B97231F05B0 /* LocalMeterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5E53CF475685EAC53D23C54 /* LocalMeterService.swift */; };
+		551C3B6ECCA637AC977359EE /* SwitchBotSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22770BC293836C20B61F7BDD /* SwitchBotSigner.swift */; };
+		5F6E62D786A0270DF4BB7C22 /* ChartLabelFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDD9E49C12C36BF1449F7452 /* ChartLabelFormatter.swift */; };
+		5FCE564D54E8B44E04991474 /* ImportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D94F09E827508B4CA64A7FF2 /* ImportViewModel.swift */; };
+		62001D55EFF8CFEBB07DA134 /* JSONCodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AD8183308E1A8678427D8BC /* JSONCodingTests.swift */; };
+		636C24D0F133D2A996CB7BFA /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68F28A74AD9354E1DE79A9AD /* SettingsView.swift */; };
+		6693E2D151438D5ABBA1DC1C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = C109F67FC01ABADCFCC435F1 /* InfoPlist.strings */; };
+		6CC453E28058FF2CEB8B49C8 /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = 106A52E5B1B27063DC55C8B7 /* Localizable.stringsdict */; };
+		768BACE1B22E9D9619209DCC /* RemoteMeterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 289A8676FCAD343AB2EC4C33 /* RemoteMeterService.swift */; };
+		7C35490CEA8BB8462A3FE58C /* TempMasterUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F143670C0BCA232C99735EDE /* TempMasterUITests.swift */; };
+		81757287F798DA2ADD09E718 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360474ABD0D8AD727BC26312 /* DashboardView.swift */; };
+		822F70EDDE54FF9A72101DB8 /* TestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 800984C5DB3221474DCA6A77 /* TestHelpers.swift */; };
+		8FAF58ED33A88D4321C0466D /* StaleMetersSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEC7E967AD6C5F32A83801D5 /* StaleMetersSection.swift */; };
+		96302832C4ADF6A87AF29013 /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90E32E63542EC866549351A8 /* AppEnvironment.swift */; };
+		9A6CA69971005634CC4D60A4 /* SwitchBotClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A41DCA23D0DFEB4799269A /* SwitchBotClient.swift */; };
+		A959FE96B176597CEAE8C8F0 /* RemoteMeterServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01DABC459725199E7F0F3E62 /* RemoteMeterServiceTests.swift */; };
+		AA2270DE8A2872688B5687AA /* LatencyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54FF0742982363D2ADAC14FF /* LatencyViewModel.swift */; };
+		ACAAB97A9F13823F7A33543A /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B37034FA953F4A18B1DB15B /* SettingsViewModel.swift */; };
+		AF2C6AC8584889DE1AE5AADF /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 731E13D7362C32998D4CF0C3 /* AppSettings.swift */; };
+		AF7B218C4736B8B29B8F8BC3 /* LocalMeterServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0126CED0EE8CC219FE349C20 /* LocalMeterServiceTests.swift */; };
+		C419BF4E576E774D08C33C80 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = FE74EDC6B8C925DE849A611A /* Localizable.strings */; };
+		CAC06D12507FF0FB85D61506 /* MeterCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAC15BF27578FDE88F3743B6 /* MeterCardView.swift */; };
+		D4C16FA5253F3E0DDE87FA9B /* DomainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B45749232A79110C9716CD6F /* DomainTests.swift */; };
+		D5C125786F9D0EAA032A141F /* SQLiteStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72FFCCE2C226B359A9C376F6 /* SQLiteStore.swift */; };
+		D9AFAD4216871F31A51FFAD9 /* ImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27FFCCFF8D5E484224FBEEA7 /* ImportView.swift */; };
+		D9D9F9B1E8935B8C51A68E09 /* KeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3429BA6BD574DCA7A873843 /* KeychainStore.swift */; };
+		DB255B093E49B8B2E7F3C24F /* String+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = D039BF333FBAC07194FC8B42 /* String+Localization.swift */; };
+		DE000EDD937052CBD264CD63 /* VMTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F80E046F3D7AF52341289A /* VMTests.swift */; };
+		E53B6906FF67BB74A2B47266 /* JSONCoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0ED06D516608B58DCCE56109 /* JSONCoding.swift */; };
+		E5C3F4E01D6C460643690F41 /* NumberFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10A6AA9B131FA6E2AA9884EA /* NumberFormatting.swift */; };
+		E65EB01482D0DD409D919048 /* TempMasterApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC02F318EF516FCC49A76D3E /* TempMasterApp.swift */; };
+		EDA5B96A933737580846DBCE /* StaleMeterPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAC14886809B3DB5F718806E /* StaleMeterPolicy.swift */; };
+		F19CD89ACA29C48FA39A39CC /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = A02C1C0D5BEC5E0F9ECE7706 /* Models.swift */; };
+		F25CB03E293938A785D9192E /* MockMeterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51A7F447C068C2D6505CD2ED /* MockMeterService.swift */; };
+		F71D3FA6A284B5649856EB58 /* SQLiteStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29CFEB20CE82DA8D126C004A /* SQLiteStoreTests.swift */; };
+		FB5FB07432222F578E1C3E46 /* MeterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0603B9CAC521A9FFF18E1AA9 /* MeterService.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		CF2CC1E3A0D809C63AFEB031 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 64BBCB45D62810472BAA28BE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D86CDCF1F10C8E2E83D481CD;
+			remoteInfo = TempMaster;
+		};
+		F865078EEEA76A0484F2809D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 64BBCB45D62810472BAA28BE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D86CDCF1F10C8E2E83D481CD;
+			remoteInfo = TempMaster;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		0126CED0EE8CC219FE349C20 /* LocalMeterServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalMeterServiceTests.swift; sourceTree = "<group>"; };
+		01DABC459725199E7F0F3E62 /* RemoteMeterServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteMeterServiceTests.swift; sourceTree = "<group>"; };
+		0603B9CAC521A9FFF18E1AA9 /* MeterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeterService.swift; sourceTree = "<group>"; };
+		0B37034FA953F4A18B1DB15B /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
+		0ED06D516608B58DCCE56109 /* JSONCoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONCoding.swift; sourceTree = "<group>"; };
+		10A6AA9B131FA6E2AA9884EA /* NumberFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberFormatting.swift; sourceTree = "<group>"; };
+		1AD8183308E1A8678427D8BC /* JSONCodingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONCodingTests.swift; sourceTree = "<group>"; };
+		22770BC293836C20B61F7BDD /* SwitchBotSigner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchBotSigner.swift; sourceTree = "<group>"; };
+		27FFCCFF8D5E484224FBEEA7 /* ImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportView.swift; sourceTree = "<group>"; };
+		289A8676FCAD343AB2EC4C33 /* RemoteMeterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteMeterService.swift; sourceTree = "<group>"; };
+		29CFEB20CE82DA8D126C004A /* SQLiteStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SQLiteStoreTests.swift; sourceTree = "<group>"; };
+		32A41DCA23D0DFEB4799269A /* SwitchBotClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchBotClient.swift; sourceTree = "<group>"; };
+		32F80E046F3D7AF52341289A /* VMTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMTests.swift; sourceTree = "<group>"; };
+		360474ABD0D8AD727BC26312 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		4682C9FB70B5F33A25E60FC9 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ja; path = ja.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		48AD7F3C8EFEF851CEBF77EF /* DataCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataCollector.swift; sourceTree = "<group>"; };
+		48F38D38FD89C30C34C28658 /* LatencyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LatencyView.swift; sourceTree = "<group>"; };
+		4B39F6EE3E732EC31A2DC77C /* MeterChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeterChartView.swift; sourceTree = "<group>"; };
+		4BB79FF8146B5285AC6BFA9A /* TempMasterTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TempMasterTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		51A7F447C068C2D6505CD2ED /* MockMeterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockMeterService.swift; sourceTree = "<group>"; };
+		54FF0742982363D2ADAC14FF /* LatencyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LatencyViewModel.swift; sourceTree = "<group>"; };
+		5B6F199FD55138595E406D63 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		5EFB32BB6C2F451E43FB3368 /* TempMaster.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = TempMaster.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		68F28A74AD9354E1DE79A9AD /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		72FFCCE2C226B359A9C376F6 /* SQLiteStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SQLiteStore.swift; sourceTree = "<group>"; };
+		731E13D7362C32998D4CF0C3 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		7528CC839F049F6EED4E9D46 /* ShareSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareSheet.swift; sourceTree = "<group>"; };
+		771143F79D971703AF19948E /* DisplayNames.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayNames.swift; sourceTree = "<group>"; };
+		78224DB77543607F93075195 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = en; path = en.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		7900AD5DF8197EFC91EB04F9 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		7EC0DDD5F7FFD4A69A5841EE /* ClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientTests.swift; sourceTree = "<group>"; };
+		800984C5DB3221474DCA6A77 /* TestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestHelpers.swift; sourceTree = "<group>"; };
+		85491CCB048B4AA091B3C520 /* BackoffPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackoffPolicy.swift; sourceTree = "<group>"; };
+		90E32E63542EC866549351A8 /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
+		A02C1C0D5BEC5E0F9ECE7706 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		AAC14886809B3DB5F718806E /* StaleMeterPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaleMeterPolicy.swift; sourceTree = "<group>"; };
+		B19FB7A5FF1627E0C8CDCB9E /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
+		B3429BA6BD574DCA7A873843 /* KeychainStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainStore.swift; sourceTree = "<group>"; };
+		B45749232A79110C9716CD6F /* DomainTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DomainTests.swift; sourceTree = "<group>"; };
+		B5E53CF475685EAC53D23C54 /* LocalMeterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalMeterService.swift; sourceTree = "<group>"; };
+		BA6EC31080AB116AFC8AAB67 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		BF0704B58A5646BA8BEB58C6 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
+		CA7E73B0EF0E669EB1DF8875 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		CBAFA1BF17E69EAE0AC5CBEA /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		D039BF333FBAC07194FC8B42 /* String+Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Localization.swift"; sourceTree = "<group>"; };
+		D94F09E827508B4CA64A7FF2 /* ImportViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportViewModel.swift; sourceTree = "<group>"; };
+		EAC15BF27578FDE88F3743B6 /* MeterCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeterCardView.swift; sourceTree = "<group>"; };
+		EDD9E49C12C36BF1449F7452 /* ChartLabelFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartLabelFormatter.swift; sourceTree = "<group>"; };
+		F143670C0BCA232C99735EDE /* TempMasterUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TempMasterUITests.swift; sourceTree = "<group>"; };
+		FBA78435D5AB9B8D37DDEB91 /* TempMasterUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TempMasterUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		FC02F318EF516FCC49A76D3E /* TempMasterApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TempMasterApp.swift; sourceTree = "<group>"; };
+		FEC7E967AD6C5F32A83801D5 /* StaleMetersSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaleMetersSection.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		039A3B53DD3DE98C250B2267 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				D86D5B2CE3FB5B04A3BA9CE4 /* Localization */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		03BAAD8C61C7F32C93B24470 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				85491CCB048B4AA091B3C520 /* BackoffPolicy.swift */,
+				EDD9E49C12C36BF1449F7452 /* ChartLabelFormatter.swift */,
+				771143F79D971703AF19948E /* DisplayNames.swift */,
+				10A6AA9B131FA6E2AA9884EA /* NumberFormatting.swift */,
+				AAC14886809B3DB5F718806E /* StaleMeterPolicy.swift */,
+				22770BC293836C20B61F7BDD /* SwitchBotSigner.swift */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		07C2560C678BD68DF7152774 = {
+			isa = PBXGroup;
+			children = (
+				BDA1EC2F4DDEC4711213E791 /* TempMaster */,
+				E116B967B6D3D4EBD96347C3 /* TempMasterTests */,
+				E951363211322589BCE6AD18 /* TempMasterUITests */,
+				4CFB23AB9B34696151AB07F2 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		4874C1031EB64972F7E211E8 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				0ED06D516608B58DCCE56109 /* JSONCoding.swift */,
+				A02C1C0D5BEC5E0F9ECE7706 /* Models.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		4CFB23AB9B34696151AB07F2 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5EFB32BB6C2F451E43FB3368 /* TempMaster.app */,
+				4BB79FF8146B5285AC6BFA9A /* TempMasterTests.xctest */,
+				FBA78435D5AB9B8D37DDEB91 /* TempMasterUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		6BFE286870CAD0FC04215CD0 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				360474ABD0D8AD727BC26312 /* DashboardView.swift */,
+				27FFCCFF8D5E484224FBEEA7 /* ImportView.swift */,
+				48F38D38FD89C30C34C28658 /* LatencyView.swift */,
+				EAC15BF27578FDE88F3743B6 /* MeterCardView.swift */,
+				4B39F6EE3E732EC31A2DC77C /* MeterChartView.swift */,
+				BF0704B58A5646BA8BEB58C6 /* RootTabView.swift */,
+				68F28A74AD9354E1DE79A9AD /* SettingsView.swift */,
+				7528CC839F049F6EED4E9D46 /* ShareSheet.swift */,
+				FEC7E967AD6C5F32A83801D5 /* StaleMetersSection.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		82874C7F48962C2C28BD9CF2 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				B19FB7A5FF1627E0C8CDCB9E /* DashboardViewModel.swift */,
+				D94F09E827508B4CA64A7FF2 /* ImportViewModel.swift */,
+				54FF0742982363D2ADAC14FF /* LatencyViewModel.swift */,
+				0B37034FA953F4A18B1DB15B /* SettingsViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		895F4FC255942FCCF2B807D8 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				731E13D7362C32998D4CF0C3 /* AppSettings.swift */,
+				48AD7F3C8EFEF851CEBF77EF /* DataCollector.swift */,
+				B3429BA6BD574DCA7A873843 /* KeychainStore.swift */,
+				B5E53CF475685EAC53D23C54 /* LocalMeterService.swift */,
+				0603B9CAC521A9FFF18E1AA9 /* MeterService.swift */,
+				51A7F447C068C2D6505CD2ED /* MockMeterService.swift */,
+				289A8676FCAD343AB2EC4C33 /* RemoteMeterService.swift */,
+				72FFCCE2C226B359A9C376F6 /* SQLiteStore.swift */,
+				32A41DCA23D0DFEB4799269A /* SwitchBotClient.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		AC29D789CF5349EB8857EB36 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				D039BF333FBAC07194FC8B42 /* String+Localization.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		BDA1EC2F4DDEC4711213E791 /* TempMaster */ = {
+			isa = PBXGroup;
+			children = (
+				CA7E73B0EF0E669EB1DF8875 /* Info.plist */,
+				CBEBC05421942A0B67B80204 /* App */,
+				03BAAD8C61C7F32C93B24470 /* Domain */,
+				AC29D789CF5349EB8857EB36 /* Extensions */,
+				4874C1031EB64972F7E211E8 /* Models */,
+				039A3B53DD3DE98C250B2267 /* Resources */,
+				895F4FC255942FCCF2B807D8 /* Services */,
+				82874C7F48962C2C28BD9CF2 /* ViewModels */,
+				6BFE286870CAD0FC04215CD0 /* Views */,
+			);
+			path = TempMaster;
+			sourceTree = "<group>";
+		};
+		CBEBC05421942A0B67B80204 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				90E32E63542EC866549351A8 /* AppEnvironment.swift */,
+				FC02F318EF516FCC49A76D3E /* TempMasterApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		D86D5B2CE3FB5B04A3BA9CE4 /* Localization */ = {
+			isa = PBXGroup;
+			children = (
+				C109F67FC01ABADCFCC435F1 /* InfoPlist.strings */,
+				FE74EDC6B8C925DE849A611A /* Localizable.strings */,
+				106A52E5B1B27063DC55C8B7 /* Localizable.stringsdict */,
+			);
+			path = Localization;
+			sourceTree = "<group>";
+		};
+		E116B967B6D3D4EBD96347C3 /* TempMasterTests */ = {
+			isa = PBXGroup;
+			children = (
+				7EC0DDD5F7FFD4A69A5841EE /* ClientTests.swift */,
+				B45749232A79110C9716CD6F /* DomainTests.swift */,
+				1AD8183308E1A8678427D8BC /* JSONCodingTests.swift */,
+				0126CED0EE8CC219FE349C20 /* LocalMeterServiceTests.swift */,
+				01DABC459725199E7F0F3E62 /* RemoteMeterServiceTests.swift */,
+				29CFEB20CE82DA8D126C004A /* SQLiteStoreTests.swift */,
+				800984C5DB3221474DCA6A77 /* TestHelpers.swift */,
+				32F80E046F3D7AF52341289A /* VMTests.swift */,
+			);
+			path = TempMasterTests;
+			sourceTree = "<group>";
+		};
+		E951363211322589BCE6AD18 /* TempMasterUITests */ = {
+			isa = PBXGroup;
+			children = (
+				F143670C0BCA232C99735EDE /* TempMasterUITests.swift */,
+			);
+			path = TempMasterUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		38CECD18BCE03A3CFFE2DC2E /* TempMasterUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CF098F1C7D388E345E9D95AE /* Build configuration list for PBXNativeTarget "TempMasterUITests" */;
+			buildPhases = (
+				C9D1EA300EBD3F5A1A9326CA /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				92417350C2D0C141FD31FD09 /* PBXTargetDependency */,
+			);
+			name = TempMasterUITests;
+			packageProductDependencies = (
+			);
+			productName = TempMasterUITests;
+			productReference = FBA78435D5AB9B8D37DDEB91 /* TempMasterUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		74405BC5B2A3933CE18D4F49 /* TempMasterTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 946FE96A131064F7BF4F82DA /* Build configuration list for PBXNativeTarget "TempMasterTests" */;
+			buildPhases = (
+				53F30BFE66CD95EAD5634487 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2ED13EE4839EFA06E7C804E8 /* PBXTargetDependency */,
+			);
+			name = TempMasterTests;
+			packageProductDependencies = (
+			);
+			productName = TempMasterTests;
+			productReference = 4BB79FF8146B5285AC6BFA9A /* TempMasterTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		D86CDCF1F10C8E2E83D481CD /* TempMaster */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = ED737BC5619177931D6F394E /* Build configuration list for PBXNativeTarget "TempMaster" */;
+			buildPhases = (
+				745BD35A6CDAD35C3AB7698C /* Sources */,
+				E51F5787EA0ABB1E53C532DE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TempMaster;
+			packageProductDependencies = (
+			);
+			productName = TempMaster;
+			productReference = 5EFB32BB6C2F451E43FB3368 /* TempMaster.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		64BBCB45D62810472BAA28BE /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					38CECD18BCE03A3CFFE2DC2E = {
+						ProvisioningStyle = Automatic;
+						TestTargetID = D86CDCF1F10C8E2E83D481CD;
+					};
+					74405BC5B2A3933CE18D4F49 = {
+						ProvisioningStyle = Automatic;
+					};
+					D86CDCF1F10C8E2E83D481CD = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 27B484626DF9E964EEF0D54C /* Build configuration list for PBXProject "TempMaster" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+				ja,
+			);
+			mainGroup = 07C2560C678BD68DF7152774;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 4CFB23AB9B34696151AB07F2 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D86CDCF1F10C8E2E83D481CD /* TempMaster */,
+				74405BC5B2A3933CE18D4F49 /* TempMasterTests */,
+				38CECD18BCE03A3CFFE2DC2E /* TempMasterUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E51F5787EA0ABB1E53C532DE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6693E2D151438D5ABBA1DC1C /* InfoPlist.strings in Resources */,
+				C419BF4E576E774D08C33C80 /* Localizable.strings in Resources */,
+				6CC453E28058FF2CEB8B49C8 /* Localizable.stringsdict in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		53F30BFE66CD95EAD5634487 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				271C00CFDCCC483DC727372B /* ClientTests.swift in Sources */,
+				D4C16FA5253F3E0DDE87FA9B /* DomainTests.swift in Sources */,
+				62001D55EFF8CFEBB07DA134 /* JSONCodingTests.swift in Sources */,
+				AF7B218C4736B8B29B8F8BC3 /* LocalMeterServiceTests.swift in Sources */,
+				A959FE96B176597CEAE8C8F0 /* RemoteMeterServiceTests.swift in Sources */,
+				F71D3FA6A284B5649856EB58 /* SQLiteStoreTests.swift in Sources */,
+				822F70EDDE54FF9A72101DB8 /* TestHelpers.swift in Sources */,
+				DE000EDD937052CBD264CD63 /* VMTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		745BD35A6CDAD35C3AB7698C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				96302832C4ADF6A87AF29013 /* AppEnvironment.swift in Sources */,
+				AF2C6AC8584889DE1AE5AADF /* AppSettings.swift in Sources */,
+				01F2674C11AD5613CD41D4BA /* BackoffPolicy.swift in Sources */,
+				5F6E62D786A0270DF4BB7C22 /* ChartLabelFormatter.swift in Sources */,
+				81757287F798DA2ADD09E718 /* DashboardView.swift in Sources */,
+				0CBDDAAC833579046B12BBF9 /* DashboardViewModel.swift in Sources */,
+				32F21ECCB18E9236A0B90B23 /* DataCollector.swift in Sources */,
+				237DD32A9990BC34F00FE39A /* DisplayNames.swift in Sources */,
+				D9AFAD4216871F31A51FFAD9 /* ImportView.swift in Sources */,
+				5FCE564D54E8B44E04991474 /* ImportViewModel.swift in Sources */,
+				E53B6906FF67BB74A2B47266 /* JSONCoding.swift in Sources */,
+				D9D9F9B1E8935B8C51A68E09 /* KeychainStore.swift in Sources */,
+				3433626AB39D58F61D7B1E0F /* LatencyView.swift in Sources */,
+				AA2270DE8A2872688B5687AA /* LatencyViewModel.swift in Sources */,
+				4548BA933C076B97231F05B0 /* LocalMeterService.swift in Sources */,
+				CAC06D12507FF0FB85D61506 /* MeterCardView.swift in Sources */,
+				3B98BBDF68DD9349791DA574 /* MeterChartView.swift in Sources */,
+				FB5FB07432222F578E1C3E46 /* MeterService.swift in Sources */,
+				F25CB03E293938A785D9192E /* MockMeterService.swift in Sources */,
+				F19CD89ACA29C48FA39A39CC /* Models.swift in Sources */,
+				E5C3F4E01D6C460643690F41 /* NumberFormatting.swift in Sources */,
+				768BACE1B22E9D9619209DCC /* RemoteMeterService.swift in Sources */,
+				177775D5D1BB4C912FBBE543 /* RootTabView.swift in Sources */,
+				D5C125786F9D0EAA032A141F /* SQLiteStore.swift in Sources */,
+				636C24D0F133D2A996CB7BFA /* SettingsView.swift in Sources */,
+				ACAAB97A9F13823F7A33543A /* SettingsViewModel.swift in Sources */,
+				21B317D0974E435D5B85A16F /* ShareSheet.swift in Sources */,
+				EDA5B96A933737580846DBCE /* StaleMeterPolicy.swift in Sources */,
+				8FAF58ED33A88D4321C0466D /* StaleMetersSection.swift in Sources */,
+				DB255B093E49B8B2E7F3C24F /* String+Localization.swift in Sources */,
+				9A6CA69971005634CC4D60A4 /* SwitchBotClient.swift in Sources */,
+				551C3B6ECCA637AC977359EE /* SwitchBotSigner.swift in Sources */,
+				E65EB01482D0DD409D919048 /* TempMasterApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C9D1EA300EBD3F5A1A9326CA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7C35490CEA8BB8462A3FE58C /* TempMasterUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2ED13EE4839EFA06E7C804E8 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D86CDCF1F10C8E2E83D481CD /* TempMaster */;
+			targetProxy = CF2CC1E3A0D809C63AFEB031 /* PBXContainerItemProxy */;
+		};
+		92417350C2D0C141FD31FD09 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D86CDCF1F10C8E2E83D481CD /* TempMaster */;
+			targetProxy = F865078EEEA76A0484F2809D /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		106A52E5B1B27063DC55C8B7 /* Localizable.stringsdict */ = {
+			isa = PBXVariantGroup;
+			children = (
+				78224DB77543607F93075195 /* en */,
+				4682C9FB70B5F33A25E60FC9 /* ja */,
+			);
+			name = Localizable.stringsdict;
+			sourceTree = "<group>";
+		};
+		C109F67FC01ABADCFCC435F1 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				BA6EC31080AB116AFC8AAB67 /* en */,
+				CBAFA1BF17E69EAE0AC5CBEA /* ja */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		FE74EDC6B8C925DE849A611A /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				5B6F199FD55138595E406D63 /* en */,
+				7900AD5DF8197EFC91EB04F9 /* ja */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		25EA7A8D0A8024D494403911 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.madmerger.TempMasterTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TempMaster.app/TempMaster";
+			};
+			name = Debug;
+		};
+		2967E0A8346E6F1E169F3A4C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.madmerger.TempMasterTests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TempMaster.app/TempMaster";
+			};
+			name = Release;
+		};
+		5E9B1E4EF90F6524C6071AD5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		8CAB3D4A9DF040A3EF12B69F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.madmerger.TempMasterUITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = TempMaster;
+			};
+			name = Debug;
+		};
+		BB262DE3560B61F338BB879B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TempMaster/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.madmerger.TempMaster;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		BCFC3A2FA5C89974A063CF32 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.madmerger.TempMasterUITests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = TempMaster;
+			};
+			name = Release;
+		};
+		C44BE392E451E7A5D4FBDA94 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = TempMaster/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.madmerger.TempMaster;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		FAE917D2F2A0D947CD4B738F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		27B484626DF9E964EEF0D54C /* Build configuration list for PBXProject "TempMaster" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FAE917D2F2A0D947CD4B738F /* Debug */,
+				5E9B1E4EF90F6524C6071AD5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		946FE96A131064F7BF4F82DA /* Build configuration list for PBXNativeTarget "TempMasterTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				25EA7A8D0A8024D494403911 /* Debug */,
+				2967E0A8346E6F1E169F3A4C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		CF098F1C7D388E345E9D95AE /* Build configuration list for PBXNativeTarget "TempMasterUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8CAB3D4A9DF040A3EF12B69F /* Debug */,
+				BCFC3A2FA5C89974A063CF32 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		ED737BC5619177931D6F394E /* Build configuration list for PBXNativeTarget "TempMaster" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C44BE392E451E7A5D4FBDA94 /* Debug */,
+				BB262DE3560B61F338BB879B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 64BBCB45D62810472BAA28BE /* Project object */;
+}
