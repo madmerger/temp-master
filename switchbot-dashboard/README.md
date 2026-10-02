@@ -5,10 +5,12 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 ## Features
 
 - Temperature charts for all SwitchBot Meter devices using Recharts
-- Time scale switching (hour/day/month/year)
+- Time scale switching (hour/day/week/month/year)
+- Stale meters are highlighted in a separate section after one week without an update
 - Auto-refresh every 30 seconds (frontend) with background data collection every 2 minutes (backend)
 - Rate limiting protection with exponential backoff
 - All API calls are cached - GET endpoints never call SwitchBot API directly
+- Downloadable database backup
 
 ## Setup
 
@@ -46,22 +48,34 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
    cd switchbot-frontend
    ```
 
-2. Install dependencies:
+2. Install the locked dependencies:
    ```bash
-   npm install
+   npm ci
    ```
 
-3. Copy `.env.example` to `.env`:
+3. Copy `.env.example` to `.env` and configure `VITE_API_URL` if needed:
    ```bash
    cp .env.example .env
    ```
+   The default URL is `https://snakeroom.fly.dev`. Set `VITE_API_URL=` to use
+   the same origin; during development, Vite proxies `/api` to
+   `http://localhost:8000`.
 
-4. Start the development server:
+4. Start the Vite development server (http://localhost:5173):
    ```bash
    npm run dev
    ```
 
-5. Open http://localhost:5173 in your browser
+5. Run frontend checks:
+   ```bash
+   npm run test
+   npm run typecheck
+   npm run lint
+   npm run build
+   ```
+
+The dashboard Dockerfile uses a multi-stage Node 22 frontend build and serves
+the resulting static assets from the Python backend image.
 
 ## API Endpoints
 
