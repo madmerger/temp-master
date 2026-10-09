@@ -664,7 +664,35 @@
       });
 
       $('#btn-backup').click(function() {
-        window.open(API_URL + '/api/backup', '_blank');
+        var $btn = $(this);
+        $btn.prop('disabled', true).text('Downloading...');
+        fetch('/api/backup').then(function(res) {
+          if (!res.ok) {
+            return res.json().then(function(data) {
+              var rid = data && data.request_id;
+              showError('Failed to download backup (HTTP ' + res.status + ').' + (rid ? ' Request ID: ' + rid : ''));
+            }, function() {
+              showError('Failed to download backup (HTTP ' + res.status + ').');
+            });
+          }
+          var disposition = res.headers.get('Content-Disposition') || '';
+          var match = disposition.match(/filename="?([^";]+)"?/);
+          var filename = match ? match[1] : 'switchbot_backup.db';
+          return res.blob().then(function(blob) {
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          });
+        }).catch(function(err) {
+          showError('Failed to download backup: ' + err);
+        }).finally(function() {
+          $btn.prop('disabled', false).text('Download Backup');
+        });
       });
     });
   </script>
