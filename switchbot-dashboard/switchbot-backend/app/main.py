@@ -2,6 +2,7 @@ import asyncio
 import base64
 import hashlib
 import hmac
+import logging
 import os
 import time
 import uuid
@@ -17,10 +18,19 @@ from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
+from starlette.background import BackgroundTask
+
+from app.alerts import post_error_alert
 
 load_dotenv()
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
+logger = logging.getLogger("temp_master")
 
 # Database path - use /data/app.db for persistent volume in production
 DB_PATH = os.getenv("DB_PATH", "/data/app.db" if os.path.exists("/data") else "app.db")
@@ -594,6 +604,42 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+_background_tasks: set = set()
+
+
+@app.middleware("http")
+async def request_middleware(request: Request, call_next):
+    request_id = uuid.uuid4().hex[:12]
+    start_time = time.perf_counter()
+    try:
+        response = await call_next(request)
+    except Exception:
+        logger.exception(
+            "Unhandled error request_id=%s method=%s path=%s",
+            request_id,
+            request.method,
+            request.url.path,
+        )
+        response = JSONResponse(
+            status_code=500,
+            content={"detail": "Internal Server Error", "request_id": request_id},
+        )
+    latency_ms = (time.perf_counter() - start_time) * 1000
+    response.headers["X-Request-ID"] = request_id
+    if response.status_code >= 500 and request.url.path.startswith("/api/"):
+        task = asyncio.create_task(
+            post_error_alert(
+                request.method,
+                request.url.path,
+                response.status_code,
+                latency_ms,
+                request_id,
+            )
+        )
+        _background_tasks.add(task)
+        task.add_done_callback(_background_tasks.discard)
+    return response
+
 
 @app.get("/healthz")
 async def healthz():
@@ -773,20 +819,21 @@ async def import_data(data: ImportData):
     }
 
 
+BACKUP_DIR = os.getenv("BACKUP_DIR", os.path.join(os.path.dirname(os.path.abspath(DB_PATH)), "backups"))
+
+
 @app.get("/api/backup")
 async def backup_database():
-    """Download the SQLite database file for backup purposes."""
+    """Download a consistent snapshot of the SQLite database."""
     if not os.path.exists(DB_PATH):
         raise HTTPException(status_code=404, detail="Database file not found")
-    
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     filename = f"switchbot_backup_{timestamp}.db"
-    
-    return FileResponse(
-        path=DB_PATH,
-        filename=filename,
-        media_type="application/x-sqlite3",
-    )
+    snapshot_path = os.path.join(BACKUP_DIR, filename)
+    async with aiosqlite.connect(DB_PATH) as src, aiosqlite.connect(snapshot_path) as dst:
+        await src.backup(dst)
+    return FileResponse(path=snapshot_path, filename=filename, media_type="application/x-sqlite3",
+                        background=BackgroundTask(os.remove, snapshot_path))
 
 
 # Serve frontend static files if the static directory exists.
