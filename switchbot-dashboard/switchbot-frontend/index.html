@@ -6,7 +6,10 @@
     <title>Temp Master Dashboard</title>
     <script>
       (() => {
-        const storedTheme = localStorage.getItem('theme')
+        let storedTheme = null
+        try {
+          storedTheme = localStorage.getItem('theme')
+        } catch {}
         const theme =
           storedTheme === 'light' || storedTheme === 'dark'
             ? storedTheme

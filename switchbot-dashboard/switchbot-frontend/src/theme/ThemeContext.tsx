@@ -4,8 +4,12 @@ import { ThemeContext } from './Theme'
 import type { Theme } from './Theme'
 
 function getStoredTheme(): Theme | null {
-  const stored = localStorage.getItem('theme')
-  return stored === 'light' || stored === 'dark' ? stored : null
+  try {
+    const stored = localStorage.getItem('theme')
+    return stored === 'light' || stored === 'dark' ? stored : null
+  } catch {
+    return null
+  }
 }
 
 function getInitialTheme(): Theme {
@@ -36,7 +40,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       theme,
       toggle: () => {
         const nextTheme = theme === 'light' ? 'dark' : 'light'
-        localStorage.setItem('theme', nextTheme)
+        try {
+          localStorage.setItem('theme', nextTheme)
+        } catch {
+          setHasPreference(true)
+          setTheme(nextTheme)
+          return
+        }
         setHasPreference(true)
         setTheme(nextTheme)
       },
