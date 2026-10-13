@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { fetchHistory, parseContentDispositionFilename } from './api'
+import { downloadBackup, fetchHistory, parseContentDispositionFilename } from './api'
 
 afterEach(() => {
   vi.unstubAllGlobals()
@@ -49,5 +49,22 @@ describe('fetchHistory', () => {
       requestId: 'req-123',
       message: 'HTTP 503 Service Unavailable',
     })
+  })
+})
+
+describe('downloadBackup', () => {
+  it('uses the same-origin backup endpoint and parses the filename', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response('backup contents', {
+        status: 200,
+        headers: { 'Content-Disposition': 'attachment; filename="backup.db"' },
+      }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    const backup = await downloadBackup()
+
+    expect(fetchMock.mock.calls).toEqual([['/api/backup']])
+    expect(backup.filename).toBe('backup.db')
   })
 })

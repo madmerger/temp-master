@@ -54,7 +54,7 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 
 3. Open http://localhost:5173 in your browser. The dev server proxies `/api` to `http://localhost:8000` by default; set `VITE_PROXY_TARGET=https://temp-master.fly.dev` to use the production backend instead.
 
-4. To set an explicit API base URL rather than using the dev proxy, define `VITE_API_URL` in the environment. The default is same-origin `/api`.
+4. To set an explicit API base URL rather than using the dev proxy, define `VITE_API_URL` in the environment. It applies to meters, status, history, and refresh requests; Download Backup always uses the same origin. The default is same-origin `/api`.
 
 5. Build the static frontend with `npm run build`; output is written to `dist/`.
 

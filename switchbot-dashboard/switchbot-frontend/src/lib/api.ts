@@ -65,7 +65,8 @@ export function parseContentDispositionFilename(header: string | null): string {
 export async function downloadBackup(): Promise<{ blob: Blob; filename: string }> {
   let response: Response
   try {
-    response = await fetch(`${API_BASE}/api/backup`)
+    // バックアップは常に同一オリジン（配信元サーバーの DB）から取得する
+    response = await fetch('/api/backup')
   } catch (error) {
     throw new Error(error instanceof Error ? error.message : String(error))
   }
