@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+KNOWN_DIFF_CASES = {"TC-18"}  # spec.md 既知の仕様差 (Hub 3)
 
 
 def load(path):
@@ -21,12 +22,26 @@ def ledger_ids(ledger_md):
     return ids
 
 
+def effective_status(case, case_result, allowed_results):
+    status = case_result.get("overall")
+    if status == "PASS":
+        key_results = case_result.get("key_results") or {}
+        if any(
+            (key_results.get(key) or {}).get("result") not in allowed_results
+            for key in case["expected"]
+        ):
+            return "FAIL"
+    return status
+
+
 def verdict(case, legacy, ios):
     targets = case["targets"]
     ios_targets = [t for t in targets if t.startswith("ios-")]
     legacy_targets = [t for t in targets if t.startswith("legacy-")]
-    lo = legacy.get(case["id"], {}).get("overall") if legacy_targets else None
-    io = ios.get(case["id"], {}).get("overall") if ios_targets else None
+    legacy_case = legacy.get(case["id"], {})
+    ios_case = ios.get(case["id"], {})
+    lo = effective_status(case, legacy_case, {"PASS", "RECORDED"}) if legacy_targets else None
+    io = effective_status(case, ios_case, {"PASS"}) if ios_targets else None
     if legacy_targets and lo is None:
         lo = "MISSING"
     if ios_targets and io is None:
@@ -39,7 +54,12 @@ def verdict(case, legacy, ios):
         return lo, io, "MATCH"
     if io in ("NOT_RUN", "N/A", "MISSING"):
         return lo, io, io
-    if lo == "PASS" and io == "FAIL" and is_hub3_known_diff(legacy[case["id"]], ios[case["id"]]):
+    if (
+        lo == "PASS"
+        and io == "FAIL"
+        and case["id"] in KNOWN_DIFF_CASES
+        and is_hub3_known_diff(legacy[case["id"]], ios[case["id"]])
+    ):
         return lo, io, "KNOWN_DIFF"
     return lo, io, "MISMATCH"
 

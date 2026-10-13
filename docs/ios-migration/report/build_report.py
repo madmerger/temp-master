@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Render report.md (+ comparison.json / traceability.md) to report.html and report.pdf."""
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -27,9 +28,9 @@ def screens(data):
         legacy = ROOT / f"results/legacy_screens/{cid}.png"
         ios = ROOT / f"results/ios/ios_screens/{cid}.png"
         out.append(
-            f'<div class="pair"><h4>{cid} {names[cid]}</h4>'
-            f'<div class="imgs"><figure><img class="web" src="{legacy.as_uri()}"><figcaption>レガシー Web</figcaption></figure>'
-            f'<figure><img class="ios" src="{ios.as_uri()}"><figcaption>iOS</figcaption></figure></div></div>'
+            f'<div class="pair"><h4>{cid} {names[cid]}</h4><div class="imgs">'
+            f'<figure><img class="web" src="{os.path.relpath(legacy, HERE)}"><figcaption>レガシー Web</figcaption></figure>\n'
+            f'<figure><img class="ios" src="{os.path.relpath(ios, HERE)}"><figcaption>iOS</figcaption></figure></div></div>'
         )
     return "\n".join(out)
 
