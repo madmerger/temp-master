@@ -28,6 +28,33 @@ function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
+function ActionErrorAlert({
+  message,
+  onDismiss,
+}: {
+  message: string;
+  onDismiss: () => void;
+}) {
+  return (
+    <div
+      role="alert"
+      className="mb-4 flex items-start justify-between gap-3 rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-900 dark:border-red-800 dark:bg-red-950/50 dark:text-red-100"
+    >
+      <span>
+        <strong>Error.</strong> {message}
+      </span>
+      <button
+        type="button"
+        aria-label="Dismiss"
+        onClick={onDismiss}
+        className="shrink-0 text-lg leading-none"
+      >
+        ×
+      </button>
+    </div>
+  );
+}
+
 export default function App() {
   const queryClient = useQueryClient();
   const { resolvedTheme } = useTheme();
@@ -79,8 +106,6 @@ export default function App() {
       setLastRefresh(
         new Date(Math.max(metersQuery.dataUpdatedAt, statusQuery.dataUpdatedAt)),
       );
-      setRefreshError(undefined);
-      setBackupError(undefined);
     }
   }, [
     metersQuery.dataUpdatedAt,
@@ -96,11 +121,11 @@ export default function App() {
     !metersQuery.data &&
     !statusQuery.data &&
     (metersQuery.isLoading || statusQuery.isLoading);
-  const mainError = metersQuery.isError
+  const fetchError = metersQuery.isError
     ? `Failed to fetch meters: ${getErrorMessage(metersQuery.error)}`
     : statusQuery.isError
       ? `Failed to fetch status: ${getErrorMessage(statusQuery.error)}`
-      : refreshError ?? backupError;
+      : undefined;
 
   async function handleRefresh() {
     setRefreshing(true);
@@ -272,13 +297,27 @@ export default function App() {
           </p>
         )}
 
-        {mainError && (
+        {fetchError && (
           <div
             role="alert"
             className="mb-4 rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-900 dark:border-red-800 dark:bg-red-950/50 dark:text-red-100"
           >
-            <strong>Error.</strong> {mainError}
+            <strong>Error.</strong> {fetchError}
           </div>
+        )}
+
+        {refreshError && (
+          <ActionErrorAlert
+            message={refreshError}
+            onDismiss={() => setRefreshError(undefined)}
+          />
+        )}
+
+        {backupError && (
+          <ActionErrorAlert
+            message={backupError}
+            onDismiss={() => setBackupError(undefined)}
+          />
         )}
 
         <ApiHealthPanel
