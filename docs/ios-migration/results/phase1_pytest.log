@@ -115,4 +115,4 @@ tests/test_switchbot_api.py::TestFetchDeviceStatus::test_fetch_device_status_han
 tests/test_switchbot_api.py::TestMeterDeviceTypes::test_meter_device_types_contains_expected_types PASSED [ 99%]
 tests/test_switchbot_api.py::TestMeterDeviceTypes::test_meter_device_types_is_list PASSED [100%]
 
-============================= 106 passed in 1.82s ==============================
+============================= 106 passed in 1.73s ==============================

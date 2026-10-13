@@ -14,7 +14,7 @@
       "title": "Temp Master Dashboard",
       "connection": "Connected",
       "status_text": "Monitoring 6 meters",
-      "last_refresh_regex": "Last refresh: 04:07:49",
+      "last_refresh_regex": "Last refresh: 04:13:19",
       "rate_limit_warning_visible": false,
       "error_visible": false
     },
@@ -37,7 +37,7 @@
       "last_refresh_regex": {
         "result": "PASS",
         "expected": "^Last refresh: \\d{2}:\\d{2}:\\d{2}$",
-        "actual": "Last refresh: 04:07:49"
+        "actual": "Last refresh: 04:13:19"
       },
       "rate_limit_warning_visible": {
         "result": "PASS",
@@ -469,7 +469,8 @@
         "week": "^(Sun|Mon|Tue|Wed|Thu|Fri|Sat) \\d{2}$",
         "month": "^[A-Z][a-z]{2} \\d{1,2}$",
         "year": "^[A-Z][a-z]{2} \\d{1,2}$"
-      }
+      },
+      "chart_counts_stable": true
     },
     "actual": {
       "points": {
@@ -481,11 +482,11 @@
       },
       "label_regex": {
         "hour": [
-          "03:37"
+          "03:43"
         ],
         "day": [
-          "02:07",
-          "03:37"
+          "02:13",
+          "03:43"
         ],
         "week": [
           "Sat 04",
@@ -505,7 +506,8 @@
           "Oct 13",
           "Oct 13"
         ]
-      }
+      },
+      "chart_counts_stable": true
     },
     "key_results": {
       "points": {
@@ -536,11 +538,11 @@
         },
         "actual": {
           "hour": [
-            "03:37"
+            "03:43"
           ],
           "day": [
-            "02:07",
-            "03:37"
+            "02:13",
+            "03:43"
           ],
           "week": [
             "Sat 04",
@@ -561,6 +563,11 @@
             "Oct 13"
           ]
         }
+      },
+      "chart_counts_stable": {
+        "result": "PASS",
+        "expected": true,
+        "actual": true
       }
     },
     "overall": "PASS",
@@ -632,7 +639,7 @@
       "button_during": "Downloading...",
       "final_button": "Download Backup",
       "http_status": 200,
-      "filename_regex": "switchbot_backup_20261013_040751.db",
+      "filename_regex": "switchbot_backup_20261013_041322.db",
       "sqlite_header": true,
       "contains_seed_devices": 6,
       "error_visible": false
@@ -656,7 +663,7 @@
       "filename_regex": {
         "result": "PASS",
         "expected": "^switchbot_backup_\\d{8}_\\d{6}\\.db$",
-        "actual": "switchbot_backup_20261013_040751.db"
+        "actual": "switchbot_backup_20261013_041322.db"
       },
       "sqlite_header": {
         "result": "PASS",
@@ -810,8 +817,8 @@
     },
     "actual": {
       "last_refresh_changed": true,
-      "before": "Last refresh: 04:07:49",
-      "after": "Last refresh: 04:08:19"
+      "before": "Last refresh: 04:13:19",
+      "after": "Last refresh: 04:13:49"
     },
     "key_results": {
       "last_refresh_changed": {
@@ -1065,9 +1072,9 @@
     },
     "actual": {
       "http_status": 500,
-      "body_request_id_regex": "eddbc9a017fd",
+      "body_request_id_regex": "e847915dd3d3",
       "x_request_id_matches_body": true,
-      "error_regex": "Failed to download backup (HTTP 500). Request ID: eddbc9a017fd",
+      "error_regex": "Failed to download backup (HTTP 500). Request ID: e847915dd3d3",
       "connection": "Disconnected",
       "final_button": "Download Backup"
     },
@@ -1080,7 +1087,7 @@
       "body_request_id_regex": {
         "result": "PASS",
         "expected": "^[0-9a-f]{12}$",
-        "actual": "eddbc9a017fd"
+        "actual": "e847915dd3d3"
       },
       "x_request_id_matches_body": {
         "result": "PASS",
@@ -1090,7 +1097,7 @@
       "error_regex": {
         "result": "PASS",
         "expected": "^Failed to download backup \\(HTTP 500\\)\\. Request ID: [0-9a-f]{12}$",
-        "actual": "Failed to download backup (HTTP 500). Request ID: eddbc9a017fd"
+        "actual": "Failed to download backup (HTTP 500). Request ID: e847915dd3d3"
       },
       "connection": {
         "result": "PASS",

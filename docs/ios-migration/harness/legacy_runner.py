@@ -475,6 +475,8 @@ def main():
 
             points = {}
             labels = {}
+            tc09_notes = []
+            chart_counts_stable = True
             for scale in ("hour", "day", "week", "month", "year"):
                 with page.expect_response(
                     lambda response: (
@@ -483,6 +485,7 @@ def main():
                     ),
                     timeout=15000,
                 ) as history_response:
+                    page.wait_for_load_state("networkidle")
                     page.select_option("#time-scale-select", scale)
                 history = history_response.value.json().get("history", [])
                 page.wait_for_function(
@@ -493,11 +496,34 @@ def main():
                     arg=len(history),
                     timeout=15000,
                 )
+                page.wait_for_timeout(300)
+                label_count = page.evaluate(
+                    "window.charts['SEED-D1'].data.labels.length"
+                )
+                if label_count != len(history):
+                    chart_counts_stable = False
+                    tc09_notes.append(
+                        f"{scale}: chart label count changed during the 300ms "
+                        f"stability check (expected {len(history)}, observed {label_count})."
+                    )
+                    points[scale] = label_count
+                    labels[scale] = None
+                    continue
                 current_labels = page.evaluate("window.charts['SEED-D1'].data.labels")
                 points[scale] = len(current_labels)
                 labels[scale] = current_labels
             page.select_option("#time-scale-select", "day")
-            record("TC-09", {"points": points, "label_regex": labels}, page)
+            record(
+                "TC-09",
+                {
+                    "points": points,
+                    "label_regex": labels,
+                    "chart_counts_stable": chart_counts_stable,
+                },
+                page,
+                notes=tc09_notes,
+                additional_expectations={"chart_counts_stable": True},
+            )
 
             _, _, health = api_get_json("http://127.0.0.1:8000/healthz")
             _, _, status = api_get_json("http://127.0.0.1:8000/api/status")
