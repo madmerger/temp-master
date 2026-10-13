@@ -507,7 +507,7 @@ def main():
                         f"stability check (expected {len(history)}, observed {label_count})."
                     )
                     points[scale] = label_count
-                    labels[scale] = None
+                    labels[scale] = []
                     continue
                 current_labels = page.evaluate("window.charts['SEED-D1'].data.labels")
                 points[scale] = len(current_labels)
