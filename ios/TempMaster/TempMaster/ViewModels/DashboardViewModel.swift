@@ -55,12 +55,14 @@ final class DashboardViewModel: ObservableObject {
     func refresh() async {
         guard !isRefreshing else { return }
         isRefreshing = true
+        var refreshError: String?
         do {
             _ = try await service.refresh()
         } catch {
-            showError(L10n.format("dashboard.refresh_error_prefix", error.localizedDescription))
+            refreshError = L10n.format("dashboard.refresh_error_prefix", error.localizedDescription)
         }
         await fetchData()
+        if let refreshError { showError(refreshError) }
         isRefreshing = false
     }
 
@@ -115,6 +117,7 @@ final class DashboardViewModel: ObservableObject {
         let service = self.service
         let scale = timeScale
         let active = activeMeters
+        removeInactiveHistories(keeping: Set(active.map(\.deviceId)))
         await withTaskGroup(of: (String, [MeterReading]?).self) { group in
             for meter in active {
                 group.addTask {
@@ -126,8 +129,18 @@ final class DashboardViewModel: ObservableObject {
                 }
             }
             for await (deviceId, history) in group {
-                if let history { histories[deviceId] = history }
+                let currentActiveIDs = Set(activeMeters.map(\.deviceId))
+                removeInactiveHistories(keeping: currentActiveIDs)
+                if let history, scale == self.timeScale, currentActiveIDs.contains(deviceId) {
+                    histories[deviceId] = history
+                }
             }
+        }
+    }
+
+    private func removeInactiveHistories(keeping activeDeviceIDs: Set<String>) {
+        for deviceId in Array(histories.keys) where !activeDeviceIDs.contains(deviceId) {
+            histories.removeValue(forKey: deviceId)
         }
     }
 

@@ -24,17 +24,21 @@ final class AppEnvironment: ObservableObject {
     let keychain: CredentialsProviding
     private let mockService: MockMeterService?
     private let session: URLSession
+    private let storeFactory: () -> SQLiteStore?
     private var standaloneService: StandaloneMeterService?
 
     init(
         arguments: [String] = ProcessInfo.processInfo.arguments,
         defaults: UserDefaults = .standard,
         keychain: CredentialsProviding = KeychainStore(),
-        session: URLSession = .shared
+        session: URLSession = .shared,
+        storeFactory: (() -> SQLiteStore?)? = nil
     ) {
         isMockMode = arguments.contains("-UITestMockData")
         self.keychain = keychain
         self.session = session
+        let makeStore = storeFactory ?? { Self.makeStore() }
+        self.storeFactory = makeStore
         if isMockMode {
             let suite = UserDefaults(suiteName: "TempMaster.UITestMockData")!
             suite.removePersistentDomain(forName: "TempMaster.UITestMockData")
@@ -50,17 +54,26 @@ final class AppEnvironment: ObservableObject {
         self.defaults = defaults
         mockService = nil
         let selected = DataSource(rawValue: defaults.string(forKey: "dataSource") ?? "remote") ?? .remote
-        let custom = defaults.string(forKey: "customBackendURL") ?? Self.productionBackendURL
-        let useCustom = defaults.bool(forKey: "usesCustomBackend")
+        let custom = (defaults.string(forKey: "customBackendURL") ?? Self.productionBackendURL)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let storedUseCustom = defaults.bool(forKey: "usesCustomBackend")
+        let useCustom = storedUseCustom && BackendURLPolicy.isAllowed(custom)
+        if storedUseCustom && !useCustom {
+            defaults.set(false, forKey: "usesCustomBackend")
+        }
         let url = useCustom ? custom : Self.productionBackendURL
         dataSource = selected
         backendURL = url
         customBackendURL = custom
         usesCustomBackend = useCustom
-        if selected == .standalone, let store = Self.makeStore() {
-            let standalone = StandaloneMeterService(store: store, credentials: keychain, session: session)
-            standaloneService = standalone
-            service = standalone
+        if selected == .standalone {
+            if let store = makeStore() {
+                let standalone = StandaloneMeterService(store: store, credentials: keychain, session: session)
+                standaloneService = standalone
+                service = standalone
+            } else {
+                service = UnavailableMeterService(message: L10n.text("standalone_unavailable"))
+            }
         } else {
             service = (try? RemoteMeterService(baseURL: url, session: session)) ?? UnavailableMeterService()
         }
@@ -86,10 +99,14 @@ final class AppEnvironment: ObservableObject {
     func rebuildService() {
         guard !isMockMode else { return }
         if dataSource == .standalone {
-            if standaloneService == nil, let store = Self.makeStore() {
+            if standaloneService == nil, let store = storeFactory() {
                 standaloneService = StandaloneMeterService(store: store, credentials: keychain, session: session)
             }
-            if let standaloneService { service = standaloneService }
+            if let standaloneService {
+                service = standaloneService
+            } else {
+                service = UnavailableMeterService(message: L10n.text("standalone_unavailable"))
+            }
         } else {
             service = (try? RemoteMeterService(baseURL: backendURL, session: session)) ?? UnavailableMeterService()
         }

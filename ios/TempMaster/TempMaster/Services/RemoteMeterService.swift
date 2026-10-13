@@ -5,8 +5,9 @@ final class RemoteMeterService: MeterService, @unchecked Sendable {
     private let baseURL: URL
 
     init(baseURL: String, session: URLSession = .shared) throws {
-        let trimmed = baseURL.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-        guard let url = URL(string: trimmed), url.scheme != nil, url.host != nil else {
+        let trimmed = baseURL.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard BackendURLPolicy.isAllowed(trimmed),
+              let url = URL(string: trimmed), url.scheme != nil, url.host != nil else {
             throw ServiceError.invalidInput(L10n.text("invalid_backend_url"))
         }
         self.baseURL = url
@@ -121,17 +122,18 @@ final class RemoteMeterService: MeterService, @unchecked Sendable {
     }
 
     private func get<T: Decodable>(_ path: String, query: [URLQueryItem] = []) async throws -> T {
-        var url = makeURL(path: path)
-        if !query.isEmpty, var components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
-            components.queryItems = query
-            if let result = components.url { url = result }
-        }
-        return try await execute(URLRequest(url: url))
+        try await execute(URLRequest(url: makeURL(path: path, query: query)))
     }
 
-    private func makeURL(path: String) -> URL {
-        let base = baseURL.absoluteString.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-        return URL(string: base + path)!
+    private func makeURL(path: String, query: [URLQueryItem] = []) -> URL {
+        var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)!
+        let basePath = components.percentEncodedPath.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        let endpointPath = path.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        let pathParts = [basePath, endpointPath].filter { !$0.isEmpty }
+        components.percentEncodedPath = "/" + pathParts.joined(separator: "/")
+        components.queryItems = query.isEmpty ? nil : query
+        components.fragment = nil
+        return components.url!
     }
 
     private func request<T: Decodable>(_ path: String, method: String) async throws -> T {

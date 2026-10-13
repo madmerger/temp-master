@@ -15,6 +15,7 @@
 		237DD32A9990BC34F00FE39A /* DisplayNames.swift in Sources */ = {isa = PBXBuildFile; fileRef = 771143F79D971703AF19948E /* DisplayNames.swift */; };
 		26FDDACA6FD167C9168E943E /* ISO8601Parsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24DB77635C75AB6DE0A5892D /* ISO8601Parsing.swift */; };
 		3433626AB39D58F61D7B1E0F /* LatencyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48F38D38FD89C30C34C28658 /* LatencyView.swift */; };
+		3A461609954DB77945263BCD /* BackendURLPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE08ED9BD956E3270C607C7C /* BackendURLPolicy.swift */; };
 		41179CA921AA67C98C50FC84 /* ModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEE599736C1B546E5E9FF25A /* ModelTests.swift */; };
 		4999538964174A9E919C77E6 /* AppInfoPlistTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E73D47263C778C7E394EC09 /* AppInfoPlistTests.swift */; };
 		5FCE564D54E8B44E04991474 /* ImportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D94F09E827508B4CA64A7FF2 /* ImportViewModel.swift */; };
@@ -104,6 +105,7 @@
 		D94F09E827508B4CA64A7FF2 /* ImportViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportViewModel.swift; sourceTree = "<group>"; };
 		DEE599736C1B546E5E9FF25A /* ModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelTests.swift; sourceTree = "<group>"; };
 		EAC15BF27578FDE88F3743B6 /* MeterCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeterCardView.swift; sourceTree = "<group>"; };
+		EE08ED9BD956E3270C607C7C /* BackendURLPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendURLPolicy.swift; sourceTree = "<group>"; };
 		F143670C0BCA232C99735EDE /* TempMasterUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TempMasterUITests.swift; sourceTree = "<group>"; };
 		F61258C66976A789E05DC019 /* StandaloneMeterService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StandaloneMeterService.swift; sourceTree = "<group>"; };
 		FBA78435D5AB9B8D37DDEB91 /* TempMasterUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TempMasterUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -217,6 +219,7 @@
 			isa = PBXGroup;
 			children = (
 				90E32E63542EC866549351A8 /* AppEnvironment.swift */,
+				EE08ED9BD956E3270C607C7C /* BackendURLPolicy.swift */,
 				B5608E23B998DA67424C5315 /* L10n.swift */,
 				FC02F318EF516FCC49A76D3E /* TempMasterApp.swift */,
 			);
@@ -388,6 +391,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				96302832C4ADF6A87AF29013 /* AppEnvironment.swift in Sources */,
+				3A461609954DB77945263BCD /* BackendURLPolicy.swift in Sources */,
 				81757287F798DA2ADD09E718 /* DashboardView.swift in Sources */,
 				0CBDDAAC833579046B12BBF9 /* DashboardViewModel.swift in Sources */,
 				237DD32A9990BC34F00FE39A /* DisplayNames.swift in Sources */,

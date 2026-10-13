@@ -82,6 +82,7 @@
 "credentials_saved" = "Saved";
 "credentials_not_set" = "Not set";
 "invalid_backend_url" = "Enter a valid HTTPS URL, or localhost HTTP URL.";
+"standalone_unavailable" = "Local database could not be opened.";
 "invalid_timestamp" = "Invalid timestamp in JSON.";
 "invalid_response" = "Invalid server response.";
 "backup_http_request_id" = "Failed to download backup (HTTP %d). Request ID: %@";

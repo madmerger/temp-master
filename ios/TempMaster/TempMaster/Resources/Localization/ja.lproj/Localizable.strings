@@ -82,6 +82,7 @@
 "credentials_saved" = "保存済み";
 "credentials_not_set" = "未設定";
 "invalid_backend_url" = "有効な HTTPS URL、または localhost の HTTP URL を入力してください。";
+"standalone_unavailable" = "ローカルデータベースを開けませんでした。";
 "invalid_timestamp" = "JSON の日時が正しくありません。";
 "invalid_response" = "サーバーからの応答が正しくありません。";
 "backup_http_request_id" = "バックアップのダウンロードに失敗しました (HTTP %d)。Request ID: %@";

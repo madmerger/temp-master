@@ -1,7 +1,11 @@
 import Foundation
 
 final class UnavailableMeterService: MeterService, @unchecked Sendable {
-    private let error = ServiceError.invalidInput(L10n.text("invalid_backend_url"))
+    private let message: String
+
+    init(message: String = L10n.text("invalid_backend_url")) {
+        self.message = message
+    }
 
     func healthz() async throws -> HealthResponse { try unavailable() }
     func fetchMeters() async throws -> MetersResponse { try unavailable() }
@@ -13,10 +17,10 @@ final class UnavailableMeterService: MeterService, @unchecked Sendable {
     func importData(_ json: Data) async throws -> ImportResult { try unavailable() }
 
     func downloadBackup() async throws -> BackupFile {
-        throw BackupError(status: nil, requestId: nil, transportError: L10n.text("invalid_backend_url"))
+        throw BackupError(status: nil, requestId: nil, transportError: message)
     }
 
     private func unavailable<T>() throws -> T {
-        throw error
+        throw ServiceError.invalidInput(message)
     }
 }

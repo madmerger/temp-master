@@ -1,10 +1,18 @@
 import Foundation
 
+enum CollectionResult: Sendable {
+    case completed
+    case rateLimited
+    case deviceListFailure(String)
+}
+
 actor StandaloneMeterService: MeterService {
     private let store: SQLiteStore
     private let credentials: CredentialsProviding
     private let client: SwitchBotClient
     private let now: @Sendable () -> Date
+    private var inFlight: Task<CollectionResult, Never>?
+    private var inFlightID: UUID?
 
     init(
         store: SQLiteStore,
@@ -35,7 +43,9 @@ actor StandaloneMeterService: MeterService {
         guard hasCredentials else {
             throw ServiceError.http(status: 500, requestId: nil, detail: "SwitchBot credentials not configured")
         }
-        await collect()
+        if case let .deviceListFailure(message) = await collect() {
+            throw ServiceError.transport(message)
+        }
         return RefreshResponse(status: "ok", message: "Data collection triggered", metersCount: try? store.allDevices().count)
     }
 
@@ -82,15 +92,34 @@ actor StandaloneMeterService: MeterService {
         }
     }
 
-    func collect() async {
-        guard hasCredentials else { return }
+    @discardableResult
+    func collect() async -> CollectionResult {
+        if let inFlight { return await inFlight.value }
+        guard hasCredentials else { return .completed }
+        let id = UUID()
+        let task = Task { await collectOnce() }
+        inFlight = task
+        inFlightID = id
+        let result = await task.value
+        if inFlightID == id {
+            inFlight = nil
+            inFlightID = nil
+        }
+        return result
+    }
+
+    private func collectOnce() async -> CollectionResult {
         try? store.cleanupOldReadings(now: now())
         try? store.cleanupOldLatencyLogs(now: now())
         let discovered: [SwitchBotDevice]
         do {
             discovered = try await client.fetchDevices()
+        } catch SwitchBotClientError.rateLimited {
+            return .rateLimited
+        } catch let SwitchBotClientError.api(message) {
+            return .deviceListFailure(message)
         } catch {
-            return
+            return .deviceListFailure(error.localizedDescription)
         }
         do {
             let existing = Dictionary(uniqueKeysWithValues: try store.allDevices().map { ($0.deviceId, $0) })
@@ -102,9 +131,10 @@ actor StandaloneMeterService: MeterService {
                 try store.upsertDevice(device)
             }
         } catch {
-            return
+            return .completed
         }
-        guard let allDevices = try? store.allDevices() else { return }
+        guard let allDevices = try? store.allDevices() else { return .completed }
+        var wasRateLimited = false
         for device in allDevices {
             do {
                 let status = try await client.fetchStatus(deviceId: device.deviceId)
@@ -121,11 +151,13 @@ actor StandaloneMeterService: MeterService {
                     reading: MeterReading(timestamp: timestamp, temperature: temperature, humidity: status.humidity ?? 0, battery: status.battery)
                 )
             } catch SwitchBotClientError.rateLimited {
+                wasRateLimited = true
                 break
             } catch {
                 continue
             }
         }
+        return wasRateLimited ? .rateLimited : .completed
     }
 
     private var hasCredentials: Bool {

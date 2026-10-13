@@ -49,19 +49,19 @@ final class SettingsViewModel: ObservableObject {
     }
 
     func applyCustomURL() {
-        guard Self.isAllowedBackendURL(customURL) else {
+        let trimmedURL = customURL.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard BackendURLPolicy.isAllowed(trimmedURL) else {
             customURLError = L10n.text("invalid_backend_url")
             return
         }
+        customURL = trimmedURL
         customURLError = nil
-        environment.setBackend(useCustom: true, customURL: customURL)
+        environment.setBackend(useCustom: true, customURL: trimmedURL)
         Task { await reloadStatus() }
     }
 
     static func isAllowedBackendURL(_ value: String) -> Bool {
-        guard let components = URLComponents(string: value.trimmingCharacters(in: .whitespacesAndNewlines)),
-              let scheme = components.scheme?.lowercased(), let host = components.host?.lowercased() else { return false }
-        return scheme == "https" || (scheme == "http" && (host == "localhost" || host == "127.0.0.1"))
+        BackendURLPolicy.isAllowed(value)
     }
 
     func testConnection() async {
@@ -90,6 +90,12 @@ final class SettingsViewModel: ObservableObject {
             token = ""
             secret = ""
             credentialsState = L10n.text("credentials_saved")
+            if environment.dataSource == .standalone {
+                Task {
+                    await environment.collectStandalone()
+                    NotificationCenter.default.post(name: AppEnvironment.dashboardReloadNotification, object: nil)
+                }
+            }
         } catch {
             credentialsState = error.localizedDescription
         }

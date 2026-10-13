@@ -22,6 +22,21 @@ final class RemoteMeterServiceTests: XCTestCase {
         XCTAssertEqual(result.history[0].temperature, 19)
     }
 
+    func testBasePathPrefixIsPreservedWhenBuildingEndpointURL() async throws {
+        URLProtocolStub.handler = { request in
+            XCTAssertEqual(request.url?.absoluteString, "https://example.test/prefix/api/meters")
+            return (200, [:], Data(#"{"meters":[],"last_updated":null}"#.utf8))
+        }
+        let remote = try RemoteMeterService(
+            baseURL: "https://example.test/prefix/",
+            session: URLProtocolStub.makeSession()
+        )
+
+        let response = try await remote.fetchMeters()
+
+        XCTAssertTrue(response.meters.isEmpty)
+    }
+
     func testHTTPErrorParsesBodyAndHeaderRequestIDs() async throws {
         URLProtocolStub.handler = { _ in
             (422, ["X-Request-ID": "header-id"], Data(#"{"detail":"bad payload","request_id":"body-id"}"#.utf8))
