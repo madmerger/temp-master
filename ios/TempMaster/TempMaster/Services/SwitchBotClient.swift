@@ -6,6 +6,15 @@ enum SwitchBotClientError: Error {
     case api(String)
 }
 
+struct SwitchBotCredentials: Sendable {
+    let token: String
+    let secret: String
+
+    var fingerprint: Data {
+        Data(SHA256.hash(data: Data((token + "\n" + secret).utf8)))
+    }
+}
+
 actor SwitchBotClient {
     static let apiBaseURL = URL(string: "https://api.switch-bot.com/v1.1")!
     static let supportedDeviceTypes: Set<String> = [
@@ -49,16 +58,16 @@ actor SwitchBotClient {
         ]
     }
 
-    func fetchDevices() async throws -> [SwitchBotDevice] {
-        let data = try await call("/devices", deviceId: nil)
+    func fetchDevices(credentialSnapshot: SwitchBotCredentials? = nil) async throws -> [SwitchBotDevice] {
+        let data = try await call("/devices", deviceId: nil, credentialSnapshot: credentialSnapshot)
         let response = try JSONDecoder().decode(SwitchBotDevicesEnvelope.self, from: data)
         guard response.statusCode == 100 else { throw SwitchBotClientError.api(response.message ?? "Unknown error") }
         return response.body.deviceList.filter { Self.supportedDeviceTypes.contains($0.deviceType) }
     }
 
-    func fetchStatus(deviceId: String) async throws -> SwitchBotDeviceStatus {
+    func fetchStatus(deviceId: String, credentialSnapshot: SwitchBotCredentials? = nil) async throws -> SwitchBotDeviceStatus {
         let pathId = deviceId.addingPercentEncoding(withAllowedCharacters: CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._~")) ?? deviceId
-        let data = try await call("/devices/\(pathId)/status", deviceId: deviceId)
+        let data = try await call("/devices/\(pathId)/status", deviceId: deviceId, credentialSnapshot: credentialSnapshot)
         let response = try JSONDecoder().decode(SwitchBotStatusEnvelope.self, from: data)
         guard response.statusCode == 100 else { throw SwitchBotClientError.api(response.message ?? "Unknown error") }
         return response.body
@@ -69,12 +78,21 @@ actor SwitchBotClient {
         return (now() < backoffUntil, remaining, lastApiCall)
     }
 
-    private func call(_ endpoint: String, deviceId: String?) async throws -> Data {
+    private func call(_ endpoint: String, deviceId: String?, credentialSnapshot: SwitchBotCredentials?) async throws -> Data {
         let start = now()
         guard start >= backoffUntil else { throw SwitchBotClientError.rateLimited }
-        guard let token = credentials.read(account: "token"), !token.isEmpty,
-              let secret = credentials.read(account: "secret"), !secret.isEmpty else {
-            throw ServiceError.http(status: 500, requestId: nil, detail: "SwitchBot credentials not configured")
+        let token: String
+        let secret: String
+        if let credentialSnapshot {
+            token = credentialSnapshot.token
+            secret = credentialSnapshot.secret
+        } else {
+            guard let savedToken = credentials.read(account: "token"), !savedToken.isEmpty,
+                  let savedSecret = credentials.read(account: "secret"), !savedSecret.isEmpty else {
+                throw ServiceError.http(status: 500, requestId: nil, detail: "SwitchBot credentials not configured")
+            }
+            token = savedToken
+            secret = savedSecret
         }
         let milliseconds = String(Int(start.timeIntervalSince1970 * 1000))
         let nonce = UUID().uuidString

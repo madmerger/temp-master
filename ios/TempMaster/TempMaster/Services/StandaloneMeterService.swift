@@ -13,6 +13,7 @@ actor StandaloneMeterService: MeterService {
     private let now: @Sendable () -> Date
     private var inFlight: Task<CollectionResult, Never>?
     private var inFlightID: UUID?
+    private var inFlightFingerprint: Data?
 
     init(
         store: SQLiteStore,
@@ -94,26 +95,46 @@ actor StandaloneMeterService: MeterService {
 
     @discardableResult
     func collect() async -> CollectionResult {
-        if let inFlight { return await inFlight.value }
-        guard hasCredentials else { return .completed }
-        let id = UUID()
-        let task = Task { await collectOnce() }
-        inFlight = task
-        inFlightID = id
-        let result = await task.value
-        if inFlightID == id {
-            inFlight = nil
-            inFlightID = nil
+        while true {
+            let currentCredentials = credentialsSnapshot()
+            if let inFlight {
+                if currentCredentials?.fingerprint == inFlightFingerprint {
+                    return await inFlight.value
+                }
+                let id = inFlightID
+                _ = await inFlight.value
+                if inFlightID == id {
+                    clearInFlight()
+                }
+                continue
+            }
+            guard let currentCredentials else { return .completed }
+            let id = UUID()
+            let fingerprint = currentCredentials.fingerprint
+            let task = Task { await collectOnce(using: currentCredentials) }
+            inFlight = task
+            inFlightID = id
+            inFlightFingerprint = fingerprint
+            let result = await task.value
+            if inFlightID == id {
+                clearInFlight()
+            }
+            return result
         }
-        return result
     }
 
-    private func collectOnce() async -> CollectionResult {
+    private func clearInFlight() {
+        inFlight = nil
+        inFlightID = nil
+        inFlightFingerprint = nil
+    }
+
+    private func collectOnce(using credentials: SwitchBotCredentials) async -> CollectionResult {
         try? store.cleanupOldReadings(now: now())
         try? store.cleanupOldLatencyLogs(now: now())
         let discovered: [SwitchBotDevice]
         do {
-            discovered = try await client.fetchDevices()
+            discovered = try await client.fetchDevices(credentialSnapshot: credentials)
         } catch SwitchBotClientError.rateLimited {
             return .rateLimited
         } catch let SwitchBotClientError.api(message) {
@@ -137,7 +158,7 @@ actor StandaloneMeterService: MeterService {
         var wasRateLimited = false
         for device in allDevices {
             do {
-                let status = try await client.fetchStatus(deviceId: device.deviceId)
+                let status = try await client.fetchStatus(deviceId: device.deviceId, credentialSnapshot: credentials)
                 guard let temperature = status.temperature else { continue }
                 var updated = device
                 let timestamp = now()
@@ -160,9 +181,13 @@ actor StandaloneMeterService: MeterService {
         return wasRateLimited ? .rateLimited : .completed
     }
 
-    private var hasCredentials: Bool {
+    private func credentialsSnapshot() -> SwitchBotCredentials? {
         guard let token = credentials.read(account: "token"), !token.isEmpty,
-              let secret = credentials.read(account: "secret"), !secret.isEmpty else { return false }
-        return true
+              let secret = credentials.read(account: "secret"), !secret.isEmpty else { return nil }
+        return SwitchBotCredentials(token: token, secret: secret)
+    }
+
+    private var hasCredentials: Bool {
+        credentialsSnapshot() != nil
     }
 }

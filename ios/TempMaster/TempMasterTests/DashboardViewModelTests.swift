@@ -106,7 +106,7 @@ final class DashboardViewModelTests: XCTestCase {
         XCTAssertFalse(statusModel.isConnected)
     }
 
-    func testRefreshFailureRemainsVisibleAfterSuccessfulFetchAndRangeChangeRefetches() async {
+    func testRefreshFailureClearsAfterSuccessfulFetchAndRangeChangeRefetches() async {
         let service = FakeMeterService()
         service.meterResponse = MetersResponse(meters: [
             MeterDevice(deviceId: "d1", deviceName: "One", deviceType: "Meter", lastUpdatedRaw: ISO8601Parsing.encode(now))
@@ -114,8 +114,8 @@ final class DashboardViewModelTests: XCTestCase {
         service.refreshError = ServiceError.transport("offline")
         let viewModel = DashboardViewModel(service: service, now: { self.now })
         await viewModel.refresh()
-        XCTAssertEqual(viewModel.errorMessage, "Failed to refresh: offline")
-        XCTAssertFalse(viewModel.isConnected)
+        XCTAssertNil(viewModel.errorMessage)
+        XCTAssertTrue(viewModel.isConnected)
         XCTAssertFalse(viewModel.isRefreshing)
         XCTAssertEqual(service.historyCalls.count, 1)
         await viewModel.setTimeScale(.hour)

@@ -13,7 +13,10 @@ final class StandaloneMeterServiceTests: XCTestCase {
         super.tearDown()
     }
 
-    private func service(handler: @escaping (URLRequest) throws -> (Int, [String: String], Data)) throws -> (StandaloneMeterService, SQLiteStore, URL) {
+    private func service(
+        credentials: any CredentialsProviding = CollectionCredentials(),
+        handler: @escaping (URLRequest) throws -> (Int, [String: String], Data)
+    ) throws -> (StandaloneMeterService, SQLiteStore, URL) {
         let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         URLProtocolStub.reset()
@@ -21,7 +24,7 @@ final class StandaloneMeterServiceTests: XCTestCase {
         let store = try SQLiteStore(url: folder.appendingPathComponent("app.db"))
         let service = StandaloneMeterService(
             store: store,
-            credentials: CollectionCredentials(),
+            credentials: credentials,
             session: URLProtocolStub.makeSession(),
             now: { Date(timeIntervalSince1970: 1_700_000_000) },
             switchBotBaseURL: URL(string: "https://switchbot.test/v1.1")!
@@ -108,6 +111,37 @@ final class StandaloneMeterServiceTests: XCTestCase {
         XCTAssertEqual(try store.readings(deviceId: "d1", since: .distantPast).count, 1)
     }
 
+    func testChangedCredentialsStartAnotherCollectionWithNewAuthorization() async throws {
+        let devices = #"{"statusCode":100,"body":{"deviceList":[]}}"#
+        let firstRequestStarted = expectation(description: "first collection started")
+        let authorizations = LockedStrings()
+        let credentials = MutableCollectionCredentials(token: "token-a", secret: "secret-a")
+        let (service, store, folder) = try service(credentials: credentials) { request in
+            if request.url!.path.hasSuffix("/devices") {
+                let authorization = request.value(forHTTPHeaderField: "Authorization") ?? ""
+                authorizations.append(authorization)
+                if authorization == "token-a" {
+                    firstRequestStarted.fulfill()
+                    Thread.sleep(forTimeInterval: 0.5)
+                }
+                return (200, [:], Data(devices.utf8))
+            }
+            return (200, [:], Data())
+        }
+        defer {
+            store.close()
+            try? FileManager.default.removeItem(at: folder)
+        }
+
+        let first = Task { await service.collect() }
+        await fulfillment(of: [firstRequestStarted], timeout: 5)
+        credentials.update(token: "token-b", secret: "secret-b")
+        let second = Task { await service.collect() }
+        _ = await (first.value, second.value)
+
+        XCTAssertEqual(authorizations.values, ["token-a", "token-b"])
+    }
+
     func testRefreshSurfacesDeviceListFailureButTreatsRateLimitAsSuccess() async throws {
         let (failingService, store, folder) = try service { _ in
             (500, [:], Data("upstream unavailable".utf8))
@@ -149,6 +183,71 @@ private final class LockedCounter: @unchecked Sendable {
     }
 
     var value: Int {
+        lock.lock()
+        defer { lock.unlock() }
+        return storage
+    }
+}
+
+private final class MutableCollectionCredentials: CredentialsProviding, @unchecked Sendable {
+    private let lock = NSLock()
+    private var token: String
+    private var secret: String
+
+    init(token: String, secret: String) {
+        self.token = token
+        self.secret = secret
+    }
+
+    func read(account: String) -> String? {
+        lock.lock()
+        defer { lock.unlock() }
+        switch account {
+        case "token": return token
+        case "secret": return secret
+        default: return nil
+        }
+    }
+
+    func save(_ value: String, account: String) throws {
+        lock.lock()
+        defer { lock.unlock() }
+        switch account {
+        case "token": token = value
+        case "secret": secret = value
+        default: break
+        }
+    }
+
+    func update(token: String, secret: String) {
+        lock.lock()
+        self.token = token
+        self.secret = secret
+        lock.unlock()
+    }
+
+    func delete(account: String) throws {
+        lock.lock()
+        defer { lock.unlock() }
+        switch account {
+        case "token": token = ""
+        case "secret": secret = ""
+        default: break
+        }
+    }
+}
+
+private final class LockedStrings: @unchecked Sendable {
+    private let lock = NSLock()
+    private var storage: [String] = []
+
+    func append(_ value: String) {
+        lock.lock()
+        storage.append(value)
+        lock.unlock()
+    }
+
+    var values: [String] {
         lock.lock()
         defer { lock.unlock() }
         return storage

@@ -55,14 +55,12 @@ final class DashboardViewModel: ObservableObject {
     func refresh() async {
         guard !isRefreshing else { return }
         isRefreshing = true
-        var refreshError: String?
         do {
             _ = try await service.refresh()
         } catch {
-            refreshError = L10n.format("dashboard.refresh_error_prefix", error.localizedDescription)
+            showError(L10n.format("dashboard.refresh_error_prefix", error.localizedDescription))
         }
         await fetchData()
-        if let refreshError { showError(refreshError) }
         isRefreshing = false
     }
 
