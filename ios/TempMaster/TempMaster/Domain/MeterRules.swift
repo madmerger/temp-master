@@ -16,6 +16,15 @@ enum MeterRules {
         isStale(lastUpdated: lastUpdatedRaw.flatMap(ISO8601Parsing.parse), now: now)
     }
 
+    static func lastUpdatedDisplayValue(raw: String?) -> String? {
+        guard let raw else { return nil }
+        guard let date = ISO8601Parsing.parse(raw) else { return "Invalid Date" }
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        formatter.timeStyle = .medium
+        return formatter.string(from: date)
+    }
+
     static func numberString(_ number: Double) -> String {
         if number == 0 { return "0" }
         if number.isFinite, number.rounded(.towardZero) == number,

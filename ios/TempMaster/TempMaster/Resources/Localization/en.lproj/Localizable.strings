@@ -22,6 +22,9 @@
 "rate_limited_text" = "SwitchBot API rate limit reached. Retry in %d seconds.";
 "loading_data" = "Loading temperature data...";
 "error_title" = "Error.";
+"dashboard.fetch_meters_error_prefix" = "Failed to fetch meters: %@";
+"dashboard.fetch_status_error_prefix" = "Failed to fetch status: %@";
+"dashboard.refresh_error_prefix" = "Failed to refresh: %@";
 "footer" = "Temp Master Dashboard v1.0 - Built with SwiftUI";
 "stale_title" = "未更新のメーター";
 "stale_subtitle" = "1週間以上更新されていないデバイス";

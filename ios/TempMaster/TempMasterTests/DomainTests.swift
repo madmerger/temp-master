@@ -43,6 +43,10 @@ final class DomainTests: XCTestCase {
         XCTAssertFalse(MeterRules.isStale(lastUpdated: now.addingTimeInterval(-7 * 86_400 + 1), now: now))
     }
 
+    func testInvalidLastUpdatedDisplayUsesLegacyInvalidDateValue() {
+        XCTAssertEqual(MeterRules.lastUpdatedDisplayValue(raw: "not-a-date"), "Invalid Date")
+    }
+
     func testChartLabelsAndEightLabelLimit() {
         let date = ISO8601Parsing.parse("2024-01-02T03:04:00Z")!
         let zone = TimeZone(secondsFromGMT: -8 * 3_600)!

@@ -18,6 +18,19 @@ targets:
       - path: TempMaster
     info:
       path: TempMaster/Resources/Info.plist
+      properties:
+        CFBundleLocalizations:
+          - en
+          - ja
+        NSAppTransportSecurity:
+          NSExceptionDomains:
+            localhost:
+              NSExceptionAllowsInsecureHTTPLoads: true
+              NSIncludesSubdomains: false
+            "127.0.0.1":
+              NSExceptionAllowsInsecureHTTPLoads: true
+              NSIncludesSubdomains: false
+        UILaunchScreen: {}
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.madmerger.TempMaster

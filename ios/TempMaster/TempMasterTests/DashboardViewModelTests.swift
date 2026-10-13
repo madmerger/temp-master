@@ -108,6 +108,22 @@ final class DashboardViewModelTests: XCTestCase {
         await viewModel.fetchData()
         XCTAssertEqual(viewModel.statusCountText, "Monitoring 2 meters")
     }
+
+    func testFinishSharingBackupDeletesDirectoryAndIsIdempotent() throws {
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let fileURL = folder.appendingPathComponent("backup.db")
+        try Data("backup".utf8).write(to: fileURL)
+        let viewModel = DashboardViewModel(service: FakeMeterService())
+        viewModel.backupFile = BackupFile(fileURL: fileURL, filename: fileURL.lastPathComponent)
+
+        viewModel.finishSharingBackup()
+        XCTAssertNil(viewModel.backupFile)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: folder.path))
+        viewModel.finishSharingBackup()
+        XCTAssertNil(viewModel.backupFile)
+    }
 }
 
 @MainActor
@@ -128,6 +144,46 @@ final class SettingsValidationTests: XCTestCase {
         _ = SettingsViewModel(environment: environment)
         XCTAssertEqual(credentials.readCount, 0)
         XCTAssertTrue(environment.isMockMode)
+    }
+
+    func testMockBackendSelectionStaysLocalAndConnectionUsesMockService() async {
+        let credentials = CountingCredentials()
+        let environment = AppEnvironment(arguments: ["-UITestMockData"], keychain: credentials)
+        let viewModel = SettingsViewModel(environment: environment)
+        viewModel.customURL = "https://example.com"
+        viewModel.selectBackend(.custom)
+
+        XCTAssertEqual(viewModel.backendChoice, .custom)
+        await viewModel.testConnection()
+        XCTAssertEqual(viewModel.connectionTestResult, "OK (status: ok)")
+        XCTAssertEqual(credentials.readCount, 0)
+    }
+
+    func testInvalidStoredBackendUsesUnavailableService() async {
+        let suiteName = "TempMasterTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName)!
+        defaults.set(true, forKey: "usesCustomBackend")
+        defaults.set("not a URL", forKey: "customBackendURL")
+        defer { defaults.removePersistentDomain(forName: suiteName) }
+
+        let environment = AppEnvironment(arguments: [], defaults: defaults)
+        do {
+            _ = try await environment.service.fetchMeters()
+            XCTFail("Expected an invalid backend URL error.")
+        } catch let error as ServiceError {
+            XCTAssertEqual(error.errorDescription, L10n.text("invalid_backend_url"))
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+        do {
+            _ = try await environment.service.downloadBackup()
+            XCTFail("Expected a backup transport error.")
+        } catch let error as BackupError {
+            XCTAssertNil(error.status)
+            XCTAssertEqual(error.transportError, L10n.text("invalid_backend_url"))
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
     }
 }
 

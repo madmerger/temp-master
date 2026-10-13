@@ -37,7 +37,7 @@ final class DashboardViewModel: ObservableObject {
             do {
                 fetchedStatus = try await service.fetchStatus()
             } catch {
-                showError("Failed to fetch status: \(error.localizedDescription)")
+                showError(L10n.format("dashboard.fetch_status_error_prefix", error.localizedDescription))
                 return
             }
             meters = metersResponse.meters
@@ -48,7 +48,7 @@ final class DashboardViewModel: ObservableObject {
             isConnected = true
             await fetchHistories()
         } catch {
-            showError("Failed to fetch meters: \(error.localizedDescription)")
+            showError(L10n.format("dashboard.fetch_meters_error_prefix", error.localizedDescription))
         }
     }
 
@@ -58,7 +58,7 @@ final class DashboardViewModel: ObservableObject {
         do {
             _ = try await service.refresh()
         } catch {
-            showError("Failed to refresh: \(error.localizedDescription)")
+            showError(L10n.format("dashboard.refresh_error_prefix", error.localizedDescription))
         }
         await fetchData()
         isRefreshing = false
@@ -78,9 +78,9 @@ final class DashboardViewModel: ObservableObject {
     }
 
     func finishSharingBackup() {
-        guard let backupFile else { return }
-        try? FileManager.default.removeItem(at: backupFile.fileURL.deletingLastPathComponent())
+        guard let file = backupFile else { return }
         self.backupFile = nil
+        try? FileManager.default.removeItem(at: file.fileURL.deletingLastPathComponent())
     }
 
     func setTimeScale(_ scale: TimeScale) async {

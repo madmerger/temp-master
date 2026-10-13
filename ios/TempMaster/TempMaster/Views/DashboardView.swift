@@ -92,9 +92,12 @@ struct DashboardView: View {
                 .padding()
             }
             .navigationTitle(L10n.text("dashboard_title"))
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Text(verbatim: viewModel.isConnected ? L10n.text("connection_connected") : L10n.text("connection_disconnected"))
+                        .lineLimit(1)
+                        .fixedSize()
                         .font(.caption.bold())
                         .foregroundStyle(.white)
                         .padding(.horizontal, 9)
@@ -120,7 +123,7 @@ struct DashboardView: View {
             }
         }
         .sheet(item: $viewModel.backupFile, onDismiss: { viewModel.finishSharingBackup() }) { file in
-            ShareSheet(activityItems: [file.fileURL])
+            ShareSheet(activityItems: [file.fileURL], onComplete: { viewModel.finishSharingBackup() })
         }
     }
 
@@ -128,6 +131,9 @@ struct DashboardView: View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text(verbatim: L10n.text("time_range"))
+                    .lineLimit(1)
+                    .fixedSize()
+                Spacer(minLength: 8)
                 Picker(L10n.text("time_range"), selection: Binding(
                     get: { viewModel.timeScale },
                     set: { scale in Task { await viewModel.setTimeScale(scale) } }
@@ -139,24 +145,32 @@ struct DashboardView: View {
                     Text(verbatim: L10n.text("range_year")).tag(TimeScale.year)
                 }
                 .pickerStyle(.menu)
+                .lineLimit(1)
+                .minimumScaleFactor(0.75)
                 .accessibilityIdentifier("timeRangePicker")
             }
-            HStack {
+            VStack(spacing: 8) {
                 Button {
                     Task { await viewModel.refresh() }
                 } label: {
                     Text(verbatim: viewModel.isRefreshing ? L10n.text("refreshing") : L10n.text("refresh_button"))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                 }
                 .buttonStyle(.borderedProminent)
                 .disabled(viewModel.isRefreshing)
+                .frame(maxWidth: .infinity)
                 .accessibilityIdentifier("refreshButton")
                 Button {
                     Task { await viewModel.downloadBackup() }
                 } label: {
                     Text(verbatim: viewModel.isDownloading ? L10n.text("downloading") : L10n.text("backup_button"))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                 }
                 .buttonStyle(.bordered)
                 .disabled(viewModel.isDownloading)
+                .frame(maxWidth: .infinity)
                 .accessibilityIdentifier("backupButton")
             }
         }

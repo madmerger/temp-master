@@ -60,6 +60,26 @@ final class TempMasterUITests: XCTestCase {
         app.tabBars.buttons["Settings"].tap()
         let mockModeRow = app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS %@", "Mock (UI Test)")).firstMatch
         XCTAssertTrue(mockModeRow.waitForExistence(timeout: 5))
+        let backendPicker = app.descendants(matching: .any)["backendPicker"]
+        XCTAssertTrue(backendPicker.exists)
+        backendPicker.tap()
+        let customURLChoice = app.buttons["Custom URL"]
+        XCTAssertTrue(customURLChoice.waitForExistence(timeout: 3))
+        customURLChoice.tap()
+        XCTAssertTrue(app.textFields["customURLField"].waitForExistence(timeout: 5))
+        app.buttons["testConnectionButton"].tap()
+        XCTAssertTrue(app.staticTexts["OK (status: ok)"].waitForExistence(timeout: 5))
+        app.swipeUp()
+        let tokenField = app.secureTextFields["switchbotTokenField"]
+        let secretField = app.secureTextFields["switchbotSecretField"]
+        XCTAssertTrue(tokenField.waitForExistence(timeout: 5))
+        XCTAssertTrue(secretField.waitForExistence(timeout: 5))
+        XCTAssertFalse(tokenField.isEnabled)
+        XCTAssertFalse(secretField.isEnabled)
+        XCTAssertFalse(app.buttons["saveCredentialsButton"].isEnabled)
+        XCTAssertFalse(app.buttons["clearCredentialsButton"].isEnabled)
+        let configured = app.descendants(matching: .any)["settingsStatus_configured"]
+        XCTAssertTrue(configured.label.contains("false"))
         let labels = app.descendants(matching: .any).allElementsBoundByIndex.map(\.label)
         XCTAssertFalse(labels.contains { $0.localizedCaseInsensitiveContains("snake") })
     }

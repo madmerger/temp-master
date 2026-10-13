@@ -23,6 +23,7 @@ final class AppEnvironment: ObservableObject {
     let defaults: UserDefaults
     let keychain: CredentialsProviding
     private let mockService: MockMeterService?
+    private let session: URLSession
     private var standaloneService: StandaloneMeterService?
 
     init(
@@ -33,6 +34,7 @@ final class AppEnvironment: ObservableObject {
     ) {
         isMockMode = arguments.contains("-UITestMockData")
         self.keychain = keychain
+        self.session = session
         if isMockMode {
             let suite = UserDefaults(suiteName: "TempMaster.UITestMockData")!
             suite.removePersistentDomain(forName: "TempMaster.UITestMockData")
@@ -41,7 +43,7 @@ final class AppEnvironment: ObservableObject {
             mockService = mock
             dataSource = .remote
             backendURL = Self.productionBackendURL
-            customBackendURL = Self.productionBackendURL
+            customBackendURL = ""
             service = mock
             return
         }
@@ -60,7 +62,7 @@ final class AppEnvironment: ObservableObject {
             standaloneService = standalone
             service = standalone
         } else {
-            service = (try? RemoteMeterService(baseURL: url, session: session)) ?? MockMeterService(arguments: ["-UITestFetchError"])
+            service = (try? RemoteMeterService(baseURL: url, session: session)) ?? UnavailableMeterService()
         }
     }
 
@@ -85,11 +87,11 @@ final class AppEnvironment: ObservableObject {
         guard !isMockMode else { return }
         if dataSource == .standalone {
             if standaloneService == nil, let store = Self.makeStore() {
-                standaloneService = StandaloneMeterService(store: store, credentials: keychain)
+                standaloneService = StandaloneMeterService(store: store, credentials: keychain, session: session)
             }
             if let standaloneService { service = standaloneService }
         } else {
-            service = (try? RemoteMeterService(baseURL: backendURL)) ?? MockMeterService(arguments: ["-UITestFetchError"])
+            service = (try? RemoteMeterService(baseURL: backendURL, session: session)) ?? UnavailableMeterService()
         }
         revision += 1
     }

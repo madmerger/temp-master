@@ -59,11 +59,8 @@ struct MeterCardView: View {
             } else {
                 TemperatureChartView(deviceId: meter.deviceId, history: history, timeScale: timeScale)
             }
-            if let date = meter.lastUpdated {
-                let formatter = DateFormatter()
-                let _ = formatter.dateStyle = .short
-                let _ = formatter.timeStyle = .medium
-                Text(verbatim: L10n.format("last_updated", formatter.string(from: date)))
+            if let value = MeterRules.lastUpdatedDisplayValue(raw: meter.lastUpdatedRaw) {
+                Text(verbatim: L10n.format("last_updated", value))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .accessibilityIdentifier("meterLastUpdated_\(meter.deviceId)")
