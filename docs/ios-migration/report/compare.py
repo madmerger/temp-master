@@ -39,7 +39,21 @@ def verdict(case, legacy, ios):
         return lo, io, "MATCH"
     if io in ("NOT_RUN", "N/A", "MISSING"):
         return lo, io, io
+    if lo == "PASS" and io == "FAIL" and is_hub3_known_diff(legacy[case["id"]], ios[case["id"]]):
+        return lo, io, "KNOWN_DIFF"
     return lo, io, "MISMATCH"
+
+
+def is_hub3_known_diff(legacy_case, ios_case):
+    """spec.md 既知の仕様差: iOS Standalone は Hub 3 も収集する。"""
+    failing = {k for k, v in ios_case.get("key_results", {}).items() if v.get("result") != "PASS"}
+    if failing != {"meter_device_ids"}:
+        return False
+    legacy_ids = set(legacy_case["actual"]["meter_device_ids"])
+    ios_ids = set(ios_case["actual"]["meter_device_ids"])
+    extra = ios_ids - legacy_ids
+    hub3 = {d["device_id"] for d in ios_case["actual"].get("extra_ids_all_hub3", []) if d.get("deviceType") == "Hub 3"}
+    return legacy_ids <= ios_ids and bool(extra) and extra == hub3
 
 
 def key_rows(case, legacy, ios):
@@ -94,7 +108,7 @@ def main():
         encoding="utf-8",
     )
 
-    md = ["# レガシー vs iOS 比較結果", "", "判定: MATCH = 両方が凍結済み期待値 (cases.json) に PASS。", ""]
+    md = ["# レガシー vs iOS 比較結果", "", "判定: MATCH = 両方が凍結済み期待値 (cases.json) に PASS。KNOWN_DIFF = spec.md「既知の仕様差」に該当する差分 (期待値は変更していない)。", ""]
     md.append("| 判定 | 件数 |\n|---|---|")
     md += [f"| {k} | {v} |" for k, v in sorted(counts.items())]
     md += ["", "| Case | 名前 | 対象 | レガシー | iOS | 判定 |", "|---|---|---|---|---|---|"]

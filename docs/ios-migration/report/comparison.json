@@ -1,0 +1,1386 @@
+{
+  "counts": {
+    "MATCH": 19,
+    "IOS_ONLY_PASS": 3,
+    "KNOWN_DIFF": 1,
+    "LEGACY_ONLY": 1
+  },
+  "cases": [
+    {
+      "id": "TC-01",
+      "name": "起動時ダッシュボード表示",
+      "targets": [
+        "legacy-web",
+        "ios-remote"
+      ],
+      "ledger": [
+        "L-01",
+        "L-02",
+        "L-06",
+        "B-06"
+      ],
+      "legacy": "PASS",
+      "ios": "PASS",
+      "verdict": "MATCH",
+      "keys": [
+        {
+          "key": "title",
+          "expected": "Temp Master Dashboard",
+          "legacy": "PASS",
+          "legacy_actual": "Temp Master Dashboard",
+          "ios": "PASS",
+          "ios_actual": "Temp Master Dashboard"
+        },
+        {
+          "key": "connection",
+          "expected": "Connected",
+          "legacy": "PASS",
+          "legacy_actual": "Connected",
+          "ios": "PASS",
+          "ios_actual": "Connected"
+        },
+        {
+          "key": "status_text",
+          "expected": "Monitoring 6 meters",
+          "legacy": "PASS",
+          "legacy_actual": "Monitoring 6 meters",
+          "ios": "PASS",
+          "ios_actual": "Monitoring 6 meters"
+        },
+        {
+          "key": "last_refresh_regex",
+          "expected": "^Last refresh: \\d{2}:\\d{2}:\\d{2}$",
+          "legacy": "PASS",
+          "legacy_actual": "Last refresh: 04:13:19",
+          "ios": "PASS",
+          "ios_actual": "Last refresh: 22:26:54"
+        },
+        {
+          "key": "rate_limit_warning_visible",
+          "expected": false,
+          "legacy": "PASS",
+          "legacy_actual": false,
+          "ios": "PASS",
+          "ios_actual": false
+        },
+        {
+          "key": "error_visible",
+          "expected": false,
+          "legacy": "PASS",
+          "legacy_actual": false,
+          "ios": "PASS",
+          "ios_actual": false
+        }
+      ],
+      "ios_notes": []
+    },
+    {
+      "id": "TC-02",
+      "name": "アクティブメーターカード (表示名変換あり)",
+      "targets": [
+        "legacy-web",
+        "ios-remote"
+      ],
+      "ledger": [
+        "L-08",
+        "B-01",
+        "B-03"
+      ],
+      "legacy": "PASS",
+      "ios": "PASS",
+      "verdict": "MATCH",
+      "keys": [
+        {
+          "key": "display_name",
+          "expected": "第1蒸留塔 (T-101)",
+          "legacy": "PASS",
+          "legacy_actual": "第1蒸留塔 (T-101)",
+          "ios": "PASS",
+          "ios_actual": "第1蒸留塔 (T-101)"
+        },
+        {
+          "key": "device_type",
+          "expected": "MeterPlus",
+          "legacy": "PASS",
+          "legacy_actual": "MeterPlus",
+          "ios": "PASS",
+          "ios_actual": "MeterPlus"
+        },
+        {
+          "key": "labels",
+          "expected": [
+            "22.3°C",
+            "80%",
+            "20%"
+          ],
+          "legacy": "PASS",
+          "legacy_actual": [
+            "22.3°C",
+            "80%",
+            "20%"
+          ],
+          "ios": "PASS",
+          "ios_actual": [
+            "22.3°C",
+            "80%",
+            "20%"
+          ]
+        },
+        {
+          "key": "last_updated_prefix",
+          "expected": "Last updated: ",
+          "legacy": "PASS",
+          "legacy_actual": "Last updated: ",
+          "ios": "PASS",
+          "ios_actual": "Last updated: "
+        },
+        {
+          "key": "has_chart",
+          "expected": true,
+          "legacy": "PASS",
+          "legacy_actual": true,
+          "ios": "PASS",
+          "ios_actual": true
+        }
+      ],
+      "ios_notes": []
+    },
+    {
+      "id": "TC-03",
+      "name": "#69 追加の表示名変換・バッテリー null",
+      "targets": [
+        "legacy-web",
+        "ios-remote"
+      ],
+      "ledger": [
+        "B-01",
+        "B-03"
+      ],
+      "legacy": "PASS",
+      "ios": "PASS",
+      "verdict": "MATCH",
+      "keys": [
+        {
+          "key": "display_name",
+          "expected": "制御盤 (CP-1601)",
+          "legacy": "PASS",
+          "legacy_actual": "制御盤 (CP-1601)",
+          "ios": "PASS",
+          "ios_actual": "制御盤 (CP-1601)"
+        },
+        {
+          "key": "device_type",
+          "expected": "Hub 3",
+          "legacy": "PASS",
+          "legacy_actual": "Hub 3",
+          "ios": "PASS",
+          "ios_actual": "Hub 3"
+        },
+        {
+          "key": "labels",
+          "expected": [
+            "23.2°C",
+            "75%"
+          ],
+          "legacy": "PASS",
+          "legacy_actual": [
+            "23.2°C",
+            "75%"
+          ],
+          "ios": "PASS",
+          "ios_actual": [
+            "23.2°C",
+            "75%"
+          ]
+        },
+        {
+          "key": "has_chart",
+          "expected": true,
+          "legacy": "PASS",
+          "legacy_actual": true,
+          "ios": "PASS",
+          "ios_actual": true
+        }
+      ],
+      "ios_notes": []
+    },
+    {
+      "id": "TC-04",
+      "name": "表示名マッピング無し・特殊文字を含むデバイス名のエスケープ",
+      "targets": [
+        "legacy-web",
+        "ios-remote"
+      ],
+      "ledger": [
+        "B-01",
+        "V-01"
+      ],
+      "legacy": "PASS",
+      "ios": "PASS",
+      "verdict": "MATCH",
+      "keys": [
+        {
+          "key": "display_name",
+          "expected": "Tag <b>&</b>",
+          "legacy": "PASS",
+          "legacy_actual": "Tag <b>&</b>",
+          "ios": "PASS",
+          "ios_actual": "Tag <b>&</b>"
+        },
+        {
+          "key": "device_type",
+          "expected": "Meter Pro CO2",
+          "legacy": "PASS",
+          "legacy_actual": "Meter Pro CO2",
+          "ios": "PASS",
+          "ios_actual": "Meter Pro CO2"
+        },
+        {
+          "key": "labels",
+          "expected": [
+            "25°C",
+            "40%",
+            "100%"
+          ],
+          "legacy": "PASS",
+          "legacy_actual": [
+            "25°C",
+            "40%",
+            "100%"
+          ],
+          "ios": "PASS",
+          "ios_actual": [
+            "25°C",
+            "40%",
+            "100%"
+          ]
+        }
+      ],
+      "ios_notes": []
+    },
+    {
+      "id": "TC-05",
+      "name": "未更新メーターセクション",
+      "targets": [
+        "legacy-web",
+        "ios-remote"
+      ],
+      "ledger": [
+        "L-09",
+        "B-02"
+      ],
+      "legacy": "PASS",
+      "ios": "PASS",
+      "verdict": "MATCH",
+      "keys": [
+        {
+          "key": "section_title",
+          "expected": "未更新のメーター",
+          "legacy": "PASS",
+          "legacy_actual": "未更新のメーター",
+          "ios": "PASS",
+          "ios_actual": "未更新のメーター"
+        },
+        {
+          "key": "section_subtitle",
+          "expected": "1週間以上更新されていないデバイス",
+          "legacy": "PASS",
+          "legacy_actual": "1週間以上更新されていないデバイス",
+          "ios": "PASS",
+          "ios_actual": "1週間以上更新されていないデバイス"
+        },
+        {
+          "key": "stale_display_names",
+          "expected": [
+            "冷却塔 (CT-401)",
+            "コンプレッサー (C-601)"
+          ],
+          "legacy": "PASS",
+          "legacy_actual": [
+            "冷却塔 (CT-401)",
+            "コンプレッサー (C-601)"
+          ],
+          "ios": "PASS",
+          "ios_actual": [
+            "冷却塔 (CT-401)",
+            "コンプレッサー (C-601)"
+          ]
+        },
+        {
+          "key": "badge",
+          "expected": "7日以上未更新",
+          "legacy": "PASS",
+          "legacy_actual": "7日以上未更新",
+          "ios": "PASS",
+          "ios_actual": "7日以上未更新"
+        },
+        {
+          "key": "no_history_text",
+          "expected": "履歴データの取得対象外",
+          "legacy": "PASS",
+          "legacy_actual": "履歴データの取得対象外",
+          "ios": "PASS",
+          "ios_actual": "履歴データの取得対象外"
+        },
+        {
+          "key": "active_count",
+          "expected": 4,
+          "legacy": "PASS",
+          "legacy_actual": 4,
+          "ios": "PASS",
+          "ios_actual": 4
+        }
+      ],
+      "ios_notes": []
+    },
+    {
+      "id": "TC-06",
+      "name": "データ未受信の未更新メーター",
+      "targets": [
+        "legacy-web",
+        "ios-remote"
+      ],
+      "ledger": [
+        "L-09",
+        "B-02"
+      ],
+      "legacy": "PASS",
+      "ios": "PASS",
+      "verdict": "MATCH",
+      "keys": [
+        {
+          "key": "display_name",
+          "expected": "コンプレッサー (C-601)",
+          "legacy": "PASS",
+          "legacy_actual": "コンプレッサー (C-601)",
+          "ios": "PASS",
+          "ios_actual": "コンプレッサー (C-601)"
+        },
+        {
+          "key": "labels",
+          "expected": [],
+          "legacy": "PASS",
+          "legacy_actual": [],
+          "ios": "PASS",
+          "ios_actual": []
+        },
+        {
+          "key": "no_value_text",
+          "expected": "値がありません（データ未受信）",
+          "legacy": "PASS",
+          "legacy_actual": "値がありません（データ未受信）",
+          "ios": "PASS",
+          "ios_actual": "値がありません（データ未受信）"
+        },
+        {
+          "key": "has_last_updated",
+          "expected": false,
+          "legacy": "PASS",
+          "legacy_actual": false,
+          "ios": "PASS",
+          "ios_actual": false
+        },
+        {
+          "key": "has_chart",
+          "expected": false,
+          "legacy": "PASS",
+          "legacy_actual": false,
+          "ios": "PASS",
+          "ios_actual": false
+        }
+      ],
+      "ios_notes": []
+    },
+    {
+      "id": "TC-07",
+      "name": "値ありの未更新メーター (数値表記)",
+      "targets": [
+        "legacy-web",
+        "ios-remote"
+      ],
+      "ledger": [
+        "L-09",
+        "B-03"
+      ],
+      "legacy": "PASS",
+      "ios": "PASS",
+      "verdict": "MATCH",
+      "keys": [
+        {
+          "key": "display_name",
+          "expected": "冷却塔 (CT-401)",
+          "legacy": "PASS",
+          "legacy_actual": "冷却塔 (CT-401)",
+          "ios": "PASS",
+          "ios_actual": "冷却塔 (CT-401)"
+        },
+        {
+          "key": "labels",
+          "expected": [
+            "19°C",
+            "60%",
+            "5%"
+          ],
+          "legacy": "PASS",
+          "legacy_actual": [
+            "19°C",
+            "60%",
+            "5%"
+          ],
+          "ios": "PASS",
+          "ios_actual": [
+            "19°C",
+            "60%",
+            "5%"
+          ]
+        },
+        {
+          "key": "has_last_updated",
+          "expected": true,
+          "legacy": "PASS",
+          "legacy_actual": true,
+          "ios": "PASS",
+          "ios_actual": true
+        },
+        {
+          "key": "has_chart",
+          "expected": false,
+          "legacy": "PASS",
+          "legacy_actual": false,
+          "ios": "PASS",
+          "ios_actual": false
+        }
+      ],
+      "ios_notes": []
+    },
+    {
+      "id": "TC-08",
+      "name": "Time Range 選択肢と初期値",
+      "targets": [
+        "legacy-web",
+        "ios-remote"
+      ],
+      "ledger": [
+        "L-03",
+        "B-04"
+      ],
+      "legacy": "PASS",
+      "ios": "PASS",
+      "verdict": "MATCH",
+      "keys": [
+        {
+          "key": "options",
+          "expected": [
+            "Last Hour",
+            "Last 24 Hours",
+            "Last 7 Days",
+            "Last 30 Days",
+            "Last Year"
+          ],
+          "legacy": "PASS",
+          "legacy_actual": [
+            "Last Hour",
+            "Last 24 Hours",
+            "Last 7 Days",
+            "Last 30 Days",
+            "Last Year"
+          ],
+          "ios": "PASS",
+          "ios_actual": [
+            "Last Hour",
+            "Last 24 Hours",
+            "Last 7 Days",
+            "Last 30 Days",
+            "Last Year"
+          ]
+        },
+        {
+          "key": "default",
+          "expected": "Last 24 Hours",
+          "legacy": "PASS",
+          "legacy_actual": "Last 24 Hours",
+          "ios": "PASS",
+          "ios_actual": "Last 24 Hours"
+        }
+      ],
+      "ios_notes": []
+    },
+    {
+      "id": "TC-09",
+      "name": "Time Range 切替でのグラフ点数とラベル書式 (SEED-D1)",
+      "targets": [
+        "legacy-web",
+        "ios-remote"
+      ],
+      "ledger": [
+        "L-10",
+        "B-04",
+        "B-05"
+      ],
+      "legacy": "PASS",
+      "ios": "PASS",
+      "verdict": "MATCH",
+      "keys": [
+        {
+          "key": "points",
+          "expected": {
+            "hour": 1,
+            "day": 2,
+            "week": 3,
+            "month": 4,
+            "year": 5
+          },
+          "legacy": "PASS",
+          "legacy_actual": {
+            "hour": 1,
+            "day": 2,
+            "week": 3,
+            "month": 4,
+            "year": 5
+          },
+          "ios": "PASS",
+          "ios_actual": {
+            "year": 5,
+            "week": 3,
+            "hour": 1,
+            "month": 4,
+            "day": 2
+          }
+        },
+        {
+          "key": "label_regex",
+          "expected": {
+            "hour": "^\\d{2}:\\d{2}$",
+            "day": "^\\d{2}:\\d{2}$",
+            "week": "^(Sun|Mon|Tue|Wed|Thu|Fri|Sat) \\d{2}$",
+            "month": "^[A-Z][a-z]{2} \\d{1,2}$",
+            "year": "^[A-Z][a-z]{2} \\d{1,2}$"
+          },
+          "legacy": "PASS",
+          "legacy_actual": {
+            "hour": [
+              "03:43"
+            ],
+            "day": [
+              "02:13",
+              "03:43"
+            ],
+            "week": [
+              "Sat 04",
+              "Tue 02",
+              "Tue 03"
+            ],
+            "month": [
+              "Oct 3",
+              "Oct 10",
+              "Oct 13",
+              "Oct 13"
+            ],
+            "year": [
+              "Jul 5",
+              "Oct 3",
+              "Oct 10",
+              "Oct 13",
+              "Oct 13"
+            ]
+          },
+          "ios": "PASS",
+          "ios_actual": {
+            "hour": [
+              "21:56"
+            ],
+            "day": [
+              "20:26"
+            ],
+            "week": [
+              "Fri 22",
+              "Mon 20"
+            ],
+            "month": [
+              "Oct 2",
+              "Oct 9",
+              "Oct 12"
+            ],
+            "year": [
+              "Jul 4",
+              "Oct 2",
+              "Oct 9",
+              "Oct 12"
+            ]
+          }
+        }
+      ],
+      "ios_notes": [
+        "点数はXCUITestのN pointsを実測。軸ラベルはTC-09_hour/day/week/month/year.pngのD1グラフを視覚確認。右端はSwift Chartsが重複回避で省略。"
+      ]
+    },
+    {
+      "id": "TC-10",
+      "name": "Refresh Data (バックエンド未設定クレデンシャル)",
+      "targets": [
+        "legacy-web",
+        "ios-remote"
+      ],
+      "ledger": [
+        "L-04",
+        "B-07"
+      ],
+      "legacy": "PASS",
+      "ios": "PASS",
+      "verdict": "MATCH",
+      "keys": [
+        {
+          "key": "refresh_http_status",
+          "expected": 500,
+          "legacy": "PASS",
+          "legacy_actual": 500,
+          "ios": "PASS",
+          "ios_actual": 500
+        },
+        {
+          "key": "button_during",
+          "expected": "Refreshing...",
+          "legacy": "PASS",
+          "legacy_actual": "Refreshing...",
+          "ios": "PASS",
+          "ios_actual": "Refreshing..."
+        },
+        {
+          "key": "final_button",
+          "expected": "Refresh Data",
+          "legacy": "PASS",
+          "legacy_actual": "Refresh Data",
+          "ios": "PASS",
+          "ios_actual": "Refresh Data"
+        },
+        {
+          "key": "final_connection",
+          "expected": "Connected",
+          "legacy": "PASS",
+          "legacy_actual": "Connected",
+          "ios": "PASS",
+          "ios_actual": "Connected"
+        },
+        {
+          "key": "final_error_visible",
+          "expected": false,
+          "legacy": "PASS",
+          "legacy_actual": false,
+          "ios": "PASS",
+          "ios_actual": false
+        }
+      ],
+      "ios_notes": []
+    },
+    {
+      "id": "TC-11",
+      "name": "バックエンド停止時のエラー表示",
+      "targets": [
+        "legacy-web",
+        "ios-remote"
+      ],
+      "ledger": [
+        "L-07",
+        "B-08"
+      ],
+      "legacy": "PASS",
+      "ios": "PASS",
+      "verdict": "MATCH",
+      "keys": [
+        {
+          "key": "connection",
+          "expected": "Disconnected",
+          "legacy": "PASS",
+          "legacy_actual": "Disconnected",
+          "ios": "PASS",
+          "ios_actual": "Disconnected"
+        },
+        {
+          "key": "error_prefix",
+          "expected": "Failed to ",
+          "legacy": "PASS",
+          "legacy_actual": "Failed to ",
+          "ios": "PASS",
+          "ios_actual": "Failed to fetch meters: Could not connect to the server."
+        }
+      ],
+      "ios_notes": [
+        "127.0.0.1:8000へ直接接続してバックエンドを停止。proxy生成502ではなく実URLSession接続失敗を確認。"
+      ]
+    },
+    {
+      "id": "TC-12",
+      "name": "レート制限警告表示",
+      "targets": [
+        "ios-mock"
+      ],
+      "ledger": [
+        "L-05",
+        "B-09"
+      ],
+      "legacy": null,
+      "ios": "PASS",
+      "verdict": "IOS_ONLY_PASS",
+      "keys": [
+        {
+          "key": "warning_title",
+          "expected": "Rate Limited.",
+          "legacy": null,
+          "legacy_actual": null,
+          "ios": "PASS",
+          "ios_actual": "Rate Limited."
+        },
+        {
+          "key": "warning_text",
+          "expected": "SwitchBot API rate limit reached. Retry in 120 seconds.",
+          "legacy": null,
+          "legacy_actual": null,
+          "ios": "PASS",
+          "ios_actual": "SwitchBot API rate limit reached. Retry in 120 seconds."
+        }
+      ],
+      "ios_notes": []
+    },
+    {
+      "id": "TC-13",
+      "name": "Download Backup",
+      "targets": [
+        "legacy-web",
+        "ios-remote"
+      ],
+      "ledger": [
+        "L-04",
+        "B-10",
+        "B-19"
+      ],
+      "legacy": "PASS",
+      "ios": "PASS",
+      "verdict": "MATCH",
+      "keys": [
+        {
+          "key": "button_during",
+          "expected": "Downloading...",
+          "legacy": "PASS",
+          "legacy_actual": "Downloading...",
+          "ios": "PASS",
+          "ios_actual": "Downloading..."
+        },
+        {
+          "key": "final_button",
+          "expected": "Download Backup",
+          "legacy": "PASS",
+          "legacy_actual": "Download Backup",
+          "ios": "PASS",
+          "ios_actual": "Download Backup"
+        },
+        {
+          "key": "http_status",
+          "expected": 200,
+          "legacy": "PASS",
+          "legacy_actual": 200,
+          "ios": "PASS",
+          "ios_actual": 200
+        },
+        {
+          "key": "filename_regex",
+          "expected": "^switchbot_backup_\\d{8}_\\d{6}\\.db$",
+          "legacy": "PASS",
+          "legacy_actual": "switchbot_backup_20261013_041322.db",
+          "ios": "PASS",
+          "ios_actual": "switchbot_backup_20261013_052819.db"
+        },
+        {
+          "key": "sqlite_header",
+          "expected": true,
+          "legacy": "PASS",
+          "legacy_actual": true,
+          "ios": "PASS",
+          "ios_actual": true
+        },
+        {
+          "key": "contains_seed_devices",
+          "expected": 6,
+          "legacy": "PASS",
+          "legacy_actual": 6,
+          "ios": "PASS",
+          "ios_actual": 6
+        },
+        {
+          "key": "error_visible",
+          "expected": false,
+          "legacy": "PASS",
+          "legacy_actual": false,
+          "ios": "PASS",
+          "ios_actual": false
+        }
+      ],
+      "ios_notes": []
+    },
+    {
+      "id": "TC-14",
+      "name": "レイテンシ統計",
+      "targets": [
+        "legacy-web",
+        "ios-remote"
+      ],
+      "ledger": [
+        "L-11",
+        "B-11"
+      ],
+      "legacy": "PASS",
+      "ios": "PASS",
+      "verdict": "MATCH",
+      "keys": [
+        {
+          "key": "total_calls",
+          "expected": 4,
+          "legacy": "PASS",
+          "legacy_actual": 4,
+          "ios": "PASS",
+          "ios_actual": 4
+        },
+        {
+          "key": "avg_latency_ms",
+          "expected": 137.625,
+          "legacy": "PASS",
+          "legacy_actual": 137.625,
+          "ios": "PASS",
+          "ios_actual": 137.625
+        },
+        {
+          "key": "min_latency_ms",
+          "expected": 50.0,
+          "legacy": "PASS",
+          "legacy_actual": 50.0,
+          "ios": "PASS",
+          "ios_actual": 50.0
+        },
+        {
+          "key": "max_latency_ms",
+          "expected": 300.0,
+          "legacy": "PASS",
+          "legacy_actual": 300.0,
+          "ios": "PASS",
+          "ios_actual": 300.0
+        },
+        {
+          "key": "successful_calls",
+          "expected": 2,
+          "legacy": "PASS",
+          "legacy_actual": 2,
+          "ios": "PASS",
+          "ios_actual": 2
+        },
+        {
+          "key": "failed_calls",
+          "expected": 2,
+          "legacy": "PASS",
+          "legacy_actual": 2,
+          "ios": "PASS",
+          "ios_actual": 2
+        },
+        {
+          "key": "success_rate",
+          "expected": 50.0,
+          "legacy": "PASS",
+          "legacy_actual": 50.0,
+          "ios": "PASS",
+          "ios_actual": 50.0
+        }
+      ],
+      "ios_notes": [
+        "TC-14.pngの全7統計値を視覚確認。初回AX採取は結合labelのためnullとなり、画像で確定。"
+      ]
+    },
+    {
+      "id": "TC-15",
+      "name": "レイテンシログ一覧とフィルタ",
+      "targets": [
+        "legacy-web",
+        "ios-remote"
+      ],
+      "ledger": [
+        "L-11",
+        "B-12"
+      ],
+      "legacy": "PASS",
+      "ios": "PASS",
+      "verdict": "MATCH",
+      "keys": [
+        {
+          "key": "order_endpoints",
+          "expected": [
+            "/devices/SEED-D3/status",
+            "/devices/SEED-D2/status",
+            "/devices/SEED-D1/status",
+            "/devices"
+          ],
+          "legacy": "PASS",
+          "legacy_actual": [
+            "/devices/SEED-D3/status",
+            "/devices/SEED-D2/status",
+            "/devices/SEED-D1/status",
+            "/devices"
+          ],
+          "ios": "PASS",
+          "ios_actual": [
+            "/devices/SEED-D3/status",
+            "/devices/SEED-D2/status",
+            "/devices/SEED-D1/status",
+            "/devices"
+          ]
+        },
+        {
+          "key": "filter_endpoint_count",
+          "expected": 1,
+          "legacy": "PASS",
+          "legacy_actual": 1,
+          "ios": "PASS",
+          "ios_actual": 1
+        },
+        {
+          "key": "filter_device_count",
+          "expected": 1,
+          "legacy": "PASS",
+          "legacy_actual": 1,
+          "ios": "PASS",
+          "ios_actual": 1
+        },
+        {
+          "key": "limit2_count",
+          "expected": 2,
+          "legacy": "PASS",
+          "legacy_actual": 2,
+          "ios": "PASS",
+          "ios_actual": 2
+        }
+      ],
+      "ios_notes": []
+    },
+    {
+      "id": "TC-16",
+      "name": "データインポート",
+      "targets": [
+        "legacy-web",
+        "ios-remote"
+      ],
+      "ledger": [
+        "L-12",
+        "B-13"
+      ],
+      "legacy": "PASS",
+      "ios": "PASS",
+      "verdict": "MATCH",
+      "keys": [
+        {
+          "key": "imported_devices",
+          "expected": 1,
+          "legacy": "PASS",
+          "legacy_actual": 1,
+          "ios": "PASS",
+          "ios_actual": 1
+        },
+        {
+          "key": "imported_readings",
+          "expected": 2,
+          "legacy": "PASS",
+          "legacy_actual": 2,
+          "ios": "PASS",
+          "ios_actual": 2
+        },
+        {
+          "key": "new_display_name",
+          "expected": "遠心分離機 (S-701)",
+          "legacy": "PASS",
+          "legacy_actual": "遠心分離機 (S-701)",
+          "ios": "PASS",
+          "ios_actual": "遠心分離機 (S-701)"
+        },
+        {
+          "key": "status_text",
+          "expected": "Monitoring 7 meters",
+          "legacy": "PASS",
+          "legacy_actual": "Monitoring 7 meters",
+          "ios": "PASS",
+          "ios_actual": "Monitoring 7 meters"
+        }
+      ],
+      "ios_notes": []
+    },
+    {
+      "id": "TC-17",
+      "name": "ヘルスチェック・ステータス",
+      "targets": [
+        "legacy-web",
+        "ios-remote"
+      ],
+      "ledger": [
+        "L-13",
+        "B-14"
+      ],
+      "legacy": "PASS",
+      "ios": "PASS",
+      "verdict": "MATCH",
+      "keys": [
+        {
+          "key": "healthz",
+          "expected": "ok",
+          "legacy": "PASS",
+          "legacy_actual": "ok",
+          "ios": "PASS",
+          "ios_actual": "ok"
+        },
+        {
+          "key": "configured",
+          "expected": false,
+          "legacy": "PASS",
+          "legacy_actual": false,
+          "ios": "PASS",
+          "ios_actual": false
+        },
+        {
+          "key": "meters_count",
+          "expected": 6,
+          "legacy": "PASS",
+          "legacy_actual": 6,
+          "ios": "PASS",
+          "ios_actual": 6
+        },
+        {
+          "key": "is_rate_limited",
+          "expected": false,
+          "legacy": "PASS",
+          "legacy_actual": false,
+          "ios": "PASS",
+          "ios_actual": false
+        },
+        {
+          "key": "collection_interval",
+          "expected": 3600,
+          "legacy": "PASS",
+          "legacy_actual": 3600,
+          "ios": "PASS",
+          "ios_actual": 3600
+        }
+      ],
+      "ios_notes": []
+    },
+    {
+      "id": "TC-18",
+      "name": "Standalone: SwitchBot 実機からの収集",
+      "targets": [
+        "legacy-web",
+        "ios-standalone"
+      ],
+      "ledger": [
+        "B-15",
+        "B-16",
+        "B-17"
+      ],
+      "legacy": "PASS",
+      "ios": "FAIL",
+      "verdict": "KNOWN_DIFF",
+      "keys": [
+        {
+          "key": "meter_device_ids",
+          "expected": "legacy 実測の device_id 集合と一致",
+          "legacy": "RECORDED",
+          "legacy_actual": [
+            "C76B0046301A",
+            "CE2A4586263B",
+            "D12D0346415D",
+            "D13234351576",
+            "D22E81062E47",
+            "D22E81865125",
+            "D22E84065428",
+            "D22E84463D31",
+            "D22E84860F7A",
+            "D22E84862F2E",
+            "D22E84866915",
+            "E3FD0C2CD631",
+            "E77600C6218C",
+            "E77601464004",
+            "E85502860E4E",
+            "E87606062677",
+            "ED2E86065D68",
+            "F19D2B915CE6"
+          ],
+          "ios": "FAIL",
+          "ios_actual": [
+            "B0E9FE83F0D4",
+            "B0E9FEB9CFA6",
+            "B0E9FED60DD2",
+            "C76B0046301A",
+            "CE2A4586263B",
+            "D12D0346415D",
+            "D13234351576",
+            "D22E81062E47",
+            "D22E81865125",
+            "D22E84065428",
+            "D22E84463D31",
+            "D22E84860F7A",
+            "D22E84862F2E",
+            "D22E84866915",
+            "E3FD0C2CD631",
+            "E77600C6218C",
+            "E77601464004",
+            "E85502860E4E",
+            "E87606062677",
+            "ED2E86065D68",
+            "F19D2B915CE6"
+          ]
+        },
+        {
+          "key": "all_active_have_temperature",
+          "expected": true,
+          "legacy": "PASS",
+          "legacy_actual": true,
+          "ios": "PASS",
+          "ios_actual": true
+        }
+      ],
+      "ios_notes": [
+        "凍結 expected と spec.md §既知の仕様差 (iOS Standalone は Hub 3 を収集対象に含める) の矛盾による差分。legacy 18 ID は全て含まれ、差分 3 件はすべて Hub 3。アプリ不具合ではない — 期待値の扱いは要判断",
+        "UIのMonitoring 21 metersとHub 3カードを画像で確認。ID集合とactive温度は実収集後の端末SQLiteをread-onlyで実測。全21台が今回更新済み。"
+      ]
+    },
+    {
+      "id": "TC-19",
+      "name": "30秒自動更新",
+      "targets": [
+        "legacy-web",
+        "ios-remote"
+      ],
+      "ledger": [
+        "B-06"
+      ],
+      "legacy": "PASS",
+      "ios": "PASS",
+      "verdict": "MATCH",
+      "keys": [
+        {
+          "key": "last_refresh_changed",
+          "expected": true,
+          "legacy": "PASS",
+          "legacy_actual": true,
+          "ios": "PASS",
+          "ios_actual": true
+        }
+      ],
+      "ios_notes": []
+    },
+    {
+      "id": "TC-20",
+      "name": "本番 snakeroom への Remote 接続 (読み取りのみ)",
+      "targets": [
+        "legacy-web",
+        "ios-remote"
+      ],
+      "ledger": [
+        "B-18"
+      ],
+      "legacy": "PASS",
+      "ios": "PASS",
+      "verdict": "MATCH",
+      "keys": [
+        {
+          "key": "status_text",
+          "expected": "Monitoring {GET /api/status の meters_count} meters",
+          "legacy": "PASS",
+          "legacy_actual": "Monitoring 22 meters",
+          "ios": "PASS",
+          "ios_actual": "Monitoring 22 meters"
+        },
+        {
+          "key": "connection",
+          "expected": "Connected",
+          "legacy": "PASS",
+          "legacy_actual": "Connected",
+          "ios": "PASS",
+          "ios_actual": "Connected"
+        }
+      ],
+      "ios_notes": [
+        "ProductionをSettingsで選択。GETのみ。Refresh/Import未実行"
+      ]
+    },
+    {
+      "id": "TC-21",
+      "name": "日本語ローカライズ",
+      "targets": [
+        "ios-mock"
+      ],
+      "ledger": [
+        "V-02"
+      ],
+      "legacy": null,
+      "ios": "PASS",
+      "verdict": "IOS_ONLY_PASS",
+      "keys": [
+        {
+          "key": "refresh_button",
+          "expected": "データ更新",
+          "legacy": null,
+          "legacy_actual": null,
+          "ios": "PASS",
+          "ios_actual": "データ更新"
+        },
+        {
+          "key": "stale_section_title",
+          "expected": "未更新のメーター",
+          "legacy": null,
+          "legacy_actual": null,
+          "ios": "PASS",
+          "ios_actual": "未更新のメーター"
+        }
+      ],
+      "ios_notes": []
+    },
+    {
+      "id": "TC-22",
+      "name": "Download Backup 失敗時の Request ID 表示",
+      "targets": [
+        "legacy-web",
+        "ios-remote"
+      ],
+      "ledger": [
+        "L-04",
+        "L-07",
+        "B-10",
+        "B-19"
+      ],
+      "legacy": "PASS",
+      "ios": "PASS",
+      "verdict": "MATCH",
+      "keys": [
+        {
+          "key": "http_status",
+          "expected": 500,
+          "legacy": "PASS",
+          "legacy_actual": 500,
+          "ios": "PASS",
+          "ios_actual": 500
+        },
+        {
+          "key": "body_request_id_regex",
+          "expected": "^[0-9a-f]{12}$",
+          "legacy": "PASS",
+          "legacy_actual": "e847915dd3d3",
+          "ios": "PASS",
+          "ios_actual": "197e1a69e4a7"
+        },
+        {
+          "key": "x_request_id_matches_body",
+          "expected": true,
+          "legacy": "PASS",
+          "legacy_actual": true,
+          "ios": "PASS",
+          "ios_actual": true
+        },
+        {
+          "key": "error_regex",
+          "expected": "^Failed to download backup \\(HTTP 500\\)\\. Request ID: [0-9a-f]{12}$",
+          "legacy": "PASS",
+          "legacy_actual": "Failed to download backup (HTTP 500). Request ID: e847915dd3d3",
+          "ios": "PASS",
+          "ios_actual": "Failed to download backup (HTTP 500). Request ID: 197e1a69e4a7"
+        },
+        {
+          "key": "connection",
+          "expected": "Disconnected",
+          "legacy": "PASS",
+          "legacy_actual": "Disconnected",
+          "ios": "PASS",
+          "ios_actual": "Disconnected"
+        },
+        {
+          "key": "final_button",
+          "expected": "Download Backup",
+          "legacy": "PASS",
+          "legacy_actual": "Download Backup",
+          "ios": "PASS",
+          "ios_actual": "Download Backup"
+        }
+      ],
+      "ios_notes": []
+    },
+    {
+      "id": "TC-23",
+      "name": "5xx 時 Slack アラート (サーバー側)",
+      "targets": [
+        "legacy-api"
+      ],
+      "ledger": [
+        "B-20",
+        "V-06"
+      ],
+      "legacy": "PASS",
+      "ios": null,
+      "verdict": "LEGACY_ONLY",
+      "keys": [
+        {
+          "key": "pytest_test_error_alerts",
+          "expected": "all passed",
+          "legacy": "PASS",
+          "legacy_actual": "all passed",
+          "ios": null,
+          "ios_actual": null
+        }
+      ],
+      "ios_notes": [
+        "N/A (V-06: Slack はサーバー側)"
+      ]
+    },
+    {
+      "id": "TC-24",
+      "name": "Standalone: 端末内バックアップ",
+      "targets": [
+        "ios-standalone"
+      ],
+      "ledger": [
+        "B-10"
+      ],
+      "legacy": null,
+      "ios": "PASS",
+      "verdict": "IOS_ONLY_PASS",
+      "keys": [
+        {
+          "key": "filename_regex",
+          "expected": "^switchbot_backup_\\d{8}_\\d{6}\\.db$",
+          "legacy": null,
+          "legacy_actual": null,
+          "ios": "PASS",
+          "ios_actual": "switchbot_backup_20261013_053913.db"
+        },
+        {
+          "key": "sqlite_header",
+          "expected": true,
+          "legacy": null,
+          "legacy_actual": null,
+          "ios": "PASS",
+          "ios_actual": true
+        },
+        {
+          "key": "tables",
+          "expected": [
+            "devices",
+            "latency_logs",
+            "readings"
+          ],
+          "legacy": null,
+          "legacy_actual": null,
+          "ios": "PASS",
+          "ios_actual": [
+            "devices",
+            "latency_logs",
+            "readings"
+          ]
+        }
+      ],
+      "ios_notes": [
+        "実収集後のStandalone UIでDownload Backup→共有画面を確認。今回新規生成された端末tmpファイルをread-onlyで検証。",
+        "tablesはアプリテーブルを比較。SQLite内部のsqlite_sequenceは除外し、all_sqlite_tablesには全テーブルを記録。"
+      ]
+    }
+  ]
+}
