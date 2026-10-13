@@ -1,0 +1,480 @@
+{
+  "TC-01": {
+    "name": "起動時ダッシュボード表示",
+    "target": "ios-remote",
+    "expected": {
+      "title": "Temp Master Dashboard",
+      "connection": "Connected",
+      "status_text": "Monitoring 6 meters",
+      "last_refresh_regex": "^Last refresh: \\d{2}:\\d{2}:\\d{2}$",
+      "rate_limit_warning_visible": false,
+      "error_visible": false
+    },
+    "actual": {
+      "title": "Temp Master Dashboard",
+      "connection": "Connected",
+      "status_text": "Monitoring 6 meters",
+      "last_refresh_regex": "Last refresh: 22:08:57",
+      "rate_limit_warning_visible": false,
+      "error_visible": false
+    },
+    "notes": "期待値および旧実測と一致（時刻は書式比較）。実画面確認。 変更範囲外のため初回結果を継承（修正後録画には含まない）。",
+    "pass": true
+  },
+  "TC-02": {
+    "name": "アクティブメーターカード (表示名変換あり)",
+    "target": "ios-remote",
+    "expected": {
+      "display_name": "第1蒸留塔 (T-101)",
+      "device_type": "MeterPlus",
+      "labels": [
+        "22.3°C",
+        "80%",
+        "20%"
+      ],
+      "last_updated_prefix": "Last updated: ",
+      "has_chart": true
+    },
+    "actual": {
+      "display_name": "第1蒸留塔 (T-101)",
+      "device_type": "MeterPlus",
+      "labels": [
+        "22.3°C",
+        "80%",
+        "20%"
+      ],
+      "last_updated_prefix": "Last updated: ",
+      "has_chart": true
+    },
+    "notes": "期待値および旧実測と一致。2点の温度グラフと日時を画面で確認。 変更範囲外のため初回結果を継承（修正後録画には含まない）。",
+    "pass": true
+  },
+  "TC-03": {
+    "name": "表示名マッピング無し・バッテリー null",
+    "target": "ios-remote",
+    "expected": {
+      "display_name": "Study Hub",
+      "device_type": "Hub 3",
+      "labels": [
+        "23.2°C",
+        "75%"
+      ],
+      "has_chart": true
+    },
+    "actual": {
+      "display_name": "Study Hub",
+      "device_type": "Hub 3",
+      "labels": [
+        "23.2°C",
+        "75%"
+      ],
+      "has_chart": true
+    },
+    "notes": "期待値および旧実測と一致。電池ラベル無し。1点グラフあり。 変更範囲外のため初回結果を継承（修正後録画には含まない）。",
+    "pass": true
+  },
+  "TC-04": {
+    "name": "特殊文字を含むデバイス名のエスケープ",
+    "target": "ios-remote",
+    "expected": {
+      "display_name": "Tag <b>&</b>",
+      "device_type": "Meter Pro CO2",
+      "labels": [
+        "25°C",
+        "40%",
+        "100%"
+      ]
+    },
+    "actual": {
+      "display_name": "Tag <b>&</b>",
+      "device_type": "Meter Pro CO2",
+      "labels": [
+        "25°C",
+        "40%",
+        "100%"
+      ]
+    },
+    "notes": "期待値および旧実測と一致。HTMLとして解釈されない。 変更範囲外のため初回結果を継承（修正後録画には含まない）。",
+    "pass": true
+  },
+  "TC-05": {
+    "name": "未更新メーターセクション",
+    "target": "ios-remote",
+    "expected": {
+      "section_title": "未更新のメーター",
+      "section_subtitle": "1週間以上更新されていないデバイス",
+      "stale_display_names": [
+        "冷却塔 (CT-401)",
+        "コンプレッサー (C-601)"
+      ],
+      "badge": "7日以上未更新",
+      "no_history_text": "履歴データの取得対象外",
+      "active_count": 4
+    },
+    "actual": {
+      "section_title": "未更新のメーター",
+      "section_subtitle": "1週間以上更新されていないデバイス",
+      "stale_display_names": [
+        "冷却塔 (CT-401)",
+        "コンプレッサー (C-601)"
+      ],
+      "badge": "7日以上未更新",
+      "no_history_text": "履歴データの取得対象外",
+      "active_count": 4
+    },
+    "notes": "期待値および旧実測と一致。上部の4枚と未更新2枚をスクロール確認。コンプレッサーの種別Meterは狭幅で折り返される。 変更範囲外のため初回結果を継承（修正後録画には含まない）。",
+    "pass": true
+  },
+  "TC-06": {
+    "name": "データ未受信の未更新メーター",
+    "target": "ios-remote",
+    "expected": {
+      "display_name": "コンプレッサー (C-601)",
+      "labels": [],
+      "no_value_text": "値がありません（データ未受信）",
+      "has_last_updated": false,
+      "has_chart": false
+    },
+    "actual": {
+      "display_name": "コンプレッサー (C-601)",
+      "labels": [],
+      "no_value_text": "値がありません（データ未受信）",
+      "has_last_updated": false,
+      "has_chart": false
+    },
+    "notes": "期待値および旧実測と一致。 変更範囲外のため初回結果を継承（修正後録画には含まない）。",
+    "pass": true
+  },
+  "TC-07": {
+    "name": "値ありの未更新メーター (数値表記)",
+    "target": "ios-remote",
+    "expected": {
+      "display_name": "冷却塔 (CT-401)",
+      "labels": [
+        "19°C",
+        "60%",
+        "5%"
+      ],
+      "has_last_updated": true,
+      "has_chart": false
+    },
+    "actual": {
+      "display_name": "冷却塔 (CT-401)",
+      "labels": [
+        "19°C",
+        "60%",
+        "5%"
+      ],
+      "has_last_updated": true,
+      "has_chart": false
+    },
+    "notes": "期待値および旧実測と一致。 変更範囲外のため初回結果を継承（修正後録画には含まない）。",
+    "pass": true
+  },
+  "TC-08": {
+    "name": "Time Range 選択肢と初期値",
+    "target": "ios-remote",
+    "expected": {
+      "options": [
+        "Last Hour",
+        "Last 24 Hours",
+        "Last 7 Days",
+        "Last 30 Days",
+        "Last Year"
+      ],
+      "default": "Last 24 Hours"
+    },
+    "actual": {
+      "options": [
+        "Last Hour",
+        "Last 24 Hours",
+        "Last 7 Days",
+        "Last 30 Days",
+        "Last Year"
+      ],
+      "default": "Last 24 Hours"
+    },
+    "notes": "期待値および旧実測と一致。メニュー表示と初期チェックを確認。 変更範囲外のため初回結果を継承（修正後録画には含まない）。",
+    "pass": true
+  },
+  "TC-09": {
+    "name": "Time Range 切替でのグラフ点数とラベル書式 (SEED-D1)",
+    "target": "ios-remote",
+    "expected": {
+      "points": {
+        "hour": 1,
+        "day": 2,
+        "week": 3,
+        "month": 4,
+        "year": 5
+      },
+      "label_regex": {
+        "hour": "^\\d{2}:\\d{2}$",
+        "day": "^\\d{2}:\\d{2}$",
+        "week": "^(Sun|Mon|Tue|Wed|Thu|Fri|Sat) \\d{2}$",
+        "month": "^[A-Z][a-z]{2} \\d{1,2}$",
+        "year": "^[A-Z][a-z]{2} \\d{1,2}$"
+      }
+    },
+    "actual": {
+      "points": {
+        "hour": 1,
+        "day": 2,
+        "week": 3,
+        "month": 4,
+        "year": 5
+      },
+      "label_regex": {
+        "hour": [
+          "21:49"
+        ],
+        "day": [
+          "20:19"
+        ],
+        "week": [
+          "Sat 22"
+        ],
+        "month": [
+          "Sep 19",
+          "Sep 26"
+        ],
+        "year": [
+          "Jun 21",
+          "Sep 19"
+        ]
+      }
+    },
+    "notes": "63e469c再テスト。単一点は中央、時刻ラベルあり。全期間で点数と書式一致、重なり無し。時間比例軸のため近接ラベルを間引く仕様差（承認済み）。旧Chart.jsのラベル集合そのものとは比較しない。",
+    "pass": true
+  },
+  "TC-10": {
+    "name": "Refresh Data (バックエンド未設定クレデンシャル)",
+    "target": "ios-remote",
+    "expected": {
+      "refresh_http_status": 500,
+      "button_during": "Refreshing...",
+      "final_button": "Refresh Data",
+      "final_connection": "Connected",
+      "final_error_visible": false
+    },
+    "actual": {
+      "refresh_http_status": 500,
+      "button_during": null,
+      "final_button": "Refresh Data",
+      "final_connection": "Connected",
+      "final_error_visible": false
+    },
+    "notes": "POST500と再取得200をログ確認、最終画面一致。瞬間的なRefreshing...は未捕捉でnull。再開指示に従い最終状態で合格判定。",
+    "pass": true
+  },
+  "TC-11": {
+    "name": "バックエンド停止時のエラー表示",
+    "target": "ios-remote",
+    "expected": {
+      "connection": "Disconnected",
+      "error_prefix": "Failed to "
+    },
+    "actual": {
+      "connection": "Disconnected",
+      "error_prefix": "Failed to "
+    },
+    "notes": "実表示Failed to fetch meters。停止後のUIを確認し直後に再シード。旧実測と一致。",
+    "pass": true
+  },
+  "TC-12": {
+    "name": "レート制限警告表示",
+    "target": "ios-mock",
+    "expected": {
+      "warning_title": "Rate Limited.",
+      "warning_text": "SwitchBot API rate limit reached. Retry in 120 seconds."
+    },
+    "actual": {
+      "warning_title": "Rate Limited.",
+      "warning_text": "SwitchBot API rate limit reached. Retry in 120 seconds."
+    },
+    "notes": "Mockで警告全文を画面確認。",
+    "pass": true
+  },
+  "TC-13": {
+    "name": "Download Backup",
+    "target": "ios-remote",
+    "expected": {
+      "http_status": 200,
+      "filename_regex": "^switchbot_backup_\\d{8}_\\d{6}\\.db$",
+      "sqlite_header": true
+    },
+    "actual": {
+      "http_status": 200,
+      "filename_regex": "switchbot_backup_20260930_052115.db",
+      "sqlite_header": true
+    },
+    "notes": "UI共有シート、HTTP200、Simulatorの実ファイル先頭SQLite format 3を確認。",
+    "pass": true
+  },
+  "TC-14": {
+    "name": "レイテンシ統計",
+    "target": "ios-remote",
+    "expected": {
+      "total_calls": 4,
+      "avg_latency_ms": 137.625,
+      "min_latency_ms": 50.0,
+      "max_latency_ms": 300.0,
+      "successful_calls": 2,
+      "failed_calls": 2,
+      "success_rate": 50.0
+    },
+    "actual": {
+      "total_calls": 4,
+      "avg_latency_ms": 137.625,
+      "min_latency_ms": 50,
+      "max_latency_ms": 300,
+      "successful_calls": 2,
+      "failed_calls": 2,
+      "success_rate": 50.0
+    },
+    "notes": "63e469c再テスト。平均137.625、最小50、最大300、成功率50.0%で期待値・旧API値と一致。",
+    "pass": true
+  },
+  "TC-15": {
+    "name": "レイテンシログ一覧とフィルタ",
+    "target": "ios-remote",
+    "expected": {
+      "order_endpoints": [
+        "/devices/SEED-D3/status",
+        "/devices/SEED-D2/status",
+        "/devices/SEED-D1/status",
+        "/devices"
+      ],
+      "filter_endpoint_count": 1,
+      "filter_device_count": 1,
+      "limit2_count": 2
+    },
+    "actual": {
+      "order_endpoints": [
+        "/devices/SEED-D3/status",
+        "/devices/SEED-D2/status",
+        "/devices/SEED-D1/status",
+        "/devices"
+      ],
+      "filter_endpoint_count": 1,
+      "filter_device_count": 1,
+      "limit2_count": 2
+    },
+    "notes": "UIで各フィルタを個別適用し件数確認。limitは−長押しで1、＋で2に設定。旧実測と一致。",
+    "pass": true
+  },
+  "TC-16": {
+    "name": "データインポート",
+    "target": "ios-remote",
+    "expected": {
+      "imported_devices": 1,
+      "imported_readings": 2,
+      "new_display_name": "遠心分離機 (S-701)",
+      "status_text": "Monitoring 7 meters"
+    },
+    "actual": {
+      "imported_devices": 1,
+      "imported_readings": 2,
+      "new_display_name": "遠心分離機 (S-701)",
+      "status_text": "Monitoring 7 meters"
+    },
+    "notes": "import_extra.jsonを貼付。AX set_textだけではImportが無効だったため末尾空白をキーボード入力して変更通知を発火。Import完了・Dashboard反映を確認し再シード。",
+    "pass": true
+  },
+  "TC-17": {
+    "name": "ヘルスチェック・ステータス",
+    "target": "ios-remote",
+    "expected": {
+      "healthz": "ok",
+      "configured": false,
+      "meters_count": 6,
+      "is_rate_limited": false,
+      "collection_interval": 3600
+    },
+    "actual": {
+      "healthz": "ok",
+      "configured": false,
+      "meters_count": 6,
+      "is_rate_limited": false,
+      "collection_interval": 3600
+    },
+    "notes": "Test ConnectionのOK、ステータスNo/6/No/3600を画面確認。旧実測と一致。",
+    "pass": true
+  },
+  "TC-18": {
+    "name": "Standalone: SwitchBot 実機からの収集",
+    "target": "ios-standalone",
+    "expected": {
+      "meter_device_ids": "legacy 実測の device_id 集合と一致",
+      "all_active_have_temperature": true
+    },
+    "actual": {
+      "meter_device_ids": [
+        "B0E9FE83F0D4",
+        "B0E9FEB9CFA6",
+        "B0E9FED60DD2",
+        "C76B0046301A",
+        "CE2A4586263B",
+        "D12D0346415D",
+        "D13234351576",
+        "D22E81062E47",
+        "D22E81865125",
+        "D22E84065428",
+        "D22E84463D31",
+        "D22E84860F7A",
+        "D22E84862F2E",
+        "D22E84866915",
+        "E3FD0C2CD631",
+        "E77600C6218C",
+        "E77601464004",
+        "E85502860E4E",
+        "E87606062677",
+        "ED2E86065D68",
+        "F19D2B915CE6"
+      ],
+      "all_active_have_temperature": true
+    },
+    "notes": "legacy 18 台 ⊂ iOS 21 台、差分 3 台はすべて Hub 3。docs/ios-migration/spec.md 34 行目の仕様（iOS Standalone は METER_DEVICE_TYPES + Hub 3）による意図的差分。起動時自動収集1回のみ（一覧1+status21=22 API呼出、全200）。手動Refreshなし。全21台に今回の温度と更新日時あり。既存DBに前の収集履歴があったが今回時刻のログとデバイス更新を分離確認。終了後アプリ停止。",
+    "pass": false
+  },
+  "TC-19": {
+    "name": "30秒自動更新",
+    "target": "ios-remote",
+    "expected": {
+      "last_refresh_changed": true
+    },
+    "actual": {
+      "last_refresh_changed": true
+    },
+    "notes": "35秒無操作待機の前後でLast refresh: 22:08:57→22:09:59を確認。画面キャプチャ操作にも時間がかかるため時刻差は62秒。待機中に変化した事実を確認、周期厳密計測ではない。旧実測のtrueと一致。 変更範囲外のため初回結果を継承（修正後録画には含まない）。",
+    "pass": true
+  },
+  "TC-20": {
+    "name": "本番 snakeroom への Remote 接続 (読み取りのみ)",
+    "target": "ios-remote",
+    "expected": {
+      "status_text": "Monitoring {GET /api/status の meters_count} meters",
+      "connection": "Connected"
+    },
+    "actual": {
+      "status_text": "Monitoring 22 meters",
+      "connection": "Connected"
+    },
+    "notes": "同時点GET /api/statusは22台。旧実測件数の固定比較ではなく現在値との一致を確認。本番Refresh/Import未操作。",
+    "pass": true
+  },
+  "TC-21": {
+    "name": "日本語ローカライズ",
+    "target": "ios-mock",
+    "expected": {
+      "refresh_button": "データ更新",
+      "stale_section_title": "未更新のメーター"
+    },
+    "actual": {
+      "refresh_button": "データ更新",
+      "stale_section_title": "未更新のメーター"
+    },
+    "notes": "日本語Mock起動で上部ボタンと下部見出しを画面確認。",
+    "pass": true
+  }
+}
