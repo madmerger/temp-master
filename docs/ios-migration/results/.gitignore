@@ -1,0 +1,4 @@
+*.db
+*.pid
+legacy_backend_*.log
+instances/
