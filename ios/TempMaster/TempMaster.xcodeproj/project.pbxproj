@@ -23,6 +23,7 @@
 		636C24D0F133D2A996CB7BFA /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68F28A74AD9354E1DE79A9AD /* SettingsView.swift */; };
 		6BE7DF817B036531A68B529C /* URLProtocolStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CCA63465727F1701F5B9147 /* URLProtocolStub.swift */; };
 		768BACE1B22E9D9619209DCC /* RemoteMeterService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 289A8676FCAD343AB2EC4C33 /* RemoteMeterService.swift */; };
+		790825D44CE7BCDB27E90BD7 /* TempMasterE2ETests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 807827A0D07E9DA816BB59D8 /* TempMasterE2ETests.swift */; };
 		7C35490CEA8BB8462A3FE58C /* TempMasterUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F143670C0BCA232C99735EDE /* TempMasterUITests.swift */; };
 		81757287F798DA2ADD09E718 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 360474ABD0D8AD727BC26312 /* DashboardView.swift */; };
 		829B44D663E4F3A3F99604E8 /* L10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = B5608E23B998DA67424C5315 /* L10n.swift */; };
@@ -50,6 +51,13 @@
 
 /* Begin PBXContainerItemProxy section */
 		CF2CC1E3A0D809C63AFEB031 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 64BBCB45D62810472BAA28BE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D86CDCF1F10C8E2E83D481CD;
+			remoteInfo = TempMaster;
+		};
+		F4A83802DE940E7754128778 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 64BBCB45D62810472BAA28BE /* Project object */;
 			proxyType = 1;
@@ -91,6 +99,7 @@
 		771143F79D971703AF19948E /* DisplayNames.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayNames.swift; sourceTree = "<group>"; };
 		7900AD5DF8197EFC91EB04F9 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		7F25299F69C26056C5ACEA1D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		807827A0D07E9DA816BB59D8 /* TempMasterE2ETests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TempMasterE2ETests.swift; sourceTree = "<group>"; };
 		874D7C7D04AB64B36111EC93 /* MeterRules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeterRules.swift; sourceTree = "<group>"; };
 		90E32E63542EC866549351A8 /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
 		A02C1C0D5BEC5E0F9ECE7706 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
@@ -101,6 +110,7 @@
 		B5608E23B998DA67424C5315 /* L10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L10n.swift; sourceTree = "<group>"; };
 		BAC573069D08C93B55E52793 /* SwitchBotClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchBotClientTests.swift; sourceTree = "<group>"; };
 		BF0704B58A5646BA8BEB58C6 /* RootTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTabView.swift; sourceTree = "<group>"; };
+		CF84E84E4D52A2E395E425A5 /* TempMasterE2ETests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TempMasterE2ETests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D29B86FF441F15CC66D05426 /* TemperatureChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemperatureChartView.swift; sourceTree = "<group>"; };
 		D94F09E827508B4CA64A7FF2 /* ImportViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportViewModel.swift; sourceTree = "<group>"; };
 		DEE599736C1B546E5E9FF25A /* ModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelTests.swift; sourceTree = "<group>"; };
@@ -135,10 +145,19 @@
 			isa = PBXGroup;
 			children = (
 				BDA1EC2F4DDEC4711213E791 /* TempMaster */,
+				474F46DE8A508F1BADA2653A /* TempMasterE2ETests */,
 				E116B967B6D3D4EBD96347C3 /* TempMasterTests */,
 				E951363211322589BCE6AD18 /* TempMasterUITests */,
 				4CFB23AB9B34696151AB07F2 /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		474F46DE8A508F1BADA2653A /* TempMasterE2ETests */ = {
+			isa = PBXGroup;
+			children = (
+				807827A0D07E9DA816BB59D8 /* TempMasterE2ETests.swift */,
+			);
+			path = TempMasterE2ETests;
 			sourceTree = "<group>";
 		};
 		4874C1031EB64972F7E211E8 /* Models */ = {
@@ -154,6 +173,7 @@
 			isa = PBXGroup;
 			children = (
 				5EFB32BB6C2F451E43FB3368 /* TempMaster.app */,
+				CF84E84E4D52A2E395E425A5 /* TempMasterE2ETests.xctest */,
 				4BB79FF8146B5285AC6BFA9A /* TempMasterTests.xctest */,
 				FBA78435D5AB9B8D37DDEB91 /* TempMasterUITests.xctest */,
 			);
@@ -279,6 +299,24 @@
 			productReference = FBA78435D5AB9B8D37DDEB91 /* TempMasterUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		4B7371C04D8760B8BF3FE757 /* TempMasterE2ETests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E189842EFDE33C8EA0C2BD11 /* Build configuration list for PBXNativeTarget "TempMasterE2ETests" */;
+			buildPhases = (
+				8F925EA5AE1B0D7132641043 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				927BA98720D74278E3DD7D82 /* PBXTargetDependency */,
+			);
+			name = TempMasterE2ETests;
+			packageProductDependencies = (
+			);
+			productName = TempMasterE2ETests;
+			productReference = CF84E84E4D52A2E395E425A5 /* TempMasterE2ETests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		74405BC5B2A3933CE18D4F49 /* TempMasterTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 946FE96A131064F7BF4F82DA /* Build configuration list for PBXNativeTarget "TempMasterTests" */;
@@ -328,6 +366,10 @@
 						ProvisioningStyle = Automatic;
 						TestTargetID = D86CDCF1F10C8E2E83D481CD;
 					};
+					4B7371C04D8760B8BF3FE757 = {
+						ProvisioningStyle = Automatic;
+						TestTargetID = D86CDCF1F10C8E2E83D481CD;
+					};
 					74405BC5B2A3933CE18D4F49 = {
 						ProvisioningStyle = Automatic;
 					};
@@ -354,6 +396,7 @@
 				D86CDCF1F10C8E2E83D481CD /* TempMaster */,
 				74405BC5B2A3933CE18D4F49 /* TempMasterTests */,
 				38CECD18BCE03A3CFFE2DC2E /* TempMasterUITests */,
+				4B7371C04D8760B8BF3FE757 /* TempMasterE2ETests */,
 			);
 		};
 /* End PBXProject section */
@@ -421,6 +464,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		8F925EA5AE1B0D7132641043 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				790825D44CE7BCDB27E90BD7 /* TempMasterE2ETests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		C9D1EA300EBD3F5A1A9326CA /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -441,6 +492,11 @@
 			isa = PBXTargetDependency;
 			target = D86CDCF1F10C8E2E83D481CD /* TempMaster */;
 			targetProxy = F865078EEEA76A0484F2809D /* PBXContainerItemProxy */;
+		};
+		927BA98720D74278E3DD7D82 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D86CDCF1F10C8E2E83D481CD /* TempMaster */;
+			targetProxy = F4A83802DE940E7754128778 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -621,6 +677,40 @@
 			};
 			name = Debug;
 		};
+		D0F382371239416B2A65780E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.madmerger.TempMasterE2ETests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = TempMaster;
+			};
+			name = Release;
+		};
+		FADBFE3A6F62BD0B3D08F6B1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.madmerger.TempMasterE2ETests;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = TempMaster;
+			};
+			name = Debug;
+		};
 		FAE917D2F2A0D947CD4B738F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -712,6 +802,15 @@
 			buildConfigurations = (
 				8CAB3D4A9DF040A3EF12B69F /* Debug */,
 				BCFC3A2FA5C89974A063CF32 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		E189842EFDE33C8EA0C2BD11 /* Build configuration list for PBXNativeTarget "TempMasterE2ETests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FADBFE3A6F62BD0B3D08F6B1 /* Debug */,
+				D0F382371239416B2A65780E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

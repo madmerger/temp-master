@@ -61,7 +61,27 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.madmerger.TempMasterUITests
         GENERATE_INFOPLIST_FILE: YES
+  TempMasterE2ETests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: TempMasterE2ETests
+    dependencies:
+      - target: TempMaster
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.madmerger.TempMasterE2ETests
+        GENERATE_INFOPLIST_FILE: YES
 schemes:
+  TempMasterE2E:
+    build:
+      targets:
+        TempMaster: all
+        TempMasterE2ETests: [test]
+    test:
+      targets:
+        - TempMasterE2ETests
+      gatherCoverageData: false
   TempMaster:
     build:
       targets:
