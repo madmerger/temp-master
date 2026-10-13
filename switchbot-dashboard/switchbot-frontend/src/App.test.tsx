@@ -117,7 +117,9 @@ describe('App action errors', () => {
     });
     expect(screen.getByText('Failed to refresh: boom')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Dismiss refresh error' }),
+    );
 
     expect(
       screen.queryByText('Failed to refresh: boom'),
@@ -153,5 +155,48 @@ describe('App action errors', () => {
     expect(fetchMock).toHaveBeenCalledWith('/api/backup');
     expect(anchorClick).not.toHaveBeenCalled();
     expect(createObjectURL).not.toHaveBeenCalled();
+  });
+
+  it('dismisses only the refresh error when both actions fail', async () => {
+    apiMocks.triggerRefresh.mockRejectedValue(new Error('boom'));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+        json: vi.fn().mockResolvedValue({ request_id: 'abc' }),
+      }),
+    );
+    renderApp();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Refresh Data' }));
+    expect(await screen.findByText('Failed to refresh: boom')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: 'Refresh Data' }),
+      ).toBeEnabled();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Download Backup' }));
+    expect(
+      await screen.findByText(
+        'Failed to download backup (HTTP 500). Request ID: abc',
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getAllByRole('alert')).toHaveLength(2);
+    expect(
+      screen.getByRole('button', { name: 'Dismiss backup error' }),
+    ).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Dismiss refresh error' }),
+    );
+
+    expect(
+      screen.queryByText('Failed to refresh: boom'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText('Failed to download backup (HTTP 500). Request ID: abc'),
+    ).toBeInTheDocument();
   });
 });

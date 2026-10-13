@@ -30,9 +30,11 @@ function getErrorMessage(error: unknown): string {
 
 function ActionErrorAlert({
   message,
+  dismissLabel,
   onDismiss,
 }: {
   message: string;
+  dismissLabel: string;
   onDismiss: () => void;
 }) {
   return (
@@ -45,7 +47,7 @@ function ActionErrorAlert({
       </span>
       <button
         type="button"
-        aria-label="Dismiss"
+        aria-label={dismissLabel}
         onClick={onDismiss}
         className="shrink-0 text-lg leading-none"
       >
@@ -309,6 +311,7 @@ export default function App() {
         {refreshError && (
           <ActionErrorAlert
             message={refreshError}
+            dismissLabel="Dismiss refresh error"
             onDismiss={() => setRefreshError(undefined)}
           />
         )}
@@ -316,6 +319,7 @@ export default function App() {
         {backupError && (
           <ActionErrorAlert
             message={backupError}
+            dismissLabel="Dismiss backup error"
             onDismiss={() => setBackupError(undefined)}
           />
         )}
