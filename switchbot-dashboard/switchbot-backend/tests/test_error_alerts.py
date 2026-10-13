@@ -4,6 +4,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
+from fastapi.routing import APIRoute
 
 import app.alerts as alerts_module
 import app.main as main_module
@@ -17,9 +18,14 @@ def reset_alerts():
     alerts_module.reset_alert_state()
 
 
-@app.get("/api/test-raise-500")
 async def raise_test_error():
     raise RuntimeError("boom")
+
+
+app.router.routes.insert(
+    len(app.router.routes) - 1,
+    APIRoute("/api/test-raise-500", raise_test_error, methods=["GET"]),
+)
 
 
 class FakeSlackResponse:

@@ -33,15 +33,15 @@ echo "SWITCHBOT_TOKEN=${SWITCHBOT_TOKEN}" > .env
 echo "SWITCHBOT_SECRET=${SWITCHBOT_SECRET}" >> .env
 ```
 
-### 3. Symlink frontend static files
+### 3. Build frontend static files
 
-The Dockerfile copies `switchbot-frontend/` to `switchbot-backend/static/`, but locally this directory doesn't exist. You must create a symlink:
+The backend serves the production frontend bundle from
+`switchbot-frontend/dist`. Build it before starting the backend:
 
 ```bash
-ln -s $(pwd)/switchbot-dashboard/switchbot-frontend switchbot-dashboard/switchbot-backend/static
+npm --prefix switchbot-dashboard/switchbot-frontend install
+npm --prefix switchbot-dashboard/switchbot-frontend run build
 ```
-
-**Important:** The static directory check in `main.py` happens at module import time (`STATIC_DIR = Path(__file__).resolve().parent.parent / "static"`). If you create the symlink after starting the server, you must restart the server.
 
 ### 4. Start the server
 
@@ -57,7 +57,7 @@ The frontend is served at `http://localhost:8000/` and the API docs at `http://l
 ### Branding Verification
 - Page title (`<title>` tag): should say "Temp Master Dashboard"
 - Navbar brand: should say "Temp Master Dashboard"
-- Footer: should say "Temp Master Dashboard v1.0 - Built with jQuery + Bootstrap 3"
+- Footer: should say "Temp Master Dashboard v2.0 - Built with React + Tailwind CSS"
 - Verify no "Snake" or "SnakeRoom" text exists anywhere: `document.body.innerHTML.includes('Snake')` should be `false`
 
 ### API Connectivity
@@ -66,10 +66,10 @@ The frontend is served at `http://localhost:8000/` and the API docs at `http://l
 - Connection status badge shows "Connected" (green, class `label-success`)
 
 ### UI Functionality
-- View toggle: Default (equal 3-col grid) vs Shelf (featured meter + 3-col grid)
 - Time Range selector: Last Hour / Last 24 Hours / Last 7 Days / Last 30 Days / Last Year
 - Charts: Canvas elements rendered with Chart.js line charts
 - Refresh Data button triggers data reload
+- Theme control switches between light, dark, and system preferences
 
 ## Running Backend Tests
 
@@ -78,11 +78,11 @@ cd switchbot-dashboard/switchbot-backend
 poetry run pytest -v
 ```
 
-Expected: 97 tests pass.
+Expected: 113 backend tests pass, including static SPA serving coverage.
 
 ## Architecture Notes
 
 - Backend: FastAPI + aiosqlite (SQLite persistence at `/data/app.db` or local `app.db`)
-- Frontend: jQuery + Bootstrap 3 (single `index.html` file)
+- Frontend: React 18 + TypeScript + Tailwind CSS 3 + Chart.js 4 + Vite 6
 - Deployment: Fly.io (see `fly.toml`)
-- Background data collection runs with 120s interval, with rate limiting and exponential backoff
+- Background data collection runs with a 3600-second interval, with rate limiting and exponential backoff

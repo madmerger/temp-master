@@ -1,6 +1,13 @@
-# Build and run backend (serves frontend static files)
+FROM node:22-alpine AS frontend
+WORKDIR /build
+COPY switchbot-frontend/package.json switchbot-frontend/package-lock.json ./
+RUN npm ci
+COPY switchbot-frontend/ ./
+ARG VITE_API_URL
+RUN if [ -n "$VITE_API_URL" ]; then VITE_API_URL="$VITE_API_URL" npm run build; else npm run build; fi
+
 FROM python:3.12-slim
-WORKDIR /app
+WORKDIR /app/switchbot-backend
 
 # Install poetry
 RUN pip install poetry
@@ -14,8 +21,8 @@ RUN poetry config virtualenvs.create true && \
 # Copy backend application code
 COPY switchbot-backend/app/ ./app/
 
-# Copy frontend to root: served at /
-COPY switchbot-frontend/ ./static/
+# Copy the production frontend bundle served at /
+COPY --from=frontend /build/dist /app/switchbot-frontend/dist
 
 EXPOSE 8000
 
