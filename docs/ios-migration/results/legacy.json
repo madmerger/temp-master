@@ -1,0 +1,1147 @@
+{
+  "TC-01": {
+    "id": "TC-01",
+    "name": "起動時ダッシュボード表示",
+    "expected": {
+      "title": "Temp Master Dashboard",
+      "connection": "Connected",
+      "status_text": "Monitoring 6 meters",
+      "last_refresh_regex": "^Last refresh: \\d{2}:\\d{2}:\\d{2}$",
+      "rate_limit_warning_visible": false,
+      "error_visible": false
+    },
+    "actual": {
+      "title": "Temp Master Dashboard",
+      "connection": "Connected",
+      "status_text": "Monitoring 6 meters",
+      "last_refresh_regex": "Last refresh: 04:13:19",
+      "rate_limit_warning_visible": false,
+      "error_visible": false
+    },
+    "key_results": {
+      "title": {
+        "result": "PASS",
+        "expected": "Temp Master Dashboard",
+        "actual": "Temp Master Dashboard"
+      },
+      "connection": {
+        "result": "PASS",
+        "expected": "Connected",
+        "actual": "Connected"
+      },
+      "status_text": {
+        "result": "PASS",
+        "expected": "Monitoring 6 meters",
+        "actual": "Monitoring 6 meters"
+      },
+      "last_refresh_regex": {
+        "result": "PASS",
+        "expected": "^Last refresh: \\d{2}:\\d{2}:\\d{2}$",
+        "actual": "Last refresh: 04:13:19"
+      },
+      "rate_limit_warning_visible": {
+        "result": "PASS",
+        "expected": false,
+        "actual": false
+      },
+      "error_visible": {
+        "result": "PASS",
+        "expected": false,
+        "actual": false
+      }
+    },
+    "overall": "PASS",
+    "pass": true,
+    "notes": [],
+    "screenshot": "legacy_screens/TC-01.png"
+  },
+  "TC-02": {
+    "id": "TC-02",
+    "name": "アクティブメーターカード (表示名変換あり)",
+    "expected": {
+      "display_name": "第1蒸留塔 (T-101)",
+      "device_type": "MeterPlus",
+      "labels": [
+        "22.3°C",
+        "80%",
+        "20%"
+      ],
+      "last_updated_prefix": "Last updated: ",
+      "has_chart": true
+    },
+    "actual": {
+      "display_name": "第1蒸留塔 (T-101)",
+      "device_type": "MeterPlus",
+      "labels": [
+        "22.3°C",
+        "80%",
+        "20%"
+      ],
+      "last_updated_prefix": "Last updated: ",
+      "has_chart": true
+    },
+    "key_results": {
+      "display_name": {
+        "result": "PASS",
+        "expected": "第1蒸留塔 (T-101)",
+        "actual": "第1蒸留塔 (T-101)"
+      },
+      "device_type": {
+        "result": "PASS",
+        "expected": "MeterPlus",
+        "actual": "MeterPlus"
+      },
+      "labels": {
+        "result": "PASS",
+        "expected": [
+          "22.3°C",
+          "80%",
+          "20%"
+        ],
+        "actual": [
+          "22.3°C",
+          "80%",
+          "20%"
+        ]
+      },
+      "last_updated_prefix": {
+        "result": "PASS",
+        "expected": "Last updated: ",
+        "actual": "Last updated: "
+      },
+      "has_chart": {
+        "result": "PASS",
+        "expected": true,
+        "actual": true
+      }
+    },
+    "overall": "PASS",
+    "pass": true,
+    "notes": [],
+    "screenshot": "legacy_screens/TC-02.png"
+  },
+  "TC-03": {
+    "id": "TC-03",
+    "name": "#69 追加の表示名変換・バッテリー null",
+    "expected": {
+      "display_name": "制御盤 (CP-1601)",
+      "device_type": "Hub 3",
+      "labels": [
+        "23.2°C",
+        "75%"
+      ],
+      "has_chart": true
+    },
+    "actual": {
+      "display_name": "制御盤 (CP-1601)",
+      "device_type": "Hub 3",
+      "labels": [
+        "23.2°C",
+        "75%"
+      ],
+      "has_chart": true
+    },
+    "key_results": {
+      "display_name": {
+        "result": "PASS",
+        "expected": "制御盤 (CP-1601)",
+        "actual": "制御盤 (CP-1601)"
+      },
+      "device_type": {
+        "result": "PASS",
+        "expected": "Hub 3",
+        "actual": "Hub 3"
+      },
+      "labels": {
+        "result": "PASS",
+        "expected": [
+          "23.2°C",
+          "75%"
+        ],
+        "actual": [
+          "23.2°C",
+          "75%"
+        ]
+      },
+      "has_chart": {
+        "result": "PASS",
+        "expected": true,
+        "actual": true
+      }
+    },
+    "overall": "PASS",
+    "pass": true,
+    "notes": [],
+    "screenshot": "legacy_screens/TC-03.png"
+  },
+  "TC-04": {
+    "id": "TC-04",
+    "name": "表示名マッピング無し・特殊文字を含むデバイス名のエスケープ",
+    "expected": {
+      "display_name": "Tag <b>&</b>",
+      "device_type": "Meter Pro CO2",
+      "labels": [
+        "25°C",
+        "40%",
+        "100%"
+      ]
+    },
+    "actual": {
+      "display_name": "Tag <b>&</b>",
+      "device_type": "Meter Pro CO2",
+      "labels": [
+        "25°C",
+        "40%",
+        "100%"
+      ]
+    },
+    "key_results": {
+      "display_name": {
+        "result": "PASS",
+        "expected": "Tag <b>&</b>",
+        "actual": "Tag <b>&</b>"
+      },
+      "device_type": {
+        "result": "PASS",
+        "expected": "Meter Pro CO2",
+        "actual": "Meter Pro CO2"
+      },
+      "labels": {
+        "result": "PASS",
+        "expected": [
+          "25°C",
+          "40%",
+          "100%"
+        ],
+        "actual": [
+          "25°C",
+          "40%",
+          "100%"
+        ]
+      }
+    },
+    "overall": "PASS",
+    "pass": true,
+    "notes": [],
+    "screenshot": "legacy_screens/TC-04.png"
+  },
+  "TC-05": {
+    "id": "TC-05",
+    "name": "未更新メーターセクション",
+    "expected": {
+      "section_title": "未更新のメーター",
+      "section_subtitle": "1週間以上更新されていないデバイス",
+      "stale_display_names": [
+        "冷却塔 (CT-401)",
+        "コンプレッサー (C-601)"
+      ],
+      "badge": "7日以上未更新",
+      "no_history_text": "履歴データの取得対象外",
+      "active_count": 4
+    },
+    "actual": {
+      "section_title": "未更新のメーター",
+      "section_subtitle": "1週間以上更新されていないデバイス",
+      "stale_display_names": [
+        "冷却塔 (CT-401)",
+        "コンプレッサー (C-601)"
+      ],
+      "badge": "7日以上未更新",
+      "no_history_text": "履歴データの取得対象外",
+      "active_count": 4
+    },
+    "key_results": {
+      "section_title": {
+        "result": "PASS",
+        "expected": "未更新のメーター",
+        "actual": "未更新のメーター"
+      },
+      "section_subtitle": {
+        "result": "PASS",
+        "expected": "1週間以上更新されていないデバイス",
+        "actual": "1週間以上更新されていないデバイス"
+      },
+      "stale_display_names": {
+        "result": "PASS",
+        "expected": [
+          "冷却塔 (CT-401)",
+          "コンプレッサー (C-601)"
+        ],
+        "actual": [
+          "冷却塔 (CT-401)",
+          "コンプレッサー (C-601)"
+        ]
+      },
+      "badge": {
+        "result": "PASS",
+        "expected": "7日以上未更新",
+        "actual": "7日以上未更新"
+      },
+      "no_history_text": {
+        "result": "PASS",
+        "expected": "履歴データの取得対象外",
+        "actual": "履歴データの取得対象外"
+      },
+      "active_count": {
+        "result": "PASS",
+        "expected": 4,
+        "actual": 4
+      }
+    },
+    "overall": "PASS",
+    "pass": true,
+    "notes": [],
+    "screenshot": "legacy_screens/TC-05.png"
+  },
+  "TC-06": {
+    "id": "TC-06",
+    "name": "データ未受信の未更新メーター",
+    "expected": {
+      "display_name": "コンプレッサー (C-601)",
+      "labels": [],
+      "no_value_text": "値がありません（データ未受信）",
+      "has_last_updated": false,
+      "has_chart": false
+    },
+    "actual": {
+      "display_name": "コンプレッサー (C-601)",
+      "labels": [],
+      "no_value_text": "値がありません（データ未受信）",
+      "has_last_updated": false,
+      "has_chart": false
+    },
+    "key_results": {
+      "display_name": {
+        "result": "PASS",
+        "expected": "コンプレッサー (C-601)",
+        "actual": "コンプレッサー (C-601)"
+      },
+      "labels": {
+        "result": "PASS",
+        "expected": [],
+        "actual": []
+      },
+      "no_value_text": {
+        "result": "PASS",
+        "expected": "値がありません（データ未受信）",
+        "actual": "値がありません（データ未受信）"
+      },
+      "has_last_updated": {
+        "result": "PASS",
+        "expected": false,
+        "actual": false
+      },
+      "has_chart": {
+        "result": "PASS",
+        "expected": false,
+        "actual": false
+      }
+    },
+    "overall": "PASS",
+    "pass": true,
+    "notes": [],
+    "screenshot": "legacy_screens/TC-06.png"
+  },
+  "TC-07": {
+    "id": "TC-07",
+    "name": "値ありの未更新メーター (数値表記)",
+    "expected": {
+      "display_name": "冷却塔 (CT-401)",
+      "labels": [
+        "19°C",
+        "60%",
+        "5%"
+      ],
+      "has_last_updated": true,
+      "has_chart": false
+    },
+    "actual": {
+      "display_name": "冷却塔 (CT-401)",
+      "labels": [
+        "19°C",
+        "60%",
+        "5%"
+      ],
+      "has_last_updated": true,
+      "has_chart": false
+    },
+    "key_results": {
+      "display_name": {
+        "result": "PASS",
+        "expected": "冷却塔 (CT-401)",
+        "actual": "冷却塔 (CT-401)"
+      },
+      "labels": {
+        "result": "PASS",
+        "expected": [
+          "19°C",
+          "60%",
+          "5%"
+        ],
+        "actual": [
+          "19°C",
+          "60%",
+          "5%"
+        ]
+      },
+      "has_last_updated": {
+        "result": "PASS",
+        "expected": true,
+        "actual": true
+      },
+      "has_chart": {
+        "result": "PASS",
+        "expected": false,
+        "actual": false
+      }
+    },
+    "overall": "PASS",
+    "pass": true,
+    "notes": [],
+    "screenshot": "legacy_screens/TC-07.png"
+  },
+  "TC-08": {
+    "id": "TC-08",
+    "name": "Time Range 選択肢と初期値",
+    "expected": {
+      "options": [
+        "Last Hour",
+        "Last 24 Hours",
+        "Last 7 Days",
+        "Last 30 Days",
+        "Last Year"
+      ],
+      "default": "Last 24 Hours"
+    },
+    "actual": {
+      "options": [
+        "Last Hour",
+        "Last 24 Hours",
+        "Last 7 Days",
+        "Last 30 Days",
+        "Last Year"
+      ],
+      "default": "Last 24 Hours"
+    },
+    "key_results": {
+      "options": {
+        "result": "PASS",
+        "expected": [
+          "Last Hour",
+          "Last 24 Hours",
+          "Last 7 Days",
+          "Last 30 Days",
+          "Last Year"
+        ],
+        "actual": [
+          "Last Hour",
+          "Last 24 Hours",
+          "Last 7 Days",
+          "Last 30 Days",
+          "Last Year"
+        ]
+      },
+      "default": {
+        "result": "PASS",
+        "expected": "Last 24 Hours",
+        "actual": "Last 24 Hours"
+      }
+    },
+    "overall": "PASS",
+    "pass": true,
+    "notes": [],
+    "screenshot": "legacy_screens/TC-08.png"
+  },
+  "TC-09": {
+    "id": "TC-09",
+    "name": "Time Range 切替でのグラフ点数とラベル書式 (SEED-D1)",
+    "expected": {
+      "points": {
+        "hour": 1,
+        "day": 2,
+        "week": 3,
+        "month": 4,
+        "year": 5
+      },
+      "label_regex": {
+        "hour": "^\\d{2}:\\d{2}$",
+        "day": "^\\d{2}:\\d{2}$",
+        "week": "^(Sun|Mon|Tue|Wed|Thu|Fri|Sat) \\d{2}$",
+        "month": "^[A-Z][a-z]{2} \\d{1,2}$",
+        "year": "^[A-Z][a-z]{2} \\d{1,2}$"
+      },
+      "chart_counts_stable": true
+    },
+    "actual": {
+      "points": {
+        "hour": 1,
+        "day": 2,
+        "week": 3,
+        "month": 4,
+        "year": 5
+      },
+      "label_regex": {
+        "hour": [
+          "03:43"
+        ],
+        "day": [
+          "02:13",
+          "03:43"
+        ],
+        "week": [
+          "Sat 04",
+          "Tue 02",
+          "Tue 03"
+        ],
+        "month": [
+          "Oct 3",
+          "Oct 10",
+          "Oct 13",
+          "Oct 13"
+        ],
+        "year": [
+          "Jul 5",
+          "Oct 3",
+          "Oct 10",
+          "Oct 13",
+          "Oct 13"
+        ]
+      },
+      "chart_counts_stable": true
+    },
+    "key_results": {
+      "points": {
+        "result": "PASS",
+        "expected": {
+          "hour": 1,
+          "day": 2,
+          "week": 3,
+          "month": 4,
+          "year": 5
+        },
+        "actual": {
+          "hour": 1,
+          "day": 2,
+          "week": 3,
+          "month": 4,
+          "year": 5
+        }
+      },
+      "label_regex": {
+        "result": "PASS",
+        "expected": {
+          "hour": "^\\d{2}:\\d{2}$",
+          "day": "^\\d{2}:\\d{2}$",
+          "week": "^(Sun|Mon|Tue|Wed|Thu|Fri|Sat) \\d{2}$",
+          "month": "^[A-Z][a-z]{2} \\d{1,2}$",
+          "year": "^[A-Z][a-z]{2} \\d{1,2}$"
+        },
+        "actual": {
+          "hour": [
+            "03:43"
+          ],
+          "day": [
+            "02:13",
+            "03:43"
+          ],
+          "week": [
+            "Sat 04",
+            "Tue 02",
+            "Tue 03"
+          ],
+          "month": [
+            "Oct 3",
+            "Oct 10",
+            "Oct 13",
+            "Oct 13"
+          ],
+          "year": [
+            "Jul 5",
+            "Oct 3",
+            "Oct 10",
+            "Oct 13",
+            "Oct 13"
+          ]
+        }
+      },
+      "chart_counts_stable": {
+        "result": "PASS",
+        "expected": true,
+        "actual": true
+      }
+    },
+    "overall": "PASS",
+    "pass": true,
+    "notes": [],
+    "screenshot": "legacy_screens/TC-09.png"
+  },
+  "TC-17": {
+    "id": "TC-17",
+    "name": "ヘルスチェック・ステータス",
+    "expected": {
+      "healthz": "ok",
+      "configured": false,
+      "meters_count": 6,
+      "is_rate_limited": false,
+      "collection_interval": 3600
+    },
+    "actual": {
+      "healthz": "ok",
+      "configured": false,
+      "meters_count": 6,
+      "is_rate_limited": false,
+      "collection_interval": 3600
+    },
+    "key_results": {
+      "healthz": {
+        "result": "PASS",
+        "expected": "ok",
+        "actual": "ok"
+      },
+      "configured": {
+        "result": "PASS",
+        "expected": false,
+        "actual": false
+      },
+      "meters_count": {
+        "result": "PASS",
+        "expected": 6,
+        "actual": 6
+      },
+      "is_rate_limited": {
+        "result": "PASS",
+        "expected": false,
+        "actual": false
+      },
+      "collection_interval": {
+        "result": "PASS",
+        "expected": 3600,
+        "actual": 3600
+      }
+    },
+    "overall": "PASS",
+    "pass": true,
+    "notes": []
+  },
+  "TC-13": {
+    "id": "TC-13",
+    "name": "Download Backup",
+    "expected": {
+      "button_during": "Downloading...",
+      "final_button": "Download Backup",
+      "http_status": 200,
+      "filename_regex": "^switchbot_backup_\\d{8}_\\d{6}\\.db$",
+      "sqlite_header": true,
+      "contains_seed_devices": 6,
+      "error_visible": false
+    },
+    "actual": {
+      "button_during": "Downloading...",
+      "final_button": "Download Backup",
+      "http_status": 200,
+      "filename_regex": "switchbot_backup_20261013_041322.db",
+      "sqlite_header": true,
+      "contains_seed_devices": 6,
+      "error_visible": false
+    },
+    "key_results": {
+      "button_during": {
+        "result": "PASS",
+        "expected": "Downloading...",
+        "actual": "Downloading..."
+      },
+      "final_button": {
+        "result": "PASS",
+        "expected": "Download Backup",
+        "actual": "Download Backup"
+      },
+      "http_status": {
+        "result": "PASS",
+        "expected": 200,
+        "actual": 200
+      },
+      "filename_regex": {
+        "result": "PASS",
+        "expected": "^switchbot_backup_\\d{8}_\\d{6}\\.db$",
+        "actual": "switchbot_backup_20261013_041322.db"
+      },
+      "sqlite_header": {
+        "result": "PASS",
+        "expected": true,
+        "actual": true
+      },
+      "contains_seed_devices": {
+        "result": "PASS",
+        "expected": 6,
+        "actual": 6
+      },
+      "error_visible": {
+        "result": "PASS",
+        "expected": false,
+        "actual": false
+      }
+    },
+    "overall": "PASS",
+    "pass": true,
+    "notes": [],
+    "screenshot": "legacy_screens/TC-13.png"
+  },
+  "TC-14": {
+    "id": "TC-14",
+    "name": "レイテンシ統計",
+    "expected": {
+      "total_calls": 4,
+      "avg_latency_ms": 137.625,
+      "min_latency_ms": 50.0,
+      "max_latency_ms": 300.0,
+      "successful_calls": 2,
+      "failed_calls": 2,
+      "success_rate": 50.0
+    },
+    "actual": {
+      "total_calls": 4,
+      "avg_latency_ms": 137.625,
+      "min_latency_ms": 50.0,
+      "max_latency_ms": 300.0,
+      "successful_calls": 2,
+      "failed_calls": 2,
+      "success_rate": 50.0
+    },
+    "key_results": {
+      "total_calls": {
+        "result": "PASS",
+        "expected": 4,
+        "actual": 4
+      },
+      "avg_latency_ms": {
+        "result": "PASS",
+        "expected": 137.625,
+        "actual": 137.625
+      },
+      "min_latency_ms": {
+        "result": "PASS",
+        "expected": 50.0,
+        "actual": 50.0
+      },
+      "max_latency_ms": {
+        "result": "PASS",
+        "expected": 300.0,
+        "actual": 300.0
+      },
+      "successful_calls": {
+        "result": "PASS",
+        "expected": 2,
+        "actual": 2
+      },
+      "failed_calls": {
+        "result": "PASS",
+        "expected": 2,
+        "actual": 2
+      },
+      "success_rate": {
+        "result": "PASS",
+        "expected": 50.0,
+        "actual": 50.0
+      }
+    },
+    "overall": "PASS",
+    "pass": true,
+    "notes": []
+  },
+  "TC-15": {
+    "id": "TC-15",
+    "name": "レイテンシログ一覧とフィルタ",
+    "expected": {
+      "order_endpoints": [
+        "/devices/SEED-D3/status",
+        "/devices/SEED-D2/status",
+        "/devices/SEED-D1/status",
+        "/devices"
+      ],
+      "filter_endpoint_count": 1,
+      "filter_device_count": 1,
+      "limit2_count": 2
+    },
+    "actual": {
+      "order_endpoints": [
+        "/devices/SEED-D3/status",
+        "/devices/SEED-D2/status",
+        "/devices/SEED-D1/status",
+        "/devices"
+      ],
+      "filter_endpoint_count": 1,
+      "filter_device_count": 1,
+      "limit2_count": 2
+    },
+    "key_results": {
+      "order_endpoints": {
+        "result": "PASS",
+        "expected": [
+          "/devices/SEED-D3/status",
+          "/devices/SEED-D2/status",
+          "/devices/SEED-D1/status",
+          "/devices"
+        ],
+        "actual": [
+          "/devices/SEED-D3/status",
+          "/devices/SEED-D2/status",
+          "/devices/SEED-D1/status",
+          "/devices"
+        ]
+      },
+      "filter_endpoint_count": {
+        "result": "PASS",
+        "expected": 1,
+        "actual": 1
+      },
+      "filter_device_count": {
+        "result": "PASS",
+        "expected": 1,
+        "actual": 1
+      },
+      "limit2_count": {
+        "result": "PASS",
+        "expected": 2,
+        "actual": 2
+      }
+    },
+    "overall": "PASS",
+    "pass": true,
+    "notes": []
+  },
+  "TC-19": {
+    "id": "TC-19",
+    "name": "30秒自動更新",
+    "expected": {
+      "last_refresh_changed": true
+    },
+    "actual": {
+      "last_refresh_changed": true,
+      "before": "Last refresh: 04:13:19",
+      "after": "Last refresh: 04:13:49"
+    },
+    "key_results": {
+      "last_refresh_changed": {
+        "result": "PASS",
+        "expected": true,
+        "actual": true
+      }
+    },
+    "overall": "PASS",
+    "pass": true,
+    "notes": [],
+    "screenshot": "legacy_screens/TC-19.png"
+  },
+  "TC-10": {
+    "id": "TC-10",
+    "name": "Refresh Data (バックエンド未設定クレデンシャル)",
+    "expected": {
+      "refresh_http_status": 500,
+      "button_during": "Refreshing...",
+      "final_button": "Refresh Data",
+      "final_connection": "Connected",
+      "final_error_visible": false
+    },
+    "actual": {
+      "refresh_http_status": 500,
+      "button_during": "Refreshing...",
+      "final_button": "Refresh Data",
+      "final_connection": "Connected",
+      "final_error_visible": false
+    },
+    "key_results": {
+      "refresh_http_status": {
+        "result": "PASS",
+        "expected": 500,
+        "actual": 500
+      },
+      "button_during": {
+        "result": "PASS",
+        "expected": "Refreshing...",
+        "actual": "Refreshing..."
+      },
+      "final_button": {
+        "result": "PASS",
+        "expected": "Refresh Data",
+        "actual": "Refresh Data"
+      },
+      "final_connection": {
+        "result": "PASS",
+        "expected": "Connected",
+        "actual": "Connected"
+      },
+      "final_error_visible": {
+        "result": "PASS",
+        "expected": false,
+        "actual": false
+      }
+    },
+    "overall": "PASS",
+    "pass": true,
+    "notes": [],
+    "screenshot": "legacy_screens/TC-10.png"
+  },
+  "TC-16": {
+    "id": "TC-16",
+    "name": "データインポート",
+    "expected": {
+      "imported_devices": 1,
+      "imported_readings": 2,
+      "new_display_name": "遠心分離機 (S-701)",
+      "status_text": "Monitoring 7 meters",
+      "seed_d7_is_stale": false
+    },
+    "actual": {
+      "imported_devices": 1,
+      "imported_readings": 2,
+      "new_display_name": "遠心分離機 (S-701)",
+      "status_text": "Monitoring 7 meters",
+      "seed_d7_is_stale": false
+    },
+    "key_results": {
+      "imported_devices": {
+        "result": "PASS",
+        "expected": 1,
+        "actual": 1
+      },
+      "imported_readings": {
+        "result": "PASS",
+        "expected": 2,
+        "actual": 2
+      },
+      "new_display_name": {
+        "result": "PASS",
+        "expected": "遠心分離機 (S-701)",
+        "actual": "遠心分離機 (S-701)"
+      },
+      "status_text": {
+        "result": "PASS",
+        "expected": "Monitoring 7 meters",
+        "actual": "Monitoring 7 meters"
+      },
+      "seed_d7_is_stale": {
+        "result": "PASS",
+        "expected": false,
+        "actual": false
+      }
+    },
+    "overall": "PASS",
+    "pass": true,
+    "notes": [
+      "SEED-D7 stale-side membership: False."
+    ],
+    "screenshot": "legacy_screens/TC-16.png"
+  },
+  "TC-11": {
+    "id": "TC-11",
+    "name": "バックエンド停止時のエラー表示",
+    "expected": {
+      "connection": "Disconnected",
+      "error_prefix": "Failed to "
+    },
+    "actual": {
+      "connection": "Disconnected",
+      "error_prefix": "Failed to "
+    },
+    "key_results": {
+      "connection": {
+        "result": "PASS",
+        "expected": "Disconnected",
+        "actual": "Disconnected"
+      },
+      "error_prefix": {
+        "result": "PASS",
+        "expected": "Failed to ",
+        "actual": "Failed to "
+      }
+    },
+    "overall": "PASS",
+    "pass": true,
+    "notes": [],
+    "screenshot": "legacy_screens/TC-11.png"
+  },
+  "TC-18": {
+    "id": "TC-18",
+    "name": "Standalone: SwitchBot 実機からの収集",
+    "expected": {
+      "meter_device_ids": "legacy 実測の device_id 集合と一致",
+      "all_active_have_temperature": true
+    },
+    "actual": {
+      "meter_device_ids": [
+        "C76B0046301A",
+        "CE2A4586263B",
+        "D12D0346415D",
+        "D13234351576",
+        "D22E81062E47",
+        "D22E81865125",
+        "D22E84065428",
+        "D22E84463D31",
+        "D22E84860F7A",
+        "D22E84862F2E",
+        "D22E84866915",
+        "E3FD0C2CD631",
+        "E77600C6218C",
+        "E77601464004",
+        "E85502860E4E",
+        "E87606062677",
+        "ED2E86065D68",
+        "F19D2B915CE6"
+      ],
+      "all_active_have_temperature": true
+    },
+    "key_results": {
+      "meter_device_ids": {
+        "result": "RECORDED",
+        "expected": "legacy 実測の device_id 集合と一致",
+        "actual": [
+          "C76B0046301A",
+          "CE2A4586263B",
+          "D12D0346415D",
+          "D13234351576",
+          "D22E81062E47",
+          "D22E81865125",
+          "D22E84065428",
+          "D22E84463D31",
+          "D22E84860F7A",
+          "D22E84862F2E",
+          "D22E84866915",
+          "E3FD0C2CD631",
+          "E77600C6218C",
+          "E77601464004",
+          "E85502860E4E",
+          "E87606062677",
+          "ED2E86065D68",
+          "F19D2B915CE6"
+        ]
+      },
+      "all_active_have_temperature": {
+        "result": "PASS",
+        "expected": true,
+        "actual": true
+      }
+    },
+    "overall": "PASS",
+    "pass": true,
+    "notes": [
+      "Refresh HTTP status: 200.",
+      "The measured device IDs are the legacy reference set for TC-18 comparison.",
+      "meter_device_ids: Expected value is a template/reference, retained for cross-target comparison."
+    ]
+  },
+  "TC-20": {
+    "id": "TC-20",
+    "name": "本番 snakeroom への Remote 接続 (読み取りのみ)",
+    "expected": {
+      "status_text": "Monitoring 22 meters",
+      "connection": "Connected"
+    },
+    "actual": {
+      "status_text": "Monitoring 22 meters",
+      "connection": "Connected"
+    },
+    "key_results": {
+      "status_text": {
+        "result": "PASS",
+        "expected": "Monitoring 22 meters",
+        "actual": "Monitoring 22 meters"
+      },
+      "connection": {
+        "result": "PASS",
+        "expected": "Connected",
+        "actual": "Connected"
+      }
+    },
+    "overall": "PASS",
+    "pass": true,
+    "notes": [
+      "Read-only production API meters_count before page load: 22; after page load: 22."
+    ],
+    "screenshot": "legacy_screens/TC-20.png"
+  },
+  "TC-22": {
+    "id": "TC-22",
+    "name": "Download Backup 失敗時の Request ID 表示",
+    "expected": {
+      "http_status": 500,
+      "body_request_id_regex": "^[0-9a-f]{12}$",
+      "x_request_id_matches_body": true,
+      "error_regex": "^Failed to download backup \\(HTTP 500\\)\\. Request ID: [0-9a-f]{12}$",
+      "connection": "Disconnected",
+      "final_button": "Download Backup"
+    },
+    "actual": {
+      "http_status": 500,
+      "body_request_id_regex": "e847915dd3d3",
+      "x_request_id_matches_body": true,
+      "error_regex": "Failed to download backup (HTTP 500). Request ID: e847915dd3d3",
+      "connection": "Disconnected",
+      "final_button": "Download Backup"
+    },
+    "key_results": {
+      "http_status": {
+        "result": "PASS",
+        "expected": 500,
+        "actual": 500
+      },
+      "body_request_id_regex": {
+        "result": "PASS",
+        "expected": "^[0-9a-f]{12}$",
+        "actual": "e847915dd3d3"
+      },
+      "x_request_id_matches_body": {
+        "result": "PASS",
+        "expected": true,
+        "actual": true
+      },
+      "error_regex": {
+        "result": "PASS",
+        "expected": "^Failed to download backup \\(HTTP 500\\)\\. Request ID: [0-9a-f]{12}$",
+        "actual": "Failed to download backup (HTTP 500). Request ID: e847915dd3d3"
+      },
+      "connection": {
+        "result": "PASS",
+        "expected": "Disconnected",
+        "actual": "Disconnected"
+      },
+      "final_button": {
+        "result": "PASS",
+        "expected": "Download Backup",
+        "actual": "Download Backup"
+      }
+    },
+    "overall": "PASS",
+    "pass": true,
+    "notes": [],
+    "screenshot": "legacy_screens/TC-22.png"
+  },
+  "TC-23": {
+    "id": "TC-23",
+    "name": "5xx 時 Slack アラート (サーバー側)",
+    "expected": {
+      "pytest_test_error_alerts": "all passed"
+    },
+    "actual": {
+      "pytest_test_error_alerts": "all passed",
+      "full_backend_suite": "all passed"
+    },
+    "key_results": {
+      "pytest_test_error_alerts": {
+        "result": "PASS",
+        "expected": "all passed",
+        "actual": "all passed"
+      },
+      "full_backend_suite": {
+        "result": "PASS",
+        "expected": "all passed",
+        "actual": "all passed"
+      }
+    },
+    "overall": "PASS",
+    "pass": true,
+    "notes": [
+      "Focused error-alert pytest exit code: 0.",
+      "Full backend suite passed; see phase1_pytest.log."
+    ]
+  }
+}
