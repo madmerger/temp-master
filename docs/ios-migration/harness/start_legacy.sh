@@ -33,17 +33,17 @@ if [ "$WITH_CREDS" = "--with-creds" ]; then
   echo "Starting legacy backend WITH SwitchBot credentials on port $PORT (db: $DB_PATH)" >&2
   env -u BACKUP_DIR DB_PATH="$DB_PATH" \
     SWITCHBOT_TOKEN="$SWITCHBOT_TOKEN" SWITCHBOT_SECRET="$SWITCHBOT_SECRET" \
-    nohup poetry run fastapi run app/main.py --port "$PORT" >"$LOG" 2>&1 &
+    nohup poetry run uvicorn app.main:app --host 127.0.0.1 --port "$PORT" >"$LOG" 2>&1 &
 else
   echo "Starting legacy backend WITHOUT credentials on port $PORT (db: $DB_PATH)" >&2
   if [ "$PORT" = "8000" ]; then
     BACKUP_DIR="$(dirname "$DB_PATH")/backups"
     mkdir -p "$BACKUP_DIR"
     DB_PATH="$DB_PATH" BACKUP_DIR="$BACKUP_DIR" SWITCHBOT_TOKEN="" SWITCHBOT_SECRET="" \
-      nohup poetry run fastapi run app/main.py --port "$PORT" >"$LOG" 2>&1 &
+      nohup poetry run uvicorn app.main:app --host 127.0.0.1 --port "$PORT" >"$LOG" 2>&1 &
   else
     env -u BACKUP_DIR DB_PATH="$DB_PATH" SWITCHBOT_TOKEN="" SWITCHBOT_SECRET="" \
-      nohup poetry run fastapi run app/main.py --port "$PORT" >"$LOG" 2>&1 &
+      nohup poetry run uvicorn app.main:app --host 127.0.0.1 --port "$PORT" >"$LOG" 2>&1 &
   fi
 fi
 

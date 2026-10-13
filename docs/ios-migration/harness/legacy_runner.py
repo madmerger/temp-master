@@ -12,7 +12,7 @@ import threading
 import time
 import urllib.error
 import urllib.request
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from socketserver import ThreadingMixIn
@@ -56,6 +56,39 @@ def api_post_json(url, payload=None, timeout=120):
         return status, headers, json.loads(body)
     except (json.JSONDecodeError, UnicodeDecodeError):
         return status, headers, None
+
+
+def rebase_import_timestamps(payload):
+    timestamps = []
+    for device in payload.get("devices", []):
+        values = [device.get("last_updated")]
+        values.extend(reading.get("timestamp") for reading in device.get("readings", []))
+        for value in values:
+            if value:
+                parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+                if parsed.tzinfo is None:
+                    parsed = parsed.replace(tzinfo=timezone.utc)
+                timestamps.append(parsed.astimezone(timezone.utc))
+    if not timestamps:
+        return payload
+
+    shift = datetime.now(timezone.utc) - timedelta(minutes=3) - max(timestamps)
+
+    def shifted(value):
+        if not value:
+            return value
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=timezone.utc)
+        return (parsed.astimezone(timezone.utc) + shift).isoformat()
+
+    for device in payload.get("devices", []):
+        if "last_updated" in device:
+            device["last_updated"] = shifted(device["last_updated"])
+        for reading in device.get("readings", []):
+            if "timestamp" in reading:
+                reading["timestamp"] = shifted(reading["timestamp"])
+    return payload
 
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
@@ -139,38 +172,65 @@ def serve_frontend(original_html, patched_html, port):
 
 def start_instance(port, db_path, with_creds=False, no_seed=False):
     args = ["bash", str(HERE / "reset_and_seed.sh"), str(port), str(db_path)]
+    if no_seed:
+        args.append("--no-seed")
     if with_creds:
         args.append("--with-creds")
-    if no_seed:
-        if not with_creds:
-            args.append("")
-        args.append("--no-seed")
     return subprocess.run(args, check=True, capture_output=True, text=True)
 
 
 def stop_port(port):
-    try:
-        pids = subprocess.run(
-            ["lsof", "-ti", f"tcp:{port}"], capture_output=True, text=True, check=False
-        ).stdout.split()
-    except FileNotFoundError:
-        pids = []
+    def port_pids():
+        try:
+            result = subprocess.run(
+                ["lsof", "-ti", f"tcp:{port}"],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+        except FileNotFoundError as exc:
+            raise RuntimeError("lsof is required to stop a backend safely") from exc
+        if result.returncode not in (0, 1):
+            raise RuntimeError(f"Could not inspect processes using port {port}")
+        return result.stdout.split()
+
+    def validate_backend_pids(pids):
+        for pid in pids:
+            result = subprocess.run(
+                ["ps", "-o", "args=", "-p", pid],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            command = result.stdout
+            is_uvicorn_backend = "uvicorn" in command and "app.main" in command
+            is_fastapi_backend = "fastapi" in command and "app/main.py" in command
+            if result.returncode != 0 or not command or not (
+                is_uvicorn_backend or is_fastapi_backend
+            ):
+                raise RuntimeError(
+                    f"Refusing to stop PID {pid} on port {port}: "
+                    "it is not a recognized FastAPI backend"
+                )
+
+    pids = port_pids()
+    validate_backend_pids(pids)
     for pid in pids:
         try:
             os.kill(int(pid), signal.SIGTERM)
         except (ProcessLookupError, ValueError):
             pass
+
     deadline = time.time() + 8
     while time.time() < deadline:
-        try:
-            remaining = subprocess.run(
-                ["lsof", "-ti", f"tcp:{port}"], capture_output=True, text=True, check=False
-            ).stdout.split()
-        except FileNotFoundError:
-            remaining = []
+        remaining = port_pids()
+        validate_backend_pids(remaining)
         if not remaining:
             return
         time.sleep(0.2)
+
+    remaining = port_pids()
+    validate_backend_pids(remaining)
     for pid in remaining:
         try:
             os.kill(int(pid), signal.SIGKILL)
@@ -263,9 +323,18 @@ def main():
     server = None
     results = {}
 
-    def record(case_id, actual, page=None, notes=None):
+    def record(
+        case_id,
+        actual,
+        page=None,
+        notes=None,
+        expected_overrides=None,
+        additional_expectations=None,
+    ):
         case = all_cases[case_id]
-        expected = case["expected"]
+        expected = dict(case["expected"])
+        expected.update(expected_overrides or {})
+        expected.update(additional_expectations or {})
         key_results = {}
         note_list = list(notes or [])
         for key, expected_value in expected.items():
@@ -407,9 +476,22 @@ def main():
             points = {}
             labels = {}
             for scale in ("hour", "day", "week", "month", "year"):
-                page.select_option("#time-scale-select", scale)
+                with page.expect_response(
+                    lambda response: (
+                        "/api/meters/SEED-D1/history" in response.url
+                        and f"time_scale={scale}" in response.url
+                    ),
+                    timeout=15000,
+                ) as history_response:
+                    page.select_option("#time-scale-select", scale)
+                history = history_response.value.json().get("history", [])
                 page.wait_for_function(
-                    "window.charts && window.charts['SEED-D1']", timeout=10000
+                    """expectedCount => {
+                      const chart = window.charts && window.charts['SEED-D1'];
+                      return chart && chart.data.labels.length === expectedCount;
+                    }""",
+                    arg=len(history),
+                    timeout=15000,
                 )
                 current_labels = page.evaluate("window.charts['SEED-D1'].data.labels")
                 points[scale] = len(current_labels)
@@ -547,21 +629,31 @@ def main():
             }, page)
 
             with Path(args.import_extra).open(encoding="utf-8") as extra_file:
-                extra_payload = json.load(extra_file)
+                extra_payload = rebase_import_timestamps(json.load(extra_file))
             _, _, imported = api_post_json(
                 "http://127.0.0.1:8000/api/import", extra_payload
             )
             page.reload()
             wait_dashboard(page)
             panels = page.evaluate(panel_js)
+            seed_d7_panel = next(
+                (panel for panel in panels if panel["name"] == "遠心分離機 (S-701)"),
+                None,
+            )
+            seed_d7_is_stale = (
+                seed_d7_panel.get("stale") if seed_d7_panel is not None else None
+            )
             record("TC-16", {
                 "imported_devices": imported.get("imported_devices") if imported else None,
                 "imported_readings": imported.get("imported_readings") if imported else None,
                 "new_display_name": "遠心分離機 (S-701)"
-                if any(panel["name"] == "遠心分離機 (S-701)" for panel in panels)
+                if seed_d7_panel is not None
                 else None,
                 "status_text": page.inner_text("#status-meters-count").strip(),
-            }, page)
+                "seed_d7_is_stale": seed_d7_is_stale,
+            }, page, notes=[
+                f"SEED-D7 stale-side membership: {seed_d7_is_stale}."
+            ], additional_expectations={"seed_d7_is_stale": False})
 
             stop_port(8000)
             page.locator("#btn-refresh").click(no_wait_after=True)
@@ -623,12 +715,15 @@ def main():
                 page.goto(f"{api_url}/prod.html")
                 wait_dashboard(page)
                 _, _, production_status = api_get_json("https://snakeroom.fly.dev/api/status")
+                expected_status_text = (
+                    f"Monitoring {production_status['meters_count']} meters"
+                )
                 record("TC-20", {
                     "status_text": page.inner_text("#status-meters-count").strip(),
                     "connection": page.inner_text("#connection-status").strip(),
                 }, page, notes=[
-                    f"Read-only production API meters_count: {production_status.get('meters_count')}."
-                ])
+                    f"Read-only production API meters_count: {production_status['meters_count']}."
+                ], expected_overrides={"status_text": expected_status_text})
             except Exception as exc:
                 record("TC-20", {
                     "status_text": None,
@@ -690,12 +785,15 @@ def main():
                 capture_output=True,
                 text=True,
             )
-            record("TC-23", {
-                "pytest_test_error_alerts": "all passed"
+            targeted_status = (
+                "all passed"
                 if targeted.returncode == 0
-                else f"failed (exit {targeted.returncode})",
+                else f"failed (exit {targeted.returncode})"
+            )
+            record("TC-23", {
+                "pytest_test_error_alerts": targeted_status,
             }, notes=[
-                "Focused error-alert tests passed; the full backend suite log is phase1_pytest.log."
+                f"Focused error-alert pytest exit code: {targeted.returncode}."
             ])
 
             full_suite = subprocess.run(
@@ -715,7 +813,23 @@ def main():
                 results["TC-23"]["notes"].append(
                     f"Full backend suite failed with exit code {full_suite.returncode}; see phase1_pytest.log."
                 )
+                results["TC-23"]["overall"] = "FAIL"
+                results["TC-23"]["pass"] = False
+                results["TC-23"]["actual"]["full_backend_suite"] = (
+                    f"failed (exit {full_suite.returncode})"
+                )
+                results["TC-23"]["key_results"]["full_backend_suite"] = {
+                    "result": "FAIL",
+                    "expected": "all passed",
+                    "actual": f"failed (exit {full_suite.returncode})",
+                }
             else:
+                results["TC-23"]["actual"]["full_backend_suite"] = "all passed"
+                results["TC-23"]["key_results"]["full_backend_suite"] = {
+                    "result": "PASS",
+                    "expected": "all passed",
+                    "actual": "all passed",
+                }
                 results["TC-23"]["notes"].append(
                     "Full backend suite passed; see phase1_pytest.log."
                 )

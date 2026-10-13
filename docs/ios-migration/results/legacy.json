@@ -14,7 +14,7 @@
       "title": "Temp Master Dashboard",
       "connection": "Connected",
       "status_text": "Monitoring 6 meters",
-      "last_refresh_regex": "Last refresh: 03:53:59",
+      "last_refresh_regex": "Last refresh: 04:02:57",
       "rate_limit_warning_visible": false,
       "error_visible": false
     },
@@ -37,7 +37,7 @@
       "last_refresh_regex": {
         "result": "PASS",
         "expected": "^Last refresh: \\d{2}:\\d{2}:\\d{2}$",
-        "actual": "Last refresh: 03:53:59"
+        "actual": "Last refresh: 04:02:57"
       },
       "rate_limit_warning_visible": {
         "result": "PASS",
@@ -481,15 +481,15 @@
       },
       "label_regex": {
         "hour": [
-          "03:23"
+          "03:32"
         ],
         "day": [
-          "01:53",
-          "03:23"
+          "02:02",
+          "03:32"
         ],
         "week": [
-          "Sat 03",
-          "Tue 01",
+          "Sat 04",
+          "Tue 02",
           "Tue 03"
         ],
         "month": [
@@ -536,15 +536,15 @@
         },
         "actual": {
           "hour": [
-            "03:23"
+            "03:32"
           ],
           "day": [
-            "01:53",
-            "03:23"
+            "02:02",
+            "03:32"
           ],
           "week": [
-            "Sat 03",
-            "Tue 01",
+            "Sat 04",
+            "Tue 02",
             "Tue 03"
           ],
           "month": [
@@ -632,7 +632,7 @@
       "button_during": "Downloading...",
       "final_button": "Download Backup",
       "http_status": 200,
-      "filename_regex": "switchbot_backup_20261013_035401.db",
+      "filename_regex": "switchbot_backup_20261013_040259.db",
       "sqlite_header": true,
       "contains_seed_devices": 6,
       "error_visible": false
@@ -656,7 +656,7 @@
       "filename_regex": {
         "result": "PASS",
         "expected": "^switchbot_backup_\\d{8}_\\d{6}\\.db$",
-        "actual": "switchbot_backup_20261013_035401.db"
+        "actual": "switchbot_backup_20261013_040259.db"
       },
       "sqlite_header": {
         "result": "PASS",
@@ -810,8 +810,8 @@
     },
     "actual": {
       "last_refresh_changed": true,
-      "before": "Last refresh: 03:53:59",
-      "after": "Last refresh: 03:54:29"
+      "before": "Last refresh: 04:02:57",
+      "after": "Last refresh: 04:03:27"
     },
     "key_results": {
       "last_refresh_changed": {
@@ -881,13 +881,15 @@
       "imported_devices": 1,
       "imported_readings": 2,
       "new_display_name": "遠心分離機 (S-701)",
-      "status_text": "Monitoring 7 meters"
+      "status_text": "Monitoring 7 meters",
+      "seed_d7_is_stale": false
     },
     "actual": {
       "imported_devices": 1,
       "imported_readings": 2,
       "new_display_name": "遠心分離機 (S-701)",
-      "status_text": "Monitoring 7 meters"
+      "status_text": "Monitoring 7 meters",
+      "seed_d7_is_stale": false
     },
     "key_results": {
       "imported_devices": {
@@ -909,11 +911,18 @@
         "result": "PASS",
         "expected": "Monitoring 7 meters",
         "actual": "Monitoring 7 meters"
+      },
+      "seed_d7_is_stale": {
+        "result": "PASS",
+        "expected": false,
+        "actual": false
       }
     },
     "overall": "PASS",
     "pass": true,
-    "notes": [],
+    "notes": [
+      "SEED-D7 stale-side membership: False."
+    ],
     "screenshot": "legacy_screens/TC-16.png"
   },
   "TC-11": {
@@ -1017,7 +1026,7 @@
     "id": "TC-20",
     "name": "本番 snakeroom への Remote 接続 (読み取りのみ)",
     "expected": {
-      "status_text": "Monitoring {GET /api/status の meters_count} meters",
+      "status_text": "Monitoring 22 meters",
       "connection": "Connected"
     },
     "actual": {
@@ -1026,8 +1035,8 @@
     },
     "key_results": {
       "status_text": {
-        "result": "RECORDED",
-        "expected": "Monitoring {GET /api/status の meters_count} meters",
+        "result": "PASS",
+        "expected": "Monitoring 22 meters",
         "actual": "Monitoring 22 meters"
       },
       "connection": {
@@ -1039,8 +1048,7 @@
     "overall": "PASS",
     "pass": true,
     "notes": [
-      "Read-only production API meters_count: 22.",
-      "status_text: Expected value is a template/reference, retained for cross-target comparison."
+      "Read-only production API meters_count: 22."
     ],
     "screenshot": "legacy_screens/TC-20.png"
   },
@@ -1057,9 +1065,9 @@
     },
     "actual": {
       "http_status": 500,
-      "body_request_id_regex": "7d9cef4134a2",
+      "body_request_id_regex": "2585021f5a28",
       "x_request_id_matches_body": true,
-      "error_regex": "Failed to download backup (HTTP 500). Request ID: 7d9cef4134a2",
+      "error_regex": "Failed to download backup (HTTP 500). Request ID: 2585021f5a28",
       "connection": "Disconnected",
       "final_button": "Download Backup"
     },
@@ -1072,7 +1080,7 @@
       "body_request_id_regex": {
         "result": "PASS",
         "expected": "^[0-9a-f]{12}$",
-        "actual": "7d9cef4134a2"
+        "actual": "2585021f5a28"
       },
       "x_request_id_matches_body": {
         "result": "PASS",
@@ -1082,7 +1090,7 @@
       "error_regex": {
         "result": "PASS",
         "expected": "^Failed to download backup \\(HTTP 500\\)\\. Request ID: [0-9a-f]{12}$",
-        "actual": "Failed to download backup (HTTP 500). Request ID: 7d9cef4134a2"
+        "actual": "Failed to download backup (HTTP 500). Request ID: 2585021f5a28"
       },
       "connection": {
         "result": "PASS",
@@ -1107,10 +1115,16 @@
       "pytest_test_error_alerts": "all passed"
     },
     "actual": {
-      "pytest_test_error_alerts": "all passed"
+      "pytest_test_error_alerts": "all passed",
+      "full_backend_suite": "all passed"
     },
     "key_results": {
       "pytest_test_error_alerts": {
+        "result": "PASS",
+        "expected": "all passed",
+        "actual": "all passed"
+      },
+      "full_backend_suite": {
         "result": "PASS",
         "expected": "all passed",
         "actual": "all passed"
@@ -1118,9 +1132,9 @@
     },
     "overall": "PASS",
     "pass": true,
-      "notes": [
-        "Focused error-alert tests passed; the full backend suite log is phase1_pytest.log.",
-        "Full backend suite passed; see phase1_pytest.log."
-      ]
+    "notes": [
+      "Focused error-alert pytest exit code: 0.",
+      "Full backend suite passed; see phase1_pytest.log."
+    ]
   }
 }
