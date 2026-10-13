@@ -1,0 +1,27 @@
+{
+  "devices": [
+    {
+      "device_id": "SEED-D7",
+      "device_name": "バロン",
+      "device_type": "Meter",
+      "current_temperature": 26.4,
+      "current_humidity": 50,
+      "battery": 77,
+      "last_updated": "2026-09-30T04:16:44.583567+00:00",
+      "readings": [
+        {
+          "timestamp": "2026-09-30T04:16:44.583567+00:00",
+          "temperature": 26.4,
+          "humidity": 50,
+          "battery": 77
+        },
+        {
+          "timestamp": "2026-09-30T02:49:44.583567+00:00",
+          "temperature": 26.0,
+          "humidity": 52,
+          "battery": 77
+        }
+      ]
+    }
+  ]
+}

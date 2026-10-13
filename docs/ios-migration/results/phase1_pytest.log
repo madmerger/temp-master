@@ -1,0 +1,172 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.7, pytest-8.4.2, pluggy-1.6.0 -- /Users/devin/Library/Caches/pypoetry/virtualenvs/app-2U-XoeO9-py3.14/bin/python
+cachedir: .pytest_cache
+rootdir: /Users/devin/repos/temp-master/switchbot-dashboard/switchbot-backend
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.12.1, asyncio-0.24.0, cov-6.3.0
+asyncio: mode=Mode.AUTO, default_loop_scope=function
+collecting ... collected 97 items
+
+tests/test_api_endpoints.py::TestHealthzEndpoint::test_healthz_returns_ok PASSED [  1%]
+tests/test_api_endpoints.py::TestGetMetersEndpoint::test_get_meters_empty PASSED [  2%]
+tests/test_api_endpoints.py::TestGetMetersEndpoint::test_get_meters_with_devices PASSED [  3%]
+tests/test_api_endpoints.py::TestGetMetersEndpoint::test_get_meters_multiple_devices PASSED [  4%]
+tests/test_api_endpoints.py::TestGetMeterHistoryEndpoint::test_get_meter_history_not_found PASSED [  5%]
+tests/test_api_endpoints.py::TestGetMeterHistoryEndpoint::test_get_meter_history_hour_scale PASSED [  6%]
+tests/test_api_endpoints.py::TestGetMeterHistoryEndpoint::test_get_meter_history_day_scale PASSED [  7%]
+tests/test_api_endpoints.py::TestGetMeterHistoryEndpoint::test_get_meter_history_week_scale PASSED [  8%]
+tests/test_api_endpoints.py::TestGetMeterHistoryEndpoint::test_get_meter_history_month_scale PASSED [  9%]
+tests/test_api_endpoints.py::TestGetMeterHistoryEndpoint::test_get_meter_history_year_scale PASSED [ 10%]
+tests/test_api_endpoints.py::TestGetMeterHistoryEndpoint::test_get_meter_history_returns_device_info PASSED [ 11%]
+tests/test_api_endpoints.py::TestRefreshMetersEndpoint::test_refresh_meters_no_credentials PASSED [ 12%]
+tests/test_api_endpoints.py::TestRefreshMetersEndpoint::test_refresh_meters_success PASSED [ 13%]
+tests/test_api_endpoints.py::TestGetStatusEndpoint::test_get_status_configured PASSED [ 14%]
+tests/test_api_endpoints.py::TestGetStatusEndpoint::test_get_status_not_configured PASSED [ 15%]
+tests/test_api_endpoints.py::TestGetStatusEndpoint::test_get_status_rate_limited PASSED [ 16%]
+tests/test_api_endpoints.py::TestGetStatusEndpoint::test_get_status_not_rate_limited PASSED [ 17%]
+tests/test_api_endpoints.py::TestImportDataEndpoint::test_import_data_creates_devices PASSED [ 18%]
+tests/test_api_endpoints.py::TestImportDataEndpoint::test_import_data_creates_readings PASSED [ 19%]
+tests/test_api_endpoints.py::TestImportDataEndpoint::test_import_data_multiple_devices PASSED [ 20%]
+tests/test_api_endpoints.py::TestImportDataEndpoint::test_import_data_empty_devices PASSED [ 21%]
+tests/test_collection.py::TestCollectData::test_collect_data_without_credentials PASSED [ 22%]
+tests/test_collection.py::TestCollectData::test_collect_data_updates_datastore PASSED [ 23%]
+tests/test_collection.py::TestCollectData::test_collect_data_adds_to_history PASSED [ 24%]
+tests/test_collection.py::TestCollectData::test_collect_data_updates_existing_device PASSED [ 25%]
+tests/test_collection.py::TestCollectData::test_collect_data_handles_fetch_devices_error PASSED [ 26%]
+tests/test_collection.py::TestCollectData::test_collect_data_handles_fetch_status_error PASSED [ 27%]
+tests/test_collection.py::TestCollectData::test_collect_data_rate_limit_breaks_loop PASSED [ 28%]
+tests/test_collection.py::TestCollectData::test_collect_data_skips_null_temperature PASSED [ 29%]
+tests/test_collection.py::TestCollectData::test_collect_data_trims_history PASSED [ 30%]
+tests/test_collection.py::TestCollectData::test_collect_data_multiple_devices PASSED [ 31%]
+tests/test_database.py::TestInitDatabase::test_init_database_creates_tables PASSED [ 32%]
+tests/test_database.py::TestInitDatabase::test_init_database_creates_index PASSED [ 34%]
+tests/test_database.py::TestInitDatabase::test_init_database_sets_initialized_flag PASSED [ 35%]
+tests/test_database.py::TestInitDatabase::test_init_database_idempotent PASSED [ 36%]
+tests/test_database.py::TestSaveDeviceToDb::test_save_device_to_db PASSED [ 37%]
+tests/test_database.py::TestSaveDeviceToDb::test_save_device_to_db_update PASSED [ 38%]
+tests/test_database.py::TestSaveDeviceToDb::test_save_device_with_null_optional_fields PASSED [ 39%]
+tests/test_database.py::TestSaveReadingToDb::test_save_reading_to_db PASSED [ 40%]
+tests/test_database.py::TestSaveReadingToDb::test_save_multiple_readings PASSED [ 41%]
+tests/test_database.py::TestLoadDevicesFromDb::test_load_devices_from_db PASSED [ 42%]
+tests/test_database.py::TestLoadDevicesFromDb::test_load_devices_initializes_history PASSED [ 43%]
+tests/test_database.py::TestLoadDevicesFromDb::test_load_devices_empty_db PASSED [ 44%]
+tests/test_database.py::TestGetReadingsFromDb::test_get_readings_from_db_with_cutoff PASSED [ 45%]
+tests/test_database.py::TestGetReadingsFromDb::test_get_readings_from_db_empty PASSED [ 46%]
+tests/test_database.py::TestGetReadingsFromDb::test_get_readings_from_db_ordered_by_timestamp PASSED [ 47%]
+tests/test_database.py::TestGetReadingsFromDb::test_get_readings_from_db_filters_by_device PASSED [ 48%]
+tests/test_database.py::TestCleanupOldReadings::test_cleanup_old_readings PASSED [ 49%]
+tests/test_database.py::TestCleanupOldReadings::test_cleanup_old_readings_keeps_recent PASSED [ 50%]
+tests/test_models.py::TestTimeScaleEnum::test_time_scale_hour_value PASSED [ 51%]
+tests/test_models.py::TestTimeScaleEnum::test_time_scale_day_value PASSED [ 52%]
+tests/test_models.py::TestTimeScaleEnum::test_time_scale_week_value PASSED [ 53%]
+tests/test_models.py::TestTimeScaleEnum::test_time_scale_month_value PASSED [ 54%]
+tests/test_models.py::TestTimeScaleEnum::test_time_scale_year_value PASSED [ 55%]
+tests/test_models.py::TestTimeScaleEnum::test_time_scale_from_string PASSED [ 56%]
+tests/test_models.py::TestTimeScaleEnum::test_time_scale_invalid_value PASSED [ 57%]
+tests/test_models.py::TestMeterReading::test_meter_reading_valid_data PASSED [ 58%]
+tests/test_models.py::TestMeterReading::test_meter_reading_optional_battery PASSED [ 59%]
+tests/test_models.py::TestMeterReading::test_meter_reading_negative_temperature PASSED [ 60%]
+tests/test_models.py::TestMeterReading::test_meter_reading_zero_humidity PASSED [ 61%]
+tests/test_models.py::TestMeterReading::test_meter_reading_model_dump PASSED [ 62%]
+tests/test_models.py::TestMeterDevice::test_meter_device_required_fields PASSED [ 63%]
+tests/test_models.py::TestMeterDevice::test_meter_device_optional_fields_default_none PASSED [ 64%]
+tests/test_models.py::TestMeterDevice::test_meter_device_all_fields PASSED [ 65%]
+tests/test_models.py::TestMeterDevice::test_meter_device_missing_required_field PASSED [ 67%]
+tests/test_models.py::TestMeterDevice::test_meter_device_model_dump PASSED [ 68%]
+tests/test_models.py::TestImportReadingData::test_import_reading_data_valid PASSED [ 69%]
+tests/test_models.py::TestImportReadingData::test_import_reading_data_optional_battery PASSED [ 70%]
+tests/test_models.py::TestImportDeviceData::test_import_device_data_minimal PASSED [ 71%]
+tests/test_models.py::TestImportDeviceData::test_import_device_data_with_readings PASSED [ 72%]
+tests/test_models.py::TestImportData::test_import_data_empty_devices PASSED [ 73%]
+tests/test_models.py::TestImportData::test_import_data_with_devices PASSED [ 74%]
+tests/test_models.py::TestImportData::test_import_data_nested_structure PASSED [ 75%]
+tests/test_switchbot_api.py::TestGenerateSwitchbotHeaders::test_generate_headers_with_credentials PASSED [ 76%]
+tests/test_switchbot_api.py::TestGenerateSwitchbotHeaders::test_generate_headers_without_token PASSED [ 77%]
+tests/test_switchbot_api.py::TestGenerateSwitchbotHeaders::test_generate_headers_without_secret PASSED [ 78%]
+tests/test_switchbot_api.py::TestGenerateSwitchbotHeaders::test_generate_headers_without_credentials PASSED [ 79%]
+tests/test_switchbot_api.py::TestGenerateSwitchbotHeaders::test_generate_headers_timestamp_is_recent PASSED [ 80%]
+tests/test_switchbot_api.py::TestGenerateSwitchbotHeaders::test_generate_headers_nonce_is_uuid PASSED [ 81%]
+tests/test_switchbot_api.py::TestCallSwitchbotApi::test_call_api_success PASSED [ 82%]
+tests/test_switchbot_api.py::TestCallSwitchbotApi::test_call_api_rate_limited_429 PASSED [ 83%]
+tests/test_switchbot_api.py::TestCallSwitchbotApi::test_call_api_during_backoff PASSED [ 84%]
+tests/test_switchbot_api.py::TestCallSwitchbotApi::test_call_api_non_200_error PASSED [ 85%]
+tests/test_switchbot_api.py::TestCallSwitchbotApi::test_call_api_request_error PASSED [ 86%]
+tests/test_switchbot_api.py::TestCallSwitchbotApi::test_call_api_no_credentials PASSED [ 87%]
+tests/test_switchbot_api.py::TestCallSwitchbotApi::test_call_api_updates_last_api_call PASSED [ 88%]
+tests/test_switchbot_api.py::TestExponentialBackoff::test_exponential_backoff_calculation PASSED [ 89%]
+tests/test_switchbot_api.py::TestExponentialBackoff::test_max_backoff_cap PASSED [ 90%]
+tests/test_switchbot_api.py::TestExponentialBackoff::test_consecutive_errors_reset_on_success PASSED [ 91%]
+tests/test_switchbot_api.py::TestFetchDevices::test_fetch_devices_filters_meter_types PASSED [ 92%]
+tests/test_switchbot_api.py::TestFetchDevices::test_fetch_devices_handles_api_error PASSED [ 93%]
+tests/test_switchbot_api.py::TestFetchDevices::test_fetch_devices_empty_list PASSED [ 94%]
+tests/test_switchbot_api.py::TestFetchDevices::test_fetch_devices_extracts_device_info PASSED [ 95%]
+tests/test_switchbot_api.py::TestFetchDeviceStatus::test_fetch_device_status PASSED [ 96%]
+tests/test_switchbot_api.py::TestFetchDeviceStatus::test_fetch_device_status_handles_api_error PASSED [ 97%]
+tests/test_switchbot_api.py::TestMeterDeviceTypes::test_meter_device_types_contains_expected_types PASSED [ 98%]
+tests/test_switchbot_api.py::TestMeterDeviceTypes::test_meter_device_types_is_list PASSED [100%]
+
+=============================== warnings summary ===============================
+../../../../Library/Caches/pypoetry/virtualenvs/app-2U-XoeO9-py3.14/lib/python3.14/site-packages/pytest_asyncio/plugin.py:179: 5723 warnings
+  /Users/devin/Library/Caches/pypoetry/virtualenvs/app-2U-XoeO9-py3.14/lib/python3.14/site-packages/pytest_asyncio/plugin.py:179: DeprecationWarning: 'asyncio.iscoroutinefunction' is deprecated and slated for removal in Python 3.16; use inspect.iscoroutinefunction() instead
+    return asyncio.iscoroutinefunction(obj) or inspect.isasyncgenfunction(obj)
+
+../../../../Library/Caches/pypoetry/virtualenvs/app-2U-XoeO9-py3.14/lib/python3.14/site-packages/pytest_asyncio/plugin.py:450: 97 warnings
+  /Users/devin/Library/Caches/pypoetry/virtualenvs/app-2U-XoeO9-py3.14/lib/python3.14/site-packages/pytest_asyncio/plugin.py:450: DeprecationWarning: 'asyncio.iscoroutinefunction' is deprecated and slated for removal in Python 3.16; use inspect.iscoroutinefunction() instead
+    return asyncio.iscoroutinefunction(func)
+
+tests/test_api_endpoints.py::TestHealthzEndpoint::test_healthz_returns_ok
+  /Users/devin/Library/Caches/pypoetry/virtualenvs/app-2U-XoeO9-py3.14/lib/python3.14/site-packages/pytest_asyncio/plugin.py:1056: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    return asyncio.get_event_loop_policy()
+
+tests/test_api_endpoints.py: 21 warnings
+tests/test_collection.py: 10 warnings
+tests/test_database.py: 18 warnings
+tests/test_switchbot_api.py: 16 warnings
+  /Users/devin/Library/Caches/pypoetry/virtualenvs/app-2U-XoeO9-py3.14/lib/python3.14/site-packages/pytest_asyncio/plugin.py:773: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    _restore_event_loop_policy(asyncio.get_event_loop_policy()),
+
+tests/test_api_endpoints.py: 21 warnings
+tests/test_collection.py: 10 warnings
+tests/test_database.py: 18 warnings
+tests/test_switchbot_api.py: 16 warnings
+  /Users/devin/Library/Caches/pypoetry/virtualenvs/app-2U-XoeO9-py3.14/lib/python3.14/site-packages/pytest_asyncio/plugin.py:1028: DeprecationWarning: 'asyncio.set_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    asyncio.set_event_loop_policy(new_loop_policy)
+
+tests/test_api_endpoints.py: 21 warnings
+tests/test_collection.py: 10 warnings
+tests/test_database.py: 18 warnings
+tests/test_switchbot_api.py: 16 warnings
+  /Users/devin/Library/Caches/pypoetry/virtualenvs/app-2U-XoeO9-py3.14/lib/python3.14/site-packages/pytest_asyncio/plugin.py:1029: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+
+tests/test_api_endpoints.py: 21 warnings
+tests/test_collection.py: 10 warnings
+tests/test_database.py: 18 warnings
+tests/test_switchbot_api.py: 16 warnings
+  /Users/devin/Library/Caches/pypoetry/virtualenvs/app-2U-XoeO9-py3.14/lib/python3.14/site-packages/pytest_asyncio/plugin.py:788: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    policy = asyncio.get_event_loop_policy()
+
+tests/test_api_endpoints.py: 21 warnings
+tests/test_collection.py: 10 warnings
+tests/test_database.py: 18 warnings
+tests/test_switchbot_api.py: 16 warnings
+  /Users/devin/Library/Caches/pypoetry/virtualenvs/app-2U-XoeO9-py3.14/lib/python3.14/site-packages/pytest_asyncio/plugin.py:833: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    policy = asyncio.get_event_loop_policy()
+
+tests/test_api_endpoints.py: 21 warnings
+tests/test_collection.py: 10 warnings
+tests/test_database.py: 18 warnings
+tests/test_switchbot_api.py: 16 warnings
+  /Users/devin/Library/Caches/pypoetry/virtualenvs/app-2U-XoeO9-py3.14/lib/python3.14/site-packages/pytest_asyncio/plugin.py:857: DeprecationWarning: 'asyncio.set_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    asyncio.set_event_loop_policy(previous_policy)
+
+tests/test_api_endpoints.py: 21 warnings
+tests/test_collection.py: 10 warnings
+tests/test_database.py: 18 warnings
+tests/test_switchbot_api.py: 16 warnings
+  /Users/devin/Library/Caches/pypoetry/virtualenvs/app-2U-XoeO9-py3.14/lib/python3.14/site-packages/pytest_asyncio/plugin.py:869: DeprecationWarning: 'asyncio.get_event_loop_policy' is deprecated and slated for removal in Python 3.16
+    policy = asyncio.get_event_loop_policy()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+====================== 97 passed, 6276 warnings in 1.19s =======================
