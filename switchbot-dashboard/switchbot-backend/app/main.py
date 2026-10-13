@@ -836,17 +836,38 @@ async def backup_database():
                         background=BackgroundTask(os.remove, snapshot_path))
 
 
-# Serve frontend static files if the static directory exists.
-# Layout under static/:
-#   index.html              -> frontend served at "/"
-STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
-if STATIC_DIR.is_dir():
-    @app.get("/{full_path:path}")
-    async def serve_spa(request: Request, full_path: str):
-        """Serve the frontend at root."""
-        file_path = (STATIC_DIR / full_path).resolve()
-        if not file_path.is_relative_to(STATIC_DIR.resolve()):
-            return FileResponse(STATIC_DIR / "index.html")
-        if full_path and file_path.is_file():
-            return FileResponse(file_path)
-        return FileResponse(STATIC_DIR / "index.html")
+# Serve the built frontend from the repository or container layout.
+STATIC_DIR = Path(
+    os.getenv(
+        "STATIC_DIR",
+        Path(__file__).resolve().parents[2] / "switchbot-frontend" / "dist",
+    )
+)
+
+
+@app.get("/{full_path:path}")
+async def serve_spa(request: Request, full_path: str):
+    """Serve built assets and fall back to the single-page app."""
+    if full_path == "api" or full_path.startswith("api/"):
+        return JSONResponse(status_code=404, content={"detail": "Not Found"})
+
+    static_root = STATIC_DIR.resolve()
+    index_file = static_root / "index.html"
+    if not index_file.is_file():
+        return JSONResponse(status_code=404, content={"detail": "Not Found"})
+
+    file_path = (static_root / full_path).resolve()
+    if not file_path.is_relative_to(static_root):
+        return FileResponse(index_file, headers={"Cache-Control": "no-cache"})
+
+    if full_path and file_path.is_file():
+        if full_path.startswith("assets/"):
+            return FileResponse(
+                file_path,
+                headers={"Cache-Control": "public, max-age=31536000, immutable"},
+            )
+        if file_path == index_file.resolve():
+            return FileResponse(index_file, headers={"Cache-Control": "no-cache"})
+        return FileResponse(file_path)
+
+    return FileResponse(index_file, headers={"Cache-Control": "no-cache"})

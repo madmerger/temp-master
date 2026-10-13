@@ -41,27 +41,27 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 
 ### Frontend
 
-1. Navigate to the frontend directory:
+1. Navigate to the frontend directory and install dependencies:
    ```bash
    cd switchbot-frontend
-   ```
-
-2. Install dependencies:
-   ```bash
    npm install
    ```
 
-3. Copy `.env.example` to `.env`:
-   ```bash
-   cp .env.example .env
-   ```
-
-4. Start the development server:
+2. Start the Vite development server:
    ```bash
    npm run dev
    ```
 
-5. Open http://localhost:5173 in your browser
+3. Build the production bundle:
+   ```bash
+   npm run build
+   ```
+
+Open http://localhost:5173 in your browser. Vite proxies `/api` requests to
+`http://localhost:8000` during development. The API base defaults to the same
+origin and can be overridden with `VITE_API_URL`; production builds default to
+`https://snakeroom.fly.dev` when that variable is unset. The dashboard supports
+light, dark, and system themes, and remembers the preference in local storage.
 
 ## API Endpoints
 
