@@ -14,7 +14,7 @@
       "title": "Temp Master Dashboard",
       "connection": "Connected",
       "status_text": "Monitoring 6 meters",
-      "last_refresh_regex": "Last refresh: 04:02:57",
+      "last_refresh_regex": "Last refresh: 04:07:49",
       "rate_limit_warning_visible": false,
       "error_visible": false
     },
@@ -37,7 +37,7 @@
       "last_refresh_regex": {
         "result": "PASS",
         "expected": "^Last refresh: \\d{2}:\\d{2}:\\d{2}$",
-        "actual": "Last refresh: 04:02:57"
+        "actual": "Last refresh: 04:07:49"
       },
       "rate_limit_warning_visible": {
         "result": "PASS",
@@ -481,11 +481,11 @@
       },
       "label_regex": {
         "hour": [
-          "03:32"
+          "03:37"
         ],
         "day": [
-          "02:02",
-          "03:32"
+          "02:07",
+          "03:37"
         ],
         "week": [
           "Sat 04",
@@ -536,11 +536,11 @@
         },
         "actual": {
           "hour": [
-            "03:32"
+            "03:37"
           ],
           "day": [
-            "02:02",
-            "03:32"
+            "02:07",
+            "03:37"
           ],
           "week": [
             "Sat 04",
@@ -632,7 +632,7 @@
       "button_during": "Downloading...",
       "final_button": "Download Backup",
       "http_status": 200,
-      "filename_regex": "switchbot_backup_20261013_040259.db",
+      "filename_regex": "switchbot_backup_20261013_040751.db",
       "sqlite_header": true,
       "contains_seed_devices": 6,
       "error_visible": false
@@ -656,7 +656,7 @@
       "filename_regex": {
         "result": "PASS",
         "expected": "^switchbot_backup_\\d{8}_\\d{6}\\.db$",
-        "actual": "switchbot_backup_20261013_040259.db"
+        "actual": "switchbot_backup_20261013_040751.db"
       },
       "sqlite_header": {
         "result": "PASS",
@@ -810,8 +810,8 @@
     },
     "actual": {
       "last_refresh_changed": true,
-      "before": "Last refresh: 04:02:57",
-      "after": "Last refresh: 04:03:27"
+      "before": "Last refresh: 04:07:49",
+      "after": "Last refresh: 04:08:19"
     },
     "key_results": {
       "last_refresh_changed": {
@@ -1048,7 +1048,7 @@
     "overall": "PASS",
     "pass": true,
     "notes": [
-      "Read-only production API meters_count: 22."
+      "Read-only production API meters_count before page load: 22; after page load: 22."
     ],
     "screenshot": "legacy_screens/TC-20.png"
   },
@@ -1065,9 +1065,9 @@
     },
     "actual": {
       "http_status": 500,
-      "body_request_id_regex": "2585021f5a28",
+      "body_request_id_regex": "eddbc9a017fd",
       "x_request_id_matches_body": true,
-      "error_regex": "Failed to download backup (HTTP 500). Request ID: 2585021f5a28",
+      "error_regex": "Failed to download backup (HTTP 500). Request ID: eddbc9a017fd",
       "connection": "Disconnected",
       "final_button": "Download Backup"
     },
@@ -1080,7 +1080,7 @@
       "body_request_id_regex": {
         "result": "PASS",
         "expected": "^[0-9a-f]{12}$",
-        "actual": "2585021f5a28"
+        "actual": "eddbc9a017fd"
       },
       "x_request_id_matches_body": {
         "result": "PASS",
@@ -1090,7 +1090,7 @@
       "error_regex": {
         "result": "PASS",
         "expected": "^Failed to download backup \\(HTTP 500\\)\\. Request ID: [0-9a-f]{12}$",
-        "actual": "Failed to download backup (HTTP 500). Request ID: 2585021f5a28"
+        "actual": "Failed to download backup (HTTP 500). Request ID: eddbc9a017fd"
       },
       "connection": {
         "result": "PASS",

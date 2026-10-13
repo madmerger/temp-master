@@ -23,7 +23,7 @@ for flag in "${@:3}"; do
 done
 
 port_pids() {
-  lsof -ti "tcp:$PORT" 2>/dev/null || true
+  lsof -ti "tcp:$PORT" -sTCP:LISTEN 2>/dev/null || true
 }
 
 validate_backend_pids() {

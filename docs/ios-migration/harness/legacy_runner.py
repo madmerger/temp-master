@@ -183,7 +183,7 @@ def stop_port(port):
     def port_pids():
         try:
             result = subprocess.run(
-                ["lsof", "-ti", f"tcp:{port}"],
+                ["lsof", "-ti", f"tcp:{port}", "-sTCP:LISTEN"],
                 capture_output=True,
                 text=True,
                 check=False,
@@ -712,17 +712,30 @@ def main():
 
             server.upstream_base = "https://snakeroom.fly.dev"
             try:
+                _, _, production_status_before = api_get_json(
+                    "https://snakeroom.fly.dev/api/status"
+                )
                 page.goto(f"{api_url}/prod.html")
                 wait_dashboard(page)
-                _, _, production_status = api_get_json("https://snakeroom.fly.dev/api/status")
-                expected_status_text = (
-                    f"Monitoring {production_status['meters_count']} meters"
+                _, _, production_status_after = api_get_json(
+                    "https://snakeroom.fly.dev/api/status"
+                )
+                status_text = page.inner_text("#status-meters-count").strip()
+                expected_values = [
+                    f"Monitoring {production_status_before['meters_count']} meters",
+                    f"Monitoring {production_status_after['meters_count']} meters",
+                ]
+                expected_status_text = next(
+                    (value for value in expected_values if status_text == value),
+                    expected_values[1],
                 )
                 record("TC-20", {
-                    "status_text": page.inner_text("#status-meters-count").strip(),
+                    "status_text": status_text,
                     "connection": page.inner_text("#connection-status").strip(),
                 }, page, notes=[
-                    f"Read-only production API meters_count: {production_status['meters_count']}."
+                    "Read-only production API meters_count before page load: "
+                    f"{production_status_before['meters_count']}; after page load: "
+                    f"{production_status_after['meters_count']}."
                 ], expected_overrides={"status_text": expected_status_text})
             except Exception as exc:
                 record("TC-20", {

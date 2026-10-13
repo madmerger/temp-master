@@ -18,6 +18,6 @@
 | TC-17 | ヘルスチェック・ステータス | PASS | — |
 | TC-18 | Standalone: SwitchBot 実機からの収集 | PASS | Refresh HTTP status: 200.; The measured device IDs are the legacy reference set for TC-18 comparison.; meter_device_ids: Expected value is a template/reference, retained for cross-target comparison. |
 | TC-19 | 30秒自動更新 | PASS | — |
-| TC-20 | 本番 snakeroom への Remote 接続 (読み取りのみ) | PASS | Read-only production API meters_count: 22. |
+| TC-20 | 本番 snakeroom への Remote 接続 (読み取りのみ) | PASS | Read-only production API meters_count before page load: 22; after page load: 22. |
 | TC-22 | Download Backup 失敗時の Request ID 表示 | PASS | — |
 | TC-23 | 5xx 時 Slack アラート (サーバー側) | PASS | Focused error-alert pytest exit code: 0.; Full backend suite passed; see phase1_pytest.log. |
