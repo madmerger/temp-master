@@ -1,0 +1,62 @@
+name: TempMaster
+options:
+  bundleIdPrefix: com.madmerger
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+    TARGETED_DEVICE_FAMILY: "1,2"
+    CODE_SIGN_STYLE: Automatic
+targets:
+  TempMaster:
+    type: application
+    platform: iOS
+    sources:
+      - path: TempMaster
+    info:
+      path: TempMaster/Resources/Info.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.madmerger.TempMaster
+        PRODUCT_NAME: TempMaster
+        GENERATE_INFOPLIST_FILE: NO
+        SWIFT_EMIT_LOC_STRINGS: YES
+  TempMasterTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: TempMasterTests
+    dependencies:
+      - target: TempMaster
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.madmerger.TempMasterTests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/TempMaster.app/TempMaster"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+  TempMasterUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: TempMasterUITests
+    dependencies:
+      - target: TempMaster
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.madmerger.TempMasterUITests
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  TempMaster:
+    build:
+      targets:
+        TempMaster: all
+        TempMasterTests: [test]
+        TempMasterUITests: [test]
+    test:
+      targets:
+        - TempMasterTests
+        - TempMasterUITests
+      gatherCoverageData: false
