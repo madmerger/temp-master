@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>dashboard.monitoring_meters</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Monitoring %#@meters@</string>
+		<key>meters</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d meter</string>
+			<key>other</key>
+			<string>%d meters</string>
+		</dict>
+	</dict>
+	<key>chart.points</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@points@</string>
+		<key>points</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>one</key>
+			<string>%d point</string>
+			<key>other</key>
+			<string>%d points</string>
+		</dict>
+	</dict>
+</dict>
+</plist>
