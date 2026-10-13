@@ -58,15 +58,20 @@ def verdict(case, legacy, ios):
         lo == "PASS"
         and io == "FAIL"
         and case["id"] in KNOWN_DIFF_CASES
-        and is_hub3_known_diff(legacy[case["id"]], ios[case["id"]])
+        and is_hub3_known_diff(case, legacy_case, ios_case)
     ):
         return lo, io, "KNOWN_DIFF"
     return lo, io, "MISMATCH"
 
 
-def is_hub3_known_diff(legacy_case, ios_case):
+def is_hub3_known_diff(case, legacy_case, ios_case):
     """spec.md 既知の仕様差: iOS Standalone は Hub 3 も収集する。"""
-    failing = {k for k, v in ios_case.get("key_results", {}).items() if v.get("result") != "PASS"}
+    key_results = ios_case.get("key_results", {})
+    failing = {
+        k
+        for k in set(case["expected"]) | set(key_results)
+        if (key_results.get(k) or {}).get("result") != "PASS"
+    }
     if failing != {"meter_device_ids"}:
         return False
     legacy_ids = set(legacy_case["actual"]["meter_device_ids"])
