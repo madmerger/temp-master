@@ -57,6 +57,23 @@ export function triggerRefresh(): Promise<unknown> {
   return requestJson<unknown>(`${API_BASE}/api/meters/refresh`, { method: 'POST' });
 }
 
+export function backupFilename(disposition: string | null, now = new Date()): string {
+  const filenameMatch = disposition?.match(/filename="?([^";]+)"?/i);
+  if (filenameMatch?.[1]) return filenameMatch[1];
+
+  const date = [
+    now.getUTCFullYear(),
+    String(now.getUTCMonth() + 1).padStart(2, '0'),
+    String(now.getUTCDate()).padStart(2, '0'),
+  ].join('');
+  const time = [
+    String(now.getUTCHours()).padStart(2, '0'),
+    String(now.getUTCMinutes()).padStart(2, '0'),
+    String(now.getUTCSeconds()).padStart(2, '0'),
+  ].join('');
+  return `switchbot_backup_${date}_${time}.db`;
+}
+
 export async function downloadBackup(): Promise<void> {
   let response: Response;
   try {
@@ -82,9 +99,7 @@ export async function downloadBackup(): Promise<void> {
     throw new ApiError(`Failed to download backup (HTTP ${response.status}).${requestIdMessage}`, response.status);
   }
 
-  const disposition = response.headers.get('Content-Disposition') ?? '';
-  const filenameMatch = disposition.match(/filename="?([^";]+)"?/i);
-  const filename = filenameMatch?.[1] ?? 'switchbot_backup.db';
+  const filename = backupFilename(response.headers.get('Content-Disposition'));
   const blob = await response.blob();
   const objectUrl = URL.createObjectURL(blob);
   const anchor = document.createElement('a');
