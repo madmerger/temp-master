@@ -6,6 +6,7 @@ import {
   LineElement,
   LinearScale,
   PointElement,
+  Ticks,
   Tooltip,
   type ChartOptions,
 } from 'chart.js';
@@ -82,7 +83,9 @@ export function MeterChart({ deviceId, timeScale, isDark }: MeterChartProps) {
         ticks: {
           font: { size: 10 },
           color: colors.tick,
-          callback: (value) => `${Math.round(Number(value) * 100) / 100}°`,
+          callback(value, index, ticks) {
+            return `${Ticks.formatters.numeric.call(this, Number(value), index, ticks)}°`;
+          },
         },
       },
     },
