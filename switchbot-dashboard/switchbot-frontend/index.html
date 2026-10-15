@@ -5,13 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Temp Master Dashboard</title>
     <script>
-      try {
-        const storedTheme = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      (function () {
+        let storedTheme = null;
+        try {
+          storedTheme = localStorage.getItem('theme');
+        } catch {}
+        const prefersDark =
+          typeof window.matchMedia === 'function' &&
+          window.matchMedia('(prefers-color-scheme: dark)').matches;
         if (storedTheme === 'dark' || (storedTheme !== 'light' && prefersDark)) {
           document.documentElement.classList.add('dark');
         }
-      } catch {}
+      })();
     </script>
   </head>
   <body>
