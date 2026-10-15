@@ -35,19 +35,19 @@ export function MeterCard({ meter, isStale, isDark, timeScale }: MeterCardProps)
       <div className="p-4">
         <div className="mb-3 flex min-h-7 flex-wrap gap-2">
           {meter.current_temperature !== null && meter.current_temperature !== undefined && (
-            <span className="inline-flex items-center gap-1 rounded px-2 py-1 text-sm font-medium text-red-800 dark:text-red-200">
+            <span className="inline-flex items-center gap-1 rounded-md bg-red-100 px-2 py-1 text-sm font-medium text-red-800 dark:bg-red-900/40 dark:text-red-200">
               <Thermometer size={15} aria-hidden="true" />
               {meter.current_temperature}°C
             </span>
           )}
           {meter.current_humidity !== null && meter.current_humidity !== undefined && (
-            <span className="inline-flex items-center gap-1 rounded px-2 py-1 text-sm font-medium text-blue-800 dark:text-blue-200">
+            <span className="inline-flex items-center gap-1 rounded-md bg-sky-100 px-2 py-1 text-sm font-medium text-sky-800 dark:bg-sky-900/40 dark:text-sky-200">
               <Droplets size={15} aria-hidden="true" />
               {meter.current_humidity}%
             </span>
           )}
           {meter.battery !== null && meter.battery !== undefined && (
-            <span className="inline-flex items-center gap-1 rounded px-2 py-1 text-sm font-medium text-green-800 dark:text-green-200">
+            <span className="inline-flex items-center gap-1 rounded-md bg-green-100 px-2 py-1 text-sm font-medium text-green-800 dark:bg-green-900/40 dark:text-green-200">
               <BatteryMedium size={15} aria-hidden="true" />
               {meter.battery}%
             </span>
