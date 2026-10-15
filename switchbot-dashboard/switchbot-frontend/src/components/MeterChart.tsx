@@ -82,7 +82,7 @@ export function MeterChart({ deviceId, timeScale, isDark }: MeterChartProps) {
         ticks: {
           font: { size: 10 },
           color: colors.tick,
-          callback: (value) => `${value}°`,
+          callback: (value) => `${Math.round(Number(value) * 100) / 100}°`,
         },
       },
     },
