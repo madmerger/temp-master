@@ -37,6 +37,7 @@ logger = logging.getLogger("temp_master")
 # Database path - use /data/app.db for persistent volume in production
 DB_PATH = os.getenv("DB_PATH", "/data/app.db" if os.path.exists("/data") else "app.db")
 BACKUP_DIR = os.getenv("BACKUP_DIR", os.path.join(os.path.dirname(os.path.abspath(DB_PATH)), "backups"))
+_SNAPSHOT_TMP_PREFIX = ".snapshot_tmp_"
 BACKUP_API_TOKEN = os.getenv("BACKUP_API_TOKEN", "")
 _backup_lock = asyncio.Lock()
 
@@ -582,7 +583,7 @@ async def background_collector():
 async def lifespan(app: FastAPI):
     try:
         os.makedirs(BACKUP_DIR, exist_ok=True)
-        for snapshot_path in glob.glob(os.path.join(BACKUP_DIR, "switchbot_backup_*.db")):
+        for snapshot_path in glob.glob(os.path.join(BACKUP_DIR, _SNAPSHOT_TMP_PREFIX + "*.db")):
             with contextlib.suppress(OSError):
                 os.remove(snapshot_path)
     except OSError:
@@ -881,7 +882,7 @@ async def backup_database():
     async with _backup_lock:
         fd, snapshot_path = tempfile.mkstemp(
             dir=BACKUP_DIR,
-            prefix="switchbot_backup_",
+            prefix=_SNAPSHOT_TMP_PREFIX,
             suffix=".db",
         )
         os.close(fd)

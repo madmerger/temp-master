@@ -286,9 +286,12 @@ class TestBackupEndpoint:
     def test_lifespan_removes_stale_backup_snapshots(self, reset_data_store, monkeypatch, tmp_path):
         backup_dir = tmp_path / "backups"
         backup_dir.mkdir()
-        stale_snapshot = backup_dir / "switchbot_backup_x.db"
+        stale_snapshot = backup_dir / ".snapshot_tmp_x.db"
+        retained_backup = backup_dir / "switchbot_backup_20260101_000000.db"
         stale_snapshot.touch()
+        retained_backup.touch()
         monkeypatch.setattr(main_module, "BACKUP_DIR", str(backup_dir))
 
         with TestClient(app):
             assert not stale_snapshot.exists()
+            assert retained_backup.exists()
