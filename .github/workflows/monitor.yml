@@ -1,0 +1,249 @@
+name: Data Freshness Monitor
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: data-freshness-monitor
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  monitor:
+    name: Monitor data freshness
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Evaluate freshness
+        id: freshness
+        run: |
+          python monitoring/check_data_freshness.py --github-output > monitoring-result.json
+          cat monitoring-result.json
+
+      - name: Notify and deduplicate
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          DASHBOARD_URL: https://temp-master.fly.dev/
+          DATA_SOURCE_URL: https://snakeroom.fly.dev/
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          set -e
+          post_slack() {
+            if ! SLACK_TEXT="$1" python - <<'PY'
+          import json
+          import os
+          import urllib.request
+
+          data = json.dumps({"text": os.environ["SLACK_TEXT"]}, ensure_ascii=False).encode()
+          request = urllib.request.Request(
+              os.environ["SLACK_WEBHOOK_URL"],
+              data=data,
+              headers={"Content-Type": "application/json"},
+          )
+          urllib.request.urlopen(request, timeout=15).read()
+          PY
+            then
+              echo "::warning::Slack notification failed"
+              return 1
+            fi
+          }
+
+          gh label create data-stale --color D93F0B --description "Snakeroom data freshness incident" || true
+          gh label create slack-pending --color FBCA04 --description "Slack notification needs retry" || true
+          gh label create severity:WARN --color FBCA04 --description "Last notified severity was WARN" || true
+          gh label create severity:CRITICAL --color B60205 --description "Last notified severity was CRITICAL" || true
+
+          severity="$(python -c 'import json; print(json.load(open("monitoring-result.json", encoding="utf-8"))["severity"])')"
+          summary="$(python -c 'import json; print(" / ".join(json.load(open("monitoring-result.json", encoding="utf-8"))["reasons"]))')"
+          open_issues="$(gh issue list --state open --label data-stale --json number,url,createdAt,title,labels --limit 1)"
+          issue_number="$(OPEN_ISSUES="$open_issues" python -c 'import json,os; x=json.loads(os.environ["OPEN_ISSUES"]); print(x[0]["number"] if x else "")')"
+          issue_pending="$(OPEN_ISSUES="$open_issues" python -c 'import json,os; x=json.loads(os.environ["OPEN_ISSUES"]); print("true" if x and any(label["name"] == "slack-pending" for label in x[0]["labels"]) else "false")')"
+          recorded_severity="$(OPEN_ISSUES="$open_issues" python -c 'import json,os; x=json.loads(os.environ["OPEN_ISSUES"]); labels=x[0]["labels"] if x else []; found=[label["name"].split(":",1)[1] for label in labels if label["name"].startswith("severity:")]; print(found[0] if found else "")')"
+          if [ "$severity" = "WARN" ] && [ "$recorded_severity" = "CRITICAL" ]; then
+            gh issue edit "$issue_number" --remove-label severity:CRITICAL --add-label severity:WARN || true
+            recorded_severity=WARN
+          fi
+
+          if [ "$severity" != "OK" ] && [ -z "$issue_number" ]; then
+            title="$(RESULT_FILE=monitoring-result.json SEVERITY="$severity" python - <<'PY'
+          import json
+          import os
+
+          result = json.load(open(os.environ["RESULT_FILE"], encoding="utf-8"))
+          reasons = result["reasons"]
+          primary = reasons[0] if reasons else "データ鮮度に問題があります"
+          age_reasons = [reason for reason in reasons if reason.startswith("最新データが")]
+          title_reasons = [primary]
+          if age_reasons and age_reasons[0] != primary:
+              title_reasons.append(age_reasons[0])
+          print("データ鮮度アラート [" + os.environ["SEVERITY"] + "] " + " / ".join(title_reasons))
+          PY
+            )"
+            body_file="$(mktemp)"
+            RESULT_FILE=monitoring-result.json SUMMARY="$summary" RUN_URL="$RUN_URL" DASHBOARD_URL="$DASHBOARD_URL" DATA_SOURCE_URL="$DATA_SOURCE_URL" python - <<'PY' > "$body_file"
+          import json
+          import os
+
+          result = json.load(open(os.environ["RESULT_FILE"], encoding="utf-8"))
+          print("## 症状")
+          print(os.environ["SUMMARY"])
+          print("")
+          print("## 判定結果")
+          print("```json")
+          print(json.dumps(result, ensure_ascii=False, indent=2))
+          print("```")
+          print("")
+          print("ダッシュボード: " + os.environ["DASHBOARD_URL"])
+          print("データ提供元: " + os.environ["DATA_SOURCE_URL"])
+          if result["lagging_meters"]:
+              print("個別に遅れているメーター: " + json.dumps(result["lagging_meters"], ensure_ascii=False))
+          print("監視実行: " + os.environ["RUN_URL"])
+          PY
+            issue_url="$(gh issue create --title "$title" --body-file "$body_file" --label data-stale)"
+            issue_number="${issue_url##*/}"
+            gh issue edit "$issue_number" --add-label "severity:$severity" || true
+            if [ -z "$SLACK_WEBHOOK_URL" ]; then
+              echo "::warning::SLACK_WEBHOOK_URL is not configured; skipping Slack notification"
+              gh issue edit "$issue_number" --add-label slack-pending || true
+            else
+              slack_text="$(RESULT_FILE=monitoring-result.json SEVERITY="$severity" SUMMARY="$summary" ISSUE_URL="$issue_url" RUN_URL="$RUN_URL" DASHBOARD_URL="$DASHBOARD_URL" DATA_SOURCE_URL="$DATA_SOURCE_URL" python - <<'PY'
+          import json
+          import os
+
+          result = json.load(open(os.environ["RESULT_FILE"], encoding="utf-8"))
+          lines = [
+              "🚨 データ鮮度アラート [" + os.environ["SEVERITY"] + "]",
+              "症状: " + os.environ["SUMMARY"],
+              "最新データ時刻: " + str(result["newest_last_updated"]),
+              "メーター数: " + str(result["meters_count"]),
+              "ダッシュボード: " + os.environ["DASHBOARD_URL"],
+              "データ提供元: " + os.environ["DATA_SOURCE_URL"],
+              "Issue: " + os.environ["ISSUE_URL"],
+              "実行: " + os.environ["RUN_URL"],
+          ]
+          if result["lagging_meters"]:
+              lines.insert(4, "個別に遅れているメーター: " + json.dumps(result["lagging_meters"], ensure_ascii=False))
+          print("\n".join(lines))
+          PY
+              )"
+              if post_slack "$slack_text"; then
+                gh issue edit "$issue_number" --remove-label slack-pending || true
+              else
+                gh issue edit "$issue_number" --add-label slack-pending || true
+              fi
+            fi
+          elif [ "$severity" = "CRITICAL" ] && [ "$recorded_severity" = "WARN" ]; then
+            issue_url="$(echo "$open_issues" | python -c 'import json,sys; print(json.load(sys.stdin)[0]["url"])')"
+            escalation_comment="重大度が悪化しました: WARN → CRITICAL。理由: $summary"
+            escalation_commented="$(gh issue view "$issue_number" --json comments | python -c 'import json,sys; comments=json.load(sys.stdin)["comments"]; print("true" if any("重大度が悪化しました: WARN → CRITICAL" in comment["body"] for comment in comments) else "false")')"
+            if [ "$escalation_commented" != "true" ]; then
+              gh issue comment "$issue_number" --body "$escalation_comment"
+            fi
+            if [ -z "$SLACK_WEBHOOK_URL" ]; then
+              echo "::warning::SLACK_WEBHOOK_URL is not configured; escalation Slack notification remains pending"
+              gh issue edit "$issue_number" --add-label slack-pending || true
+            else
+              escalation_text="$(RESULT_FILE=monitoring-result.json SUMMARY="$summary" ISSUE_URL="$issue_url" RUN_URL="$RUN_URL" DASHBOARD_URL="$DASHBOARD_URL" DATA_SOURCE_URL="$DATA_SOURCE_URL" python - <<'PY'
+          import json
+          import os
+
+          result = json.load(open(os.environ["RESULT_FILE"], encoding="utf-8"))
+          print("\n".join([
+              "🚨 重大度が悪化しました: WARN → CRITICAL",
+              "現在の症状: " + os.environ["SUMMARY"],
+              "最新データ時刻: " + str(result["newest_last_updated"]),
+              "メーター数: " + str(result["meters_count"]),
+              "ダッシュボード: " + os.environ["DASHBOARD_URL"],
+              "データ提供元: " + os.environ["DATA_SOURCE_URL"],
+              "Issue: " + os.environ["ISSUE_URL"],
+              "実行: " + os.environ["RUN_URL"],
+          ]))
+          PY
+              )"
+              if post_slack "$escalation_text"; then
+                gh issue edit "$issue_number" --remove-label slack-pending || true
+                gh issue edit "$issue_number" --remove-label severity:WARN --add-label severity:CRITICAL || true
+              else
+                gh issue edit "$issue_number" --add-label slack-pending || true
+              fi
+            fi
+          elif [ "$severity" != "OK" ] && [ "$issue_pending" = "true" ]; then
+            issue_url="$(echo "$open_issues" | python -c 'import json,sys; print(json.load(sys.stdin)[0]["url"])')"
+            if [ -z "$SLACK_WEBHOOK_URL" ]; then
+              echo "::warning::SLACK_WEBHOOK_URL is not configured; Slack retry remains pending"
+            else
+              slack_text="$(RESULT_FILE=monitoring-result.json SEVERITY="$severity" SUMMARY="$summary" ISSUE_URL="$issue_url" RUN_URL="$RUN_URL" DASHBOARD_URL="$DASHBOARD_URL" DATA_SOURCE_URL="$DATA_SOURCE_URL" python - <<'PY'
+          import json
+          import os
+
+          result = json.load(open(os.environ["RESULT_FILE"], encoding="utf-8"))
+          lines = [
+              "🚨 データ鮮度アラート [" + os.environ["SEVERITY"] + "]",
+              "症状: " + os.environ["SUMMARY"],
+              "最新データ時刻: " + str(result["newest_last_updated"]),
+              "メーター数: " + str(result["meters_count"]),
+              "ダッシュボード: " + os.environ["DASHBOARD_URL"],
+              "データ提供元: " + os.environ["DATA_SOURCE_URL"],
+              "Issue: " + os.environ["ISSUE_URL"],
+              "実行: " + os.environ["RUN_URL"],
+          ]
+          if result["lagging_meters"]:
+              lines.insert(4, "個別に遅れているメーター: " + json.dumps(result["lagging_meters"], ensure_ascii=False))
+          print("\n".join(lines))
+          PY
+              )"
+              if post_slack "$slack_text"; then
+                gh issue edit "$issue_number" --remove-label slack-pending || true
+              fi
+            fi
+          elif [ "$severity" = "OK" ] && [ -n "$issue_number" ]; then
+            issue_url="$(echo "$open_issues" | python -c 'import json,sys; print(json.load(sys.stdin)[0]["url"])')"
+            created_at="$(echo "$open_issues" | python -c 'import json,sys; print(json.load(sys.stdin)[0]["createdAt"])')"
+            stale_duration="$(CREATED_AT="$created_at" python -c 'import datetime,os; then_=datetime.datetime.fromisoformat(os.environ["CREATED_AT"].replace("Z","+00:00")); print(str(datetime.datetime.now(datetime.timezone.utc)-then_).split(".")[0])')"
+            recovery="$(RESULT_FILE=monitoring-result.json ISSUE_URL="$issue_url" DASHBOARD_URL="$DASHBOARD_URL" DATA_SOURCE_URL="$DATA_SOURCE_URL" STALE_DURATION="$stale_duration" SLACK_PENDING="$issue_pending" python - <<'PY'
+          import json
+          import os
+
+          result = json.load(open(os.environ["RESULT_FILE"], encoding="utf-8"))
+          print("\n".join([
+              "復旧しました。",
+              "最新データ: " + str(result["newest_last_updated"]),
+              "停止時間（概算）: " + os.environ["STALE_DURATION"],
+              "Issue: " + os.environ["ISSUE_URL"],
+              "ダッシュボード: " + os.environ["DASHBOARD_URL"],
+              "データ提供元: " + os.environ["DATA_SOURCE_URL"],
+          ]))
+          if os.environ["SLACK_PENDING"] == "true":
+              print("初回アラートはSlackへ未配信でした")
+          PY
+            )"
+            gh issue comment "$issue_number" --body "$recovery"
+            gh issue close "$issue_number"
+            if [ -z "$SLACK_WEBHOOK_URL" ]; then
+              echo "::warning::SLACK_WEBHOOK_URL is not configured; skipping Slack recovery notification"
+            else
+              slack_recovery="$(RECOVERY="$recovery" RUN_URL="$RUN_URL" python - <<'PY'
+          import os
+
+          print("✅ データ鮮度が復旧しました\n" + os.environ["RECOVERY"] + "\n実行: " + os.environ["RUN_URL"])
+          PY
+              )"
+              post_slack "$slack_recovery" || true
+            fi
+          else
+            echo "No issue state transition: severity=$severity issue=$issue_number"
+          fi
