@@ -12,6 +12,7 @@
 # Configuration:
 #   Set SWITCHBOT_BACKEND_URL environment variable or edit the default below
 #   Set BACKUP_DIR environment variable to change the backup directory
+#   Set BACKUP_API_TOKEN to the backend's backup API token
 
 BACKEND_URL="${SWITCHBOT_BACKEND_URL:-https://temp-master.fly.dev}"
 BACKUP_DIR="${BACKUP_DIR:-$HOME/switchbot_backups}"
@@ -43,6 +44,7 @@ while [[ $# -gt 0 ]]; do
             echo "Environment variables:"
             echo "  SWITCHBOT_BACKEND_URL  Backend URL (default: https://temp-master.fly.dev)"
             echo "  BACKUP_DIR             Backup directory (default: ~/switchbot_backups)"
+            echo "  BACKUP_API_TOKEN       Required bearer token for backup access"
             exit 0
             ;;
         *)
@@ -53,6 +55,11 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+if [[ -z "${BACKUP_API_TOKEN:-}" ]]; then
+    echo "Error: BACKUP_API_TOKEN is required to download backups." >&2
+    exit 1
+fi
+
 mkdir -p "$BACKUP_DIR"
 
 backup_database() {
@@ -61,7 +68,8 @@ backup_database() {
     
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting backup..."
     
-    local http_code=$(curl -s -w "%{http_code}" -o "$backup_file" "$BACKEND_URL/api/backup")
+    local http_code=$(curl -s -w "%{http_code}" -o "$backup_file" \
+        -H "Authorization: Bearer $BACKUP_API_TOKEN" "$BACKEND_URL/api/backup")
     
     if [ "$http_code" -eq 200 ]; then
         local file_size=$(ls -lh "$backup_file" | awk '{print $5}')

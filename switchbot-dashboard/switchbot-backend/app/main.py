@@ -4,6 +4,7 @@ import hashlib
 import hmac
 import logging
 import os
+import tempfile
 import time
 import uuid
 from contextlib import asynccontextmanager
@@ -16,7 +17,7 @@ import httpx
 from dotenv import load_dotenv
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
@@ -34,6 +35,9 @@ logger = logging.getLogger("temp_master")
 
 # Database path - use /data/app.db for persistent volume in production
 DB_PATH = os.getenv("DB_PATH", "/data/app.db" if os.path.exists("/data") else "app.db")
+BACKUP_DIR = os.getenv("BACKUP_DIR", os.path.join(os.path.dirname(os.path.abspath(DB_PATH)), "backups"))
+BACKUP_API_TOKEN = os.getenv("BACKUP_API_TOKEN", "")
+_backup_lock = asyncio.Lock()
 
 SWITCHBOT_API_BASE = "https://api.switch-bot.com/v1.1"
 SWITCHBOT_TOKEN = os.getenv("SWITCHBOT_TOKEN", "")
@@ -575,6 +579,11 @@ async def background_collector():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    try:
+        os.makedirs(BACKUP_DIR, exist_ok=True)
+    except OSError:
+        logger.exception("Failed to create backup directory: %s", BACKUP_DIR)
+
     # Initialize database and load existing data
     await init_database()
     await load_devices_from_db()
@@ -599,7 +608,7 @@ app = FastAPI(lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -819,19 +828,56 @@ async def import_data(data: ImportData):
     }
 
 
-BACKUP_DIR = os.getenv("BACKUP_DIR", os.path.join(os.path.dirname(os.path.abspath(DB_PATH)), "backups"))
+def require_backup_token(authorization: Optional[str] = Header(None)) -> None:
+    if not BACKUP_API_TOKEN:
+        logger.warning("Backup API token is not configured")
+        raise HTTPException(
+            status_code=401,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    if authorization is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    scheme, separator, provided = authorization.partition(" ")
+    if (
+        not separator
+        or scheme.lower() != "bearer"
+        or not hmac.compare_digest(provided.encode(), BACKUP_API_TOKEN.encode())
+    ):
+        raise HTTPException(
+            status_code=401,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 
-@app.get("/api/backup")
+@app.get("/api/backup", dependencies=[Depends(require_backup_token)])
 async def backup_database():
     """Download a consistent snapshot of the SQLite database."""
     if not os.path.exists(DB_PATH):
         raise HTTPException(status_code=404, detail="Database file not found")
+    if _backup_lock.locked():
+        raise HTTPException(status_code=429, detail="Backup already in progress")
+
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     filename = f"switchbot_backup_{timestamp}.db"
-    snapshot_path = os.path.join(BACKUP_DIR, filename)
-    async with aiosqlite.connect(DB_PATH) as src, aiosqlite.connect(snapshot_path) as dst:
-        await src.backup(dst)
+    async with _backup_lock:
+        fd, snapshot_path = tempfile.mkstemp(
+            dir=BACKUP_DIR,
+            prefix="switchbot_backup_",
+            suffix=".db",
+        )
+        os.close(fd)
+        try:
+            async with aiosqlite.connect(DB_PATH) as src, aiosqlite.connect(snapshot_path) as dst:
+                await src.backup(dst)
+        except Exception:
+            os.remove(snapshot_path)
+            raise
     return FileResponse(path=snapshot_path, filename=filename, media_type="application/x-sqlite3",
                         background=BackgroundTask(os.remove, snapshot_path))
 
