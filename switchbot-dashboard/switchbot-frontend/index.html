@@ -642,6 +642,26 @@
     // ============================================================
 
     $(document).ready(function() {
+      function getStoredBackupToken() {
+        try {
+          return sessionStorage.getItem('backupApiToken');
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function storeBackupToken(token) {
+        try {
+          sessionStorage.setItem('backupApiToken', token);
+        } catch (e) {}
+      }
+
+      function removeStoredBackupToken() {
+        try {
+          sessionStorage.removeItem('backupApiToken');
+        } catch (e) {}
+      }
+
       fetchData();
       setInterval(fetchData, REFRESH_INTERVAL);
 
@@ -666,8 +686,23 @@
       $('#btn-backup').click(function() {
         var $btn = $(this);
         $btn.prop('disabled', true).text('Downloading...');
-        fetch('/api/backup').then(function(res) {
+        var token = getStoredBackupToken();
+        if (!token) {
+          token = window.prompt('Backup API token');
+        }
+        if (!token) {
+          $btn.prop('disabled', false).text('Download Backup');
+          return;
+        }
+        fetch('/api/backup', {
+          headers: {'Authorization': 'Bearer ' + token}
+        }).then(function(res) {
           if (!res.ok) {
+            if (res.status === 401) {
+              removeStoredBackupToken();
+              showError('Backup API token is invalid (HTTP 401).');
+              return;
+            }
             return res.json().then(function(data) {
               var rid = data && data.request_id;
               showError('Failed to download backup (HTTP ' + res.status + ').' + (rid ? ' Request ID: ' + rid : ''));
@@ -675,6 +710,7 @@
               showError('Failed to download backup (HTTP ' + res.status + ').');
             });
           }
+          storeBackupToken(token);
           var disposition = res.headers.get('Content-Disposition') || '';
           var match = disposition.match(/filename="?([^";]+)"?/);
           var filename = match ? match[1] : 'switchbot_backup.db';

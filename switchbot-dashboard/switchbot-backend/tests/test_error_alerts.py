@@ -1,4 +1,6 @@
 import json
+import re
+import sqlite3
 import time
 from unittest.mock import AsyncMock, patch
 
@@ -154,14 +156,142 @@ class TestPostErrorAlert:
 
 
 class TestBackupEndpoint:
-    def test_backup_404_when_db_missing(self, reset_data_store):
-        original = main_module.DB_PATH
-        main_module.DB_PATH = "/nonexistent/path/missing.db"
-        try:
-            client = TestClient(app)
-            response = client.get("/api/backup")
-        finally:
-            main_module.DB_PATH = original
+    def test_backup_preflight_rejects_cross_origin_authorization_header(self, client):
+        response = client.options(
+            "/api/backup",
+            headers={
+                "Origin": "https://evil.example",
+                "Access-Control-Request-Method": "GET",
+                "Access-Control-Request-Headers": "authorization",
+            },
+        )
+
+        assert response.status_code == 400
+        assert "authorization" not in response.headers.get("access-control-allow-headers", "").lower()
+
+    def test_backup_requires_authorization_header(self, client, monkeypatch):
+        monkeypatch.setattr(main_module, "BACKUP_API_TOKEN", "test-backup-token")
+
+        response = client.get("/api/backup")
+
+        assert response.status_code == 401
+        assert response.headers["WWW-Authenticate"] == "Bearer"
+        assert response.json()["detail"] == "Not authenticated"
+
+    def test_backup_rejects_wrong_token(self, client, monkeypatch):
+        monkeypatch.setattr(main_module, "BACKUP_API_TOKEN", "test-backup-token")
+
+        response = client.get("/api/backup", headers={"Authorization": "Bearer wrong-token"})
+
+        assert response.status_code == 401
+        assert response.headers["WWW-Authenticate"] == "Bearer"
+
+    def test_backup_rejects_non_bearer_scheme(self, client, monkeypatch):
+        monkeypatch.setattr(main_module, "BACKUP_API_TOKEN", "test-backup-token")
+
+        response = client.get("/api/backup", headers={"Authorization": "Basic test-backup-token"})
+
+        assert response.status_code == 401
+        assert response.headers["WWW-Authenticate"] == "Bearer"
+
+    def test_backup_rejects_any_token_when_server_token_is_unset(self, client, monkeypatch):
+        monkeypatch.setattr(main_module, "BACKUP_API_TOKEN", "")
+
+        response = client.get("/api/backup", headers={"Authorization": "Bearer test-backup-token"})
+
+        assert response.status_code == 401
+        assert response.headers["WWW-Authenticate"] == "Bearer"
+
+    def test_backup_404_when_db_missing(self, client, monkeypatch, tmp_path):
+        monkeypatch.setattr(main_module, "BACKUP_API_TOKEN", "test-backup-token")
+        monkeypatch.setattr(main_module, "DB_PATH", str(tmp_path / "missing.db"))
+
+        response = client.get("/api/backup", headers={"Authorization": "Bearer test-backup-token"})
 
         assert response.status_code == 404
         assert response.json()["detail"] == "Database file not found"
+
+    def test_backup_returns_sqlite_snapshot_and_removes_temporary_file(self, client, monkeypatch, tmp_path):
+        db_path = tmp_path / "source.db"
+        with sqlite3.connect(db_path) as db:
+            db.execute("CREATE TABLE backup_test (value TEXT)")
+            db.execute("INSERT INTO backup_test VALUES ('present')")
+        backup_dir = tmp_path / "backups"
+        backup_dir.mkdir()
+        monkeypatch.setattr(main_module, "DB_PATH", str(db_path))
+        monkeypatch.setattr(main_module, "BACKUP_DIR", str(backup_dir))
+        monkeypatch.setattr(main_module, "BACKUP_API_TOKEN", "test-backup-token")
+
+        response = client.get("/api/backup", headers={"Authorization": "Bearer test-backup-token"})
+
+        assert response.status_code == 200
+        assert response.content.startswith(b"SQLite format 3\x00")
+        assert re.search(
+            r'filename="?switchbot_backup_\d{8}_\d{6}\.db"?',
+            response.headers["content-disposition"],
+        )
+        assert list(backup_dir.iterdir()) == []
+
+    def test_consecutive_backups_each_return_valid_sqlite_content(self, client, monkeypatch, tmp_path):
+        db_path = tmp_path / "source.db"
+        with sqlite3.connect(db_path) as db:
+            db.execute("CREATE TABLE backup_test (value TEXT)")
+            db.execute("INSERT INTO backup_test VALUES ('present')")
+        backup_dir = tmp_path / "backups"
+        backup_dir.mkdir()
+        monkeypatch.setattr(main_module, "DB_PATH", str(db_path))
+        monkeypatch.setattr(main_module, "BACKUP_DIR", str(backup_dir))
+        monkeypatch.setattr(main_module, "BACKUP_API_TOKEN", "test-backup-token")
+
+        responses = [
+            client.get("/api/backup", headers={"Authorization": "Bearer test-backup-token"})
+            for _ in range(2)
+        ]
+
+        assert all(response.status_code == 200 for response in responses)
+        assert all(response.content.startswith(b"SQLite format 3\x00") for response in responses)
+        assert list(backup_dir.iterdir()) == []
+
+    def test_backup_returns_429_when_another_backup_is_in_progress(self, client, monkeypatch):
+        monkeypatch.setattr(main_module, "BACKUP_API_TOKEN", "test-backup-token")
+
+        class LockedBackup:
+            @staticmethod
+            def locked():
+                return True
+
+        monkeypatch.setattr(main_module, "_backup_lock", LockedBackup())
+        response = client.get("/api/backup", headers={"Authorization": "Bearer test-backup-token"})
+
+        assert response.status_code == 429
+        assert response.json()["detail"] == "Backup already in progress"
+
+    def test_backup_removes_snapshot_when_sqlite_backup_raises(self, reset_data_store, monkeypatch, tmp_path):
+        backup_dir = tmp_path / "backups"
+        backup_dir.mkdir()
+        monkeypatch.setattr(main_module, "BACKUP_DIR", str(backup_dir))
+        monkeypatch.setattr(main_module, "BACKUP_API_TOKEN", "test-backup-token")
+        monkeypatch.setattr(
+            main_module.aiosqlite.Connection,
+            "backup",
+            AsyncMock(side_effect=RuntimeError("SQLite backup failed")),
+        )
+        client = TestClient(app, raise_server_exceptions=False)
+
+        response = client.get("/api/backup", headers={"Authorization": "Bearer test-backup-token"})
+
+        assert response.status_code == 500
+        assert list(backup_dir.iterdir()) == []
+
+    def test_lifespan_removes_stale_backup_snapshots(self, reset_data_store, monkeypatch, tmp_path):
+        backup_dir = tmp_path / "backups"
+        backup_dir.mkdir()
+        stale_snapshot = backup_dir / ".snapshot_tmp_x.db"
+        retained_backup = backup_dir / "switchbot_backup_20260101_000000.db"
+        stale_snapshot.touch()
+        retained_backup.touch()
+        monkeypatch.setattr(main_module, "BACKUP_DIR", str(backup_dir))
+
+        with TestClient(app):
+            assert not stale_snapshot.exists()
+            assert retained_backup.exists()

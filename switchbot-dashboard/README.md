@@ -70,6 +70,14 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 - `POST /api/meters/refresh` - Triggers immediate data collection
 - `GET /api/status` - Returns backend status and configuration
 
+## Database backups
+
+Set the `BACKUP_API_TOKEN` secret on Fly.io with `fly secrets set BACKUP_API_TOKEN=...`. Requests to `GET /api/backup` must include `Authorization: Bearer <token>`. The included `backup_database.sh` script requires `BACKUP_API_TOKEN` in its environment, for example:
+
+```bash
+BACKUP_API_TOKEN=your-token ./backup_database.sh
+```
+
 ## Notes
 
 - Temperature history is stored in memory and resets on backend restart
