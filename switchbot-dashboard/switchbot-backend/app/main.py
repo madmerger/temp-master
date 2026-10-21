@@ -836,17 +836,34 @@ async def backup_database():
                         background=BackgroundTask(os.remove, snapshot_path))
 
 
+def resolve_frontend_index(static_dir: Path) -> Path:
+    legacy_index = static_dir / "legacy" / "index.html"
+    if legacy_index.is_file():
+        return legacy_index
+    return static_dir / "index.html"
+
+
+def resolve_static_file(static_dir: Path, full_path: str) -> Path:
+    frontend_index = resolve_frontend_index(static_dir)
+    resolved_static_dir = static_dir.resolve()
+    resolved_file = (static_dir / full_path).resolve()
+    root_index = (static_dir / "index.html").resolve()
+    if not resolved_file.is_relative_to(resolved_static_dir):
+        return frontend_index
+    if resolved_file == root_index:
+        return frontend_index
+    if resolved_file.is_file():
+        return resolved_file
+    return frontend_index
+
+
 # Serve frontend static files if the static directory exists.
 # Layout under static/:
-#   index.html              -> frontend served at "/"
+#   legacy/index.html       -> served at "/" until the React build is wired in by the Docker multi-stage ticket
+#   index.html              -> Vite source entry (including resolved aliases served as legacy)
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
 if STATIC_DIR.is_dir():
     @app.get("/{full_path:path}")
     async def serve_spa(request: Request, full_path: str):
         """Serve the frontend at root."""
-        file_path = (STATIC_DIR / full_path).resolve()
-        if not file_path.is_relative_to(STATIC_DIR.resolve()):
-            return FileResponse(STATIC_DIR / "index.html")
-        if full_path and file_path.is_file():
-            return FileResponse(file_path)
-        return FileResponse(STATIC_DIR / "index.html")
+        return FileResponse(resolve_static_file(STATIC_DIR, full_path))
