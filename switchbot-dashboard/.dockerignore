@@ -1,4 +1,2 @@
-switchbot-frontend/node_modules
-switchbot-frontend/dist
-switchbot-frontend/test-results
-switchbot-frontend/playwright-report
+switchbot-frontend/*
+!switchbot-frontend/legacy/
