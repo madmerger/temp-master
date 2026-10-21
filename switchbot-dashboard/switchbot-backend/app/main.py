@@ -1,5 +1,7 @@
 import asyncio
 import base64
+import contextlib
+import glob
 import hashlib
 import hmac
 import logging
@@ -21,7 +23,6 @@ from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
-from starlette.background import BackgroundTask
 
 from app.alerts import post_error_alert
 
@@ -581,6 +582,9 @@ async def background_collector():
 async def lifespan(app: FastAPI):
     try:
         os.makedirs(BACKUP_DIR, exist_ok=True)
+        for snapshot_path in glob.glob(os.path.join(BACKUP_DIR, "switchbot_backup_*.db")):
+            with contextlib.suppress(OSError):
+                os.remove(snapshot_path)
     except OSError:
         logger.exception("Failed to create backup directory: %s", BACKUP_DIR)
 
@@ -610,7 +614,7 @@ app.add_middleware(
     allow_origins=["*"],
     allow_credentials=False,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["Content-Type"],
 )
 
 _background_tasks: set = set()
@@ -855,6 +859,15 @@ def require_backup_token(authorization: Optional[str] = Header(None)) -> None:
         )
 
 
+class _TemporaryFileResponse(FileResponse):
+    async def __call__(self, scope, receive, send):
+        try:
+            await super().__call__(scope, receive, send)
+        finally:
+            with contextlib.suppress(FileNotFoundError):
+                os.remove(self.path)
+
+
 @app.get("/api/backup", dependencies=[Depends(require_backup_token)])
 async def backup_database():
     """Download a consistent snapshot of the SQLite database."""
@@ -875,11 +888,11 @@ async def backup_database():
         try:
             async with aiosqlite.connect(DB_PATH) as src, aiosqlite.connect(snapshot_path) as dst:
                 await src.backup(dst)
-        except Exception:
-            os.remove(snapshot_path)
+        except BaseException:
+            with contextlib.suppress(FileNotFoundError):
+                os.remove(snapshot_path)
             raise
-    return FileResponse(path=snapshot_path, filename=filename, media_type="application/x-sqlite3",
-                        background=BackgroundTask(os.remove, snapshot_path))
+    return _TemporaryFileResponse(path=snapshot_path, filename=filename, media_type="application/x-sqlite3")
 
 
 # Serve frontend static files if the static directory exists.

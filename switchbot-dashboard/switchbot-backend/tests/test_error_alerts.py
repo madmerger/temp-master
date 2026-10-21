@@ -156,6 +156,19 @@ class TestPostErrorAlert:
 
 
 class TestBackupEndpoint:
+    def test_backup_preflight_rejects_cross_origin_authorization_header(self, client):
+        response = client.options(
+            "/api/backup",
+            headers={
+                "Origin": "https://evil.example",
+                "Access-Control-Request-Method": "GET",
+                "Access-Control-Request-Headers": "authorization",
+            },
+        )
+
+        assert response.status_code == 400
+        assert "authorization" not in response.headers.get("access-control-allow-headers", "").lower()
+
     def test_backup_requires_authorization_header(self, client, monkeypatch):
         monkeypatch.setattr(main_module, "BACKUP_API_TOKEN", "test-backup-token")
 
@@ -252,3 +265,30 @@ class TestBackupEndpoint:
 
         assert response.status_code == 429
         assert response.json()["detail"] == "Backup already in progress"
+
+    def test_backup_removes_snapshot_when_sqlite_backup_raises(self, reset_data_store, monkeypatch, tmp_path):
+        backup_dir = tmp_path / "backups"
+        backup_dir.mkdir()
+        monkeypatch.setattr(main_module, "BACKUP_DIR", str(backup_dir))
+        monkeypatch.setattr(main_module, "BACKUP_API_TOKEN", "test-backup-token")
+        monkeypatch.setattr(
+            main_module.aiosqlite.Connection,
+            "backup",
+            AsyncMock(side_effect=RuntimeError("SQLite backup failed")),
+        )
+        client = TestClient(app, raise_server_exceptions=False)
+
+        response = client.get("/api/backup", headers={"Authorization": "Bearer test-backup-token"})
+
+        assert response.status_code == 500
+        assert list(backup_dir.iterdir()) == []
+
+    def test_lifespan_removes_stale_backup_snapshots(self, reset_data_store, monkeypatch, tmp_path):
+        backup_dir = tmp_path / "backups"
+        backup_dir.mkdir()
+        stale_snapshot = backup_dir / "switchbot_backup_x.db"
+        stale_snapshot.touch()
+        monkeypatch.setattr(main_module, "BACKUP_DIR", str(backup_dir))
+
+        with TestClient(app):
+            assert not stale_snapshot.exists()
