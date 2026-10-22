@@ -1,0 +1,67 @@
+.panel {
+  margin-bottom: 20px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.heading {
+  padding: 10px 15px;
+  color: #333;
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #ddd;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.staleBadge {
+  display: inline-block;
+  margin-left: 8px;
+}
+
+.deviceType {
+  padding: 2px 8px;
+  font-size: 11px;
+  color: #777;
+  background-color: #eee;
+  border-radius: 10px;
+}
+
+.body {
+  padding: 15px;
+}
+
+.stats {
+  margin-bottom: 10px;
+}
+
+.stat {
+  margin-right: 6px;
+  padding: 4px 8px;
+  font-size: 14px;
+}
+
+.lastUpdated {
+  margin-top: 8px;
+  margin-bottom: 0;
+  font-size: 12px;
+  color: #777;
+}
+
+.staleEmpty {
+  margin: 0;
+  color: #8a6d3b;
+}

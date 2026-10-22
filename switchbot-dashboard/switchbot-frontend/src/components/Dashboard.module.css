@@ -1,0 +1,20 @@
+.container {
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+.loading {
+  padding: 40px 0;
+  text-align: center;
+}
+
+.muted {
+  color: #777;
+}
+
+.footer {
+  margin: 30px 0 20px;
+  font-size: 12px;
+  color: #777;
+  text-align: center;
+}

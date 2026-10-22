@@ -1,0 +1,10 @@
+# ローカルの依存関係・ビルド成果物・環境変数ファイルをビルドコンテキストから除外する
+**/node_modules
+switchbot-frontend/dist
+**/.env
+**/.env.local
+**/.venv
+**/__pycache__
+**/*.pyc
+**/*.db
+switchbot-backend/static

@@ -1,0 +1,89 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 1030;
+  min-height: 50px;
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #e7e7e7;
+}
+
+.inner {
+  display: flex;
+  align-items: flex-start;
+  padding: 0 15px;
+}
+
+.brand {
+  height: 50px;
+  padding: 15px;
+  margin-left: -15px;
+  font-size: 18px;
+  line-height: 20px;
+  color: #777;
+  text-decoration: none;
+}
+
+.brand:hover {
+  color: #5e5e5e;
+}
+
+.nav {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.nav a {
+  display: block;
+  padding: 15px;
+  line-height: 20px;
+  color: #777;
+  text-decoration: none;
+}
+
+.nav a:hover {
+  color: #333;
+}
+
+.active a,
+.active a:hover {
+  color: #555;
+  background-color: #e7e7e7;
+}
+
+.status {
+  margin-top: 15px;
+  margin-right: 0;
+  margin-left: auto;
+}
+
+/* 768px 未満では Bootstrap 3 と同様に、メニューと接続ステータスをブランドの下段へ折り返す。
+   折り返しで高さが変わるため sticky にして、本文（期間選択など）がナビバーに隠れないようにする */
+@media (max-width: 767px) {
+  .navbar {
+    position: sticky;
+    margin-bottom: 20px;
+  }
+
+  .inner {
+    flex-wrap: wrap;
+  }
+
+  .nav {
+    flex-direction: column;
+    flex-basis: calc(100% + 30px);
+    margin: 7.5px -15px;
+  }
+
+  .nav a {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .status {
+    margin: 15px 15px 15px auto;
+  }
+}

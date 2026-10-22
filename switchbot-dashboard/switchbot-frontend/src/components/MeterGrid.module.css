@@ -1,0 +1,24 @@
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -15px;
+  margin-left: -15px;
+}
+
+.col {
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+@media (min-width: 768px) {
+  .col {
+    width: 50%;
+  }
+}
+
+@media (min-width: 992px) {
+  .col {
+    width: 33.33333333%;
+  }
+}
