@@ -449,12 +449,7 @@ async def call_switchbot_api(endpoint: str, device_id: Optional[str] = None) -> 
             
             if response.status_code != 200:
                 error_message = f"SwitchBot API error: HTTP {response.status_code}"
-                logger.warning(
-                    "SwitchBot API error on %s: HTTP %s body=%s",
-                    endpoint,
-                    response.status_code,
-                    response.text[:200],
-                )
+                logger.warning("SwitchBot API error on %s: HTTP %s", endpoint, response.status_code)
                 await save_latency_log(
                     endpoint=endpoint,
                     latency_ms=latency_ms,
