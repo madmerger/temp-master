@@ -295,6 +295,19 @@ class TestRefreshMetersEndpoint:
             assert data["meters_count"] == 1
             mock_collect.assert_called_once()
 
+    def test_refresh_meters_cooldown(self, client, reset_data_store):
+        with patch.object(main_module, "SWITCHBOT_TOKEN", "test-token"), \
+             patch.object(main_module, "SWITCHBOT_SECRET", "test-secret"), \
+             patch("app.main.collect_data", new_callable=AsyncMock) as mock_collect:
+            first_response = client.post("/api/meters/refresh")
+            second_response = client.post("/api/meters/refresh")
+
+            assert first_response.status_code == 200
+            assert second_response.status_code == 429
+            assert int(second_response.headers["Retry-After"]) > 0
+            assert second_response.json()["detail"].startswith("Refresh too frequent. Retry after ")
+            mock_collect.assert_called_once()
+
 
 class TestGetStatusEndpoint:
     def test_get_status_configured(self, client, reset_data_store):
@@ -372,7 +385,12 @@ class TestImportDataEndpoint:
                 ]
             }
             
-            response = client.post("/api/import", json=import_data)
+            with patch.object(main_module, "IMPORT_API_TOKEN", "test-import-token"):
+                response = client.post(
+                    "/api/import",
+                    json=import_data,
+                    headers={"Authorization": "Bearer test-import-token"},
+                )
             
             assert response.status_code == 200
             data = response.json()
@@ -416,7 +434,12 @@ class TestImportDataEndpoint:
                 ]
             }
             
-            response = client.post("/api/import", json=import_data)
+            with patch.object(main_module, "IMPORT_API_TOKEN", "test-import-token"):
+                response = client.post(
+                    "/api/import",
+                    json=import_data,
+                    headers={"Authorization": "Bearer test-import-token"},
+                )
             
             assert response.status_code == 200
             data = response.json()
@@ -449,7 +472,12 @@ class TestImportDataEndpoint:
                 ]
             }
             
-            response = client.post("/api/import", json=import_data)
+            with patch.object(main_module, "IMPORT_API_TOKEN", "test-import-token"):
+                response = client.post(
+                    "/api/import",
+                    json=import_data,
+                    headers={"Authorization": "Bearer test-import-token"},
+                )
             
             assert response.status_code == 200
             data = response.json()
@@ -462,10 +490,67 @@ class TestImportDataEndpoint:
 
     def test_import_data_empty_devices(self, client, reset_data_store):
         import_data = {"devices": []}
-        
-        response = client.post("/api/import", json=import_data)
+
+        with patch.object(main_module, "IMPORT_API_TOKEN", "test-import-token"):
+            response = client.post(
+                "/api/import",
+                json=import_data,
+                headers={"Authorization": "Bearer test-import-token"},
+            )
         
         assert response.status_code == 200
         data = response.json()
         assert data["imported_devices"] == 0
         assert data["imported_readings"] == 0
+
+    def test_import_data_requires_authorization(self, client, reset_data_store):
+        with patch.object(main_module, "IMPORT_API_TOKEN", "test-import-token"):
+            response = client.post("/api/import", json={"devices": []})
+
+        assert response.status_code == 401
+        assert response.json()["detail"] == "Not authenticated"
+        assert response.headers["WWW-Authenticate"] == "Bearer"
+
+    def test_import_data_rejects_wrong_token(self, client, reset_data_store):
+        with patch.object(main_module, "IMPORT_API_TOKEN", "test-import-token"):
+            response = client.post(
+                "/api/import",
+                json={"devices": []},
+                headers={"Authorization": "Bearer wrong-token"},
+            )
+
+        assert response.status_code == 401
+        assert response.json()["detail"] == "Not authenticated"
+
+    def test_import_data_fails_closed_without_configured_token(self, client, reset_data_store):
+        with patch.object(main_module, "IMPORT_API_TOKEN", ""):
+            response = client.post(
+                "/api/import",
+                json={"devices": []},
+                headers={"Authorization": "Bearer test-import-token"},
+            )
+
+        assert response.status_code == 401
+        assert response.json()["detail"] == "Not authenticated"
+
+    @pytest.mark.parametrize("device_id", ["../../v1.0/scenes#", "a/b", "a?b", ""])
+    def test_import_data_rejects_invalid_device_ids(self, client, reset_data_store, device_id):
+        import_data = {
+            "devices": [
+                {
+                    "device_id": device_id,
+                    "device_name": "Invalid Meter",
+                    "device_type": "Meter",
+                }
+            ]
+        }
+
+        with patch.object(main_module, "IMPORT_API_TOKEN", "test-import-token"):
+            response = client.post(
+                "/api/import",
+                json=import_data,
+                headers={"Authorization": "Bearer test-import-token"},
+            )
+
+        assert response.status_code == 422
+        assert device_id not in data_store.devices

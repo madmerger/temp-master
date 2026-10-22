@@ -48,6 +48,7 @@ async def reset_data_store(tmp_path) -> AsyncGenerator[DataStore, None]:
     original_devices = data_store.devices.copy()
     original_history = data_store.history.copy()
     original_last_api_call = data_store.last_api_call
+    original_last_manual_refresh = data_store.last_manual_refresh
     original_backoff_until = data_store.backoff_until
     original_consecutive_errors = data_store.consecutive_errors
     original_is_collecting = data_store.is_collecting
@@ -57,6 +58,7 @@ async def reset_data_store(tmp_path) -> AsyncGenerator[DataStore, None]:
     data_store.devices = {}
     data_store.history = {}
     data_store.last_api_call = 0
+    data_store.last_manual_refresh = 0
     data_store.backoff_until = 0
     data_store.consecutive_errors = 0
     data_store.is_collecting = False
@@ -70,6 +72,7 @@ async def reset_data_store(tmp_path) -> AsyncGenerator[DataStore, None]:
     data_store.devices = original_devices
     data_store.history = original_history
     data_store.last_api_call = original_last_api_call
+    data_store.last_manual_refresh = original_last_manual_refresh
     data_store.backoff_until = original_backoff_until
     data_store.consecutive_errors = original_consecutive_errors
     data_store.is_collecting = original_is_collecting

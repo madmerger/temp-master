@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import aiosqlite
 import pytest
 from fastapi import HTTPException
 
@@ -181,6 +182,38 @@ class TestCollectData:
                 assert "device-001" in data_store.devices
         finally:
             main_module.DB_PATH = original_db_path
+
+    async def test_collect_data_skips_invalid_existing_device_id(self, reset_data_store):
+        invalid_device_id = "../../v1.0/scenes#"
+        data_store.devices[invalid_device_id] = MeterDevice(
+            device_id=invalid_device_id,
+            device_name="Injected Meter",
+            device_type="Meter",
+        )
+
+        with patch.object(main_module, "SWITCHBOT_TOKEN", "test-token"), \
+             patch.object(main_module, "SWITCHBOT_SECRET", "test-secret"), \
+             patch("app.main.fetch_devices", new_callable=AsyncMock, return_value=[]), \
+             patch("app.main.fetch_device_status", new_callable=AsyncMock) as mock_fetch_status:
+            await collect_data()
+
+        mock_fetch_status.assert_not_called()
+
+    async def test_load_devices_from_db_skips_invalid_device_id(self, reset_data_store):
+        async with aiosqlite.connect(main_module.DB_PATH) as db:
+            await db.executemany(
+                "INSERT INTO devices (device_id, device_name, device_type) VALUES (?, ?, ?)",
+                [
+                    ("../../v1.0/scenes#", "Invalid Meter", "Meter"),
+                    ("C271111EC0AB", "Valid Meter", "Meter"),
+                ],
+            )
+            await db.commit()
+
+        await main_module.load_devices_from_db()
+
+        assert "../../v1.0/scenes#" not in data_store.devices
+        assert "C271111EC0AB" in data_store.devices
 
     async def test_collect_data_rate_limit_breaks_loop(self, reset_data_store, temp_db_path):
         original_db_path = main_module.DB_PATH

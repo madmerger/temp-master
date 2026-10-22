@@ -121,22 +121,28 @@ class TestCallSwitchbotApi:
         from unittest.mock import MagicMock
         mock_response = MagicMock()
         mock_response.status_code = 500
-        mock_response.text = "Internal Server Error"
+        mock_response.text = "SECRET-BODY"
         
         with patch.object(main_module, "SWITCHBOT_TOKEN", "test-token"), \
              patch.object(main_module, "SWITCHBOT_SECRET", "test-secret"), \
-             patch("httpx.AsyncClient") as mock_client:
+             patch("httpx.AsyncClient") as mock_client, \
+             patch("app.main.save_latency_log", new_callable=AsyncMock) as mock_save_latency_log:
             mock_client.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
             
             with pytest.raises(HTTPException) as exc_info:
                 await call_switchbot_api("/devices")
             
             assert exc_info.value.status_code == 500
+            assert "SECRET-BODY" not in exc_info.value.detail
+            assert "HTTP 500" in exc_info.value.detail
+            mock_save_latency_log.assert_awaited_once()
+            assert "SECRET-BODY" not in mock_save_latency_log.await_args.kwargs["error_message"]
 
     async def test_call_api_request_error(self, reset_data_store):
         with patch.object(main_module, "SWITCHBOT_TOKEN", "test-token"), \
              patch.object(main_module, "SWITCHBOT_SECRET", "test-secret"), \
-             patch("httpx.AsyncClient") as mock_client:
+             patch("httpx.AsyncClient") as mock_client, \
+             patch("app.main.save_latency_log", new_callable=AsyncMock) as mock_save_latency_log:
             mock_client.return_value.__aenter__.return_value.get = AsyncMock(
                 side_effect=httpx.RequestError("Connection failed")
             )
@@ -145,7 +151,9 @@ class TestCallSwitchbotApi:
                 await call_switchbot_api("/devices")
             
             assert exc_info.value.status_code == 500
-            assert "Request error" in exc_info.value.detail
+            assert exc_info.value.detail == "Request error: RequestError"
+            assert "Connection failed" not in exc_info.value.detail
+            assert "Connection failed" not in mock_save_latency_log.await_args.kwargs["error_message"]
 
     async def test_call_api_no_credentials(self, reset_data_store):
         with patch.object(main_module, "SWITCHBOT_TOKEN", ""), \
@@ -293,6 +301,21 @@ class TestFetchDevices:
             assert device.device_type == "Meter"
             assert device.hub_device_id == "hub-001"
 
+    async def test_fetch_devices_skips_invalid_meter_ids(self, reset_data_store):
+        response = {
+            "statusCode": 100,
+            "body": {
+                "deviceList": [
+                    {"deviceId": "C271111EC0AB", "deviceName": "Valid Meter", "deviceType": "Meter"},
+                    {"deviceId": "a/b", "deviceName": "Invalid Meter", "deviceType": "Meter"},
+                ]
+            },
+        }
+        with patch("app.main.call_switchbot_api", new_callable=AsyncMock, return_value=response):
+            devices = await fetch_devices()
+
+        assert [device.device_id for device in devices] == ["C271111EC0AB"]
+
 
 class TestFetchDeviceStatus:
     async def test_fetch_device_status(self, reset_data_store, sample_switchbot_status_response):
@@ -306,6 +329,27 @@ class TestFetchDeviceStatus:
             assert status["temperature"] == 24.5
             assert status["humidity"] == 55
             assert status["battery"] == 90
+
+    async def test_fetch_device_status_rejects_invalid_device_id(self, reset_data_store):
+        with patch("app.main.call_switchbot_api", new_callable=AsyncMock) as mock_api:
+            with pytest.raises(HTTPException) as exc_info:
+                await fetch_device_status("../../v1.0/scenes#")
+
+        assert exc_info.value.status_code == 400
+        assert exc_info.value.detail == "Invalid device_id"
+        mock_api.assert_not_called()
+
+    async def test_fetch_device_status_uses_validated_device_path(self, reset_data_store):
+        response = {"statusCode": 100, "body": {"temperature": 24.5}}
+        with patch("app.main.call_switchbot_api", new_callable=AsyncMock) as mock_api:
+            mock_api.return_value = response
+
+            await fetch_device_status("C271111EC0AB")
+
+        mock_api.assert_awaited_once_with(
+            "/devices/C271111EC0AB/status",
+            device_id="C271111EC0AB",
+        )
 
     async def test_fetch_device_status_handles_api_error(self, reset_data_store):
         with patch.object(main_module, "SWITCHBOT_TOKEN", "test-token"), \

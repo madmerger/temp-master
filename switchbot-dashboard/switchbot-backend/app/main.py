@@ -4,22 +4,24 @@ import hashlib
 import hmac
 import logging
 import os
+import re
 import time
 import uuid
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
+from urllib.parse import quote
 
 import aiosqlite
 import httpx
 from dotenv import load_dotenv
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from starlette.background import BackgroundTask
 
 from app.alerts import post_error_alert
@@ -38,6 +40,13 @@ DB_PATH = os.getenv("DB_PATH", "/data/app.db" if os.path.exists("/data") else "a
 SWITCHBOT_API_BASE = "https://api.switch-bot.com/v1.1"
 SWITCHBOT_TOKEN = os.getenv("SWITCHBOT_TOKEN", "")
 SWITCHBOT_SECRET = os.getenv("SWITCHBOT_SECRET", "")
+IMPORT_API_TOKEN = os.getenv("IMPORT_API_TOKEN", "")
+REFRESH_COOLDOWN_SECONDS = int(os.getenv("REFRESH_COOLDOWN_SECONDS", "300"))
+DEVICE_ID_PATTERN = re.compile(r"^[A-Za-z0-9-]{1,64}$")
+
+
+def is_valid_device_id(device_id: str) -> bool:
+    return isinstance(device_id, str) and DEVICE_ID_PATTERN.fullmatch(device_id) is not None
 
 DATA_COLLECTION_INTERVAL = 3600
 RATE_LIMIT_BACKOFF_BASE = 60
@@ -88,6 +97,7 @@ class DataStore:
         self.devices: dict[str, MeterDevice] = {}
         self.history: dict[str, list[MeterReading]] = {}
         self.last_api_call: float = 0
+        self.last_manual_refresh: float = 0
         self.backoff_until: float = 0
         self.consecutive_errors: int = 0
         self.is_collecting: bool = False
@@ -158,6 +168,9 @@ async def load_devices_from_db():
         db.row_factory = aiosqlite.Row
         async with db.execute("SELECT * FROM devices") as cursor:
             async for row in cursor:
+                if not is_valid_device_id(row["device_id"]):
+                    logger.warning("Skipping invalid device_id loaded from database: %s", row["device_id"])
+                    continue
                 device = MeterDevice(
                     device_id=row["device_id"],
                     device_name=row["device_name"],
@@ -435,17 +448,19 @@ async def call_switchbot_api(endpoint: str, device_id: Optional[str] = None) -> 
                 )
             
             if response.status_code != 200:
+                error_message = f"SwitchBot API error: HTTP {response.status_code}"
+                logger.warning("SwitchBot API error on %s: HTTP %s", endpoint, response.status_code)
                 await save_latency_log(
                     endpoint=endpoint,
                     latency_ms=latency_ms,
                     status_code=response.status_code,
                     success=False,
                     device_id=device_id,
-                    error_message=f"SwitchBot API error: {response.text}",
+                    error_message=error_message,
                 )
                 raise HTTPException(
                     status_code=response.status_code,
-                    detail=f"SwitchBot API error: {response.text}",
+                    detail=error_message,
                 )
             
             await save_latency_log(
@@ -461,15 +476,17 @@ async def call_switchbot_api(endpoint: str, device_id: Optional[str] = None) -> 
         except httpx.RequestError as e:
             end_time = time.perf_counter()
             latency_ms = (end_time - start_time) * 1000
+            error_message = f"Request error: {type(e).__name__}"
+            logger.warning("SwitchBot API request failed on %s: %s", endpoint, e)
             await save_latency_log(
                 endpoint=endpoint,
                 latency_ms=latency_ms,
                 status_code=500,
                 success=False,
                 device_id=device_id,
-                error_message=f"Request error: {str(e)}",
+                error_message=error_message,
             )
-            raise HTTPException(status_code=500, detail=f"Request error: {str(e)}")
+            raise HTTPException(status_code=500, detail=error_message)
 
 
 async def fetch_devices() -> list[MeterDevice]:
@@ -487,8 +504,12 @@ async def fetch_devices() -> list[MeterDevice]:
     for device in device_list:
         device_type = device.get("deviceType", "")
         if device_type in METER_DEVICE_TYPES:
+            device_id = device.get("deviceId", "")
+            if not is_valid_device_id(device_id):
+                logger.warning("Skipping SwitchBot meter with invalid device_id: %s", device_id)
+                continue
             meter = MeterDevice(
-                device_id=device.get("deviceId", ""),
+                device_id=device_id,
                 device_name=device.get("deviceName", "Unknown"),
                 device_type=device_type,
                 hub_device_id=device.get("hubDeviceId"),
@@ -499,7 +520,10 @@ async def fetch_devices() -> list[MeterDevice]:
 
 
 async def fetch_device_status(device_id: str) -> dict:
-    response = await call_switchbot_api(f"/devices/{device_id}/status", device_id=device_id)
+    if not is_valid_device_id(device_id):
+        raise HTTPException(status_code=400, detail="Invalid device_id")
+
+    response = await call_switchbot_api(f"/devices/{quote(device_id, safe='')}/status", device_id=device_id)
     
     if response.get("statusCode") != 100:
         raise HTTPException(
@@ -526,6 +550,9 @@ async def collect_data():
                 data_store.devices[device.device_id].device_type = device.device_type
         
         for device_id in list(data_store.devices.keys()):
+            if not is_valid_device_id(device_id):
+                logger.warning("Skipping invalid device_id during collection: %s", device_id)
+                continue
             try:
                 status = await fetch_device_status(device_id)
                 
@@ -691,7 +718,18 @@ async def get_meter_history(device_id: str, time_scale: TimeScale = TimeScale.HO
 async def refresh_meters():
     if not SWITCHBOT_TOKEN or not SWITCHBOT_SECRET:
         raise HTTPException(status_code=500, detail="SwitchBot credentials not configured")
-    
+
+    now = time.time()
+    remaining = REFRESH_COOLDOWN_SECONDS - (now - data_store.last_manual_refresh)
+    if remaining > 0:
+        retry_after = max(1, int(remaining + 0.999))
+        raise HTTPException(
+            status_code=429,
+            detail=f"Refresh too frequent. Retry after {retry_after} seconds",
+            headers={"Retry-After": str(retry_after)},
+        )
+
+    data_store.last_manual_refresh = time.time()
     await collect_data()
     
     return {
@@ -760,7 +798,7 @@ class ImportReadingData(BaseModel):
 
 
 class ImportDeviceData(BaseModel):
-    device_id: str
+    device_id: str = Field(pattern=r"^[A-Za-z0-9-]{1,64}$")
     device_name: str
     device_type: str
     hub_device_id: Optional[str] = None
@@ -775,7 +813,25 @@ class ImportData(BaseModel):
     devices: list[ImportDeviceData]
 
 
-@app.post("/api/import")
+async def require_import_token(authorization: Optional[str] = Header(None)) -> None:
+    if not IMPORT_API_TOKEN:
+        logger.warning("IMPORT_API_TOKEN is not configured; denying /api/import request")
+        raise HTTPException(
+            status_code=401,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    scheme, _, token = (authorization or "").partition(" ")
+    if scheme != "Bearer" or not token or not hmac.compare_digest(token.encode(), IMPORT_API_TOKEN.encode()):
+        raise HTTPException(
+            status_code=401,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@app.post("/api/import", dependencies=[Depends(require_import_token)])
 async def import_data(data: ImportData):
     """Import historical data from another backend instance."""
     imported_devices = 0
