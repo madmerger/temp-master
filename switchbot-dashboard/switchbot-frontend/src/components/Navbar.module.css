@@ -60,8 +60,26 @@
   margin-left: auto;
 }
 
+/* 768px 未満では Bootstrap 3 と同様に、メニューと接続ステータスをブランドの下段へ折り返す */
 @media (max-width: 767px) {
   .inner {
     flex-wrap: wrap;
+  }
+
+  .nav {
+    flex-direction: column;
+    flex-basis: calc(100% + 30px);
+    margin: 7.5px -15px;
+  }
+
+  .nav a {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .status {
+    flex-basis: 100%;
+    margin: 0 0 15px;
+    text-align: right;
   }
 }
