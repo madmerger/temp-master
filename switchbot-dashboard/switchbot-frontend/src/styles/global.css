@@ -20,6 +20,13 @@ body {
   background-color: #f5f5f5;
 }
 
+/* 768px 未満のナビバーは sticky（Navbar.module.css）なので、固定分の上余白は不要 */
+@media (max-width: 767px) {
+  body {
+    padding-top: 0;
+  }
+}
+
 button,
 select {
   font-family: inherit;

@@ -60,8 +60,14 @@
   margin-left: auto;
 }
 
-/* 768px 未満では Bootstrap 3 と同様に、メニューと接続ステータスをブランドの下段へ折り返す */
+/* 768px 未満では Bootstrap 3 と同様に、メニューと接続ステータスをブランドの下段へ折り返す。
+   折り返しで高さが変わるため sticky にして、本文（期間選択など）がナビバーに隠れないようにする */
 @media (max-width: 767px) {
+  .navbar {
+    position: sticky;
+    margin-bottom: 20px;
+  }
+
   .inner {
     flex-wrap: wrap;
   }
@@ -78,8 +84,6 @@
   }
 
   .status {
-    flex-basis: 100%;
-    margin: 0 0 15px;
-    text-align: right;
+    margin: 15px 15px 15px auto;
   }
 }
