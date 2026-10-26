@@ -51,6 +51,7 @@ export function MeterChart({ deviceId, timeScale, refreshTick, theme }: MeterCha
         if (error instanceof Error && error.name === 'AbortError') {
           return
         }
+        setHistoryState({ deviceId, timeScale, readings: [] })
       })
 
     return () => controller.abort()
