@@ -13,5 +13,4 @@ export function getInitialTheme(): Theme {
 export function applyTheme(theme: Theme): void {
   document.documentElement.dataset.theme = theme
   document.documentElement.classList.toggle('dark', theme === 'dark')
-  localStorage.setItem(THEME_STORAGE_KEY, theme)
 }
