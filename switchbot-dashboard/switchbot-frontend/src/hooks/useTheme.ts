@@ -16,7 +16,9 @@ export function useTheme(): { theme: Theme; toggleTheme: () => void } {
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     const followSystemTheme = (event: MediaQueryListEvent) => {
-      setTheme(event.matches ? 'dark' : 'light')
+      const systemTheme: Theme = event.matches ? 'dark' : 'light'
+      applyTheme(systemTheme)
+      setTheme(systemTheme)
     }
     mediaQuery.addEventListener('change', followSystemTheme)
 
