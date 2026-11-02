@@ -20,7 +20,7 @@ public sealed class ChartAxesConverter : IValueConverter
     [
         new Axis
         {
-            Labels = labels,
+            Labels = labels.ToList(),
             LabelsPaint = new SolidColorPaint(isDark ? SKColors.LightGray : SKColors.DimGray),
             TextSize = 11,
             MinStep = 1,

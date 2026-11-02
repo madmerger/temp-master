@@ -30,7 +30,7 @@ public sealed class ChartSeriesConverter : IValueConverter
                 GeometrySize = 0,
                 Stroke = new SolidColorPaint(accent, 2),
                 Fill = new SolidColorPaint(accent.WithAlpha(isDark ? (byte)90 : (byte)45)),
-                TooltipLabelFormatter = point =>
+                YToolTipLabelFormatter = point =>
                     $"{point.Coordinate.PrimaryValue.ToString("0.0", CultureInfo.InvariantCulture)}°C",
             },
         ];
