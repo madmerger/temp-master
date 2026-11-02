@@ -8,3 +8,5 @@ dist/
 switchbot-dashboard/switchbot-backend/static
 switchbot-dashboard/switchbot-frontend/.env
 switchbot-dashboard/switchbot-frontend/.env.local
+switchbot-dashboard/switchbot-frontend/playwright-report/
+switchbot-dashboard/switchbot-frontend/test-results/
