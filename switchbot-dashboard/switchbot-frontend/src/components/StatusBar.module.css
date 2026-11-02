@@ -1,0 +1,11 @@
+.statusBar {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid var(--alert-info-border);
+  border-radius: 4px;
+  background: var(--alert-info-bg);
+  color: var(--alert-info-text);
+}

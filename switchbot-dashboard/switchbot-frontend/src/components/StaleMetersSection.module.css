@@ -1,0 +1,44 @@
+.section {
+  margin: 20px 0;
+}
+
+.sectionHeader {
+  margin-bottom: 10px;
+  color: var(--stale-title);
+}
+
+.sectionHeader h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.sectionHeader p {
+  margin: 4px 0 0;
+  font-size: 12px;
+}
+
+.panel {
+  padding: 15px;
+  border: 1px solid var(--stale-section-border);
+  border-radius: 4px;
+  background: var(--stale-section-bg);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 992px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

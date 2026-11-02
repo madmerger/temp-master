@@ -1,78 +1,117 @@
 # Temp Master Dashboard
 
-A fullstack web dashboard to monitor temperature readings from SwitchBot Meter devices.
+A full-stack dashboard for monitoring temperature, humidity, and battery readings from SwitchBot Meter devices.
 
 ## Features
 
-- Temperature charts for all SwitchBot Meter devices using Recharts
-- Time scale switching (hour/day/month/year)
-- Auto-refresh every 30 seconds (frontend) with background data collection every 2 minutes (backend)
-- Rate limiting protection with exponential backoff
-- All API calls are cached - GET endpoints never call SwitchBot API directly
+- React 19 and TypeScript frontend built with Vite
+- Temperature history charts with Chart.js 4 and `react-chartjs-2`
+- Light and dark themes, with the system preference used until a theme is selected
+- Time ranges for the last hour, 24 hours, 7 days, 30 days, or year
+- Active and stale meter groups, refreshed every 30 seconds
+- Rate-limit status and a downloadable database backup
+
+## Requirements
+
+- Python 3.12+
+- Node.js 24 LTS (Node.js 22 or newer is supported)
+- Poetry
 
 ## Setup
 
 ### Backend
 
-1. Navigate to the backend directory:
+1. Open the backend directory:
+
    ```bash
-   cd switchbot-backend
+   cd switchbot-dashboard/switchbot-backend
    ```
 
 2. Install dependencies:
+
    ```bash
    poetry install
    ```
 
 3. Copy `.env.example` to `.env` and add your SwitchBot credentials:
+
    ```bash
    cp .env.example .env
    ```
-   
-   Get your credentials from the SwitchBot app:
-   - Go to Profile > Preferences > About
-   - Tap App Version 10 times to enable Developer Options
-   - Go to Developer Options > Get Token
 
-4. Start the development server:
+   Get the token from the SwitchBot app under Profile > Preferences > About. Tap App Version 10 times to enable Developer Options, then select Developer Options > Get Token.
+
+4. Start the backend:
+
    ```bash
    poetry run fastapi dev app/main.py
    ```
 
 ### Frontend
 
-1. Navigate to the frontend directory:
+1. In a second terminal, open the frontend directory:
+
    ```bash
-   cd switchbot-frontend
+   cd switchbot-dashboard/switchbot-frontend
    ```
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+2. Install dependencies and start Vite:
 
-3. Copy `.env.example` to `.env`:
    ```bash
-   cp .env.example .env
-   ```
-
-4. Start the development server:
-   ```bash
+   npm ci
    npm run dev
    ```
 
-5. Open http://localhost:5173 in your browser
+   Vite serves the dashboard at <http://localhost:5173> and proxies `/api` requests to the backend at <http://localhost:8000>.
 
-## API Endpoints
+3. `VITE_API_URL` is empty by default, which uses the same origin as the frontend. Set it in a local `.env` file to override the API base URL:
 
-- `GET /api/meters` - Returns list of all meter devices with current temperature (from cache)
-- `GET /api/meters/{device_id}/history` - Returns temperature history with time_scale parameter
+   ```dotenv
+   VITE_API_URL=https://api.example.com
+   ```
+
+   Docker builds default to `https://snakeroom.fly.dev`.
+
+### Frontend commands
+
+Run these from `switchbot-dashboard/switchbot-frontend`:
+
+```bash
+npm run build
+npm run typecheck
+npm run lint
+npm test
+```
+
+## Docker
+
+From the repository root, build the multi-stage dashboard image:
+
+```bash
+docker build -t temp-master switchbot-dashboard
+```
+
+To set a different API base URL at build time:
+
+```bash
+docker build \
+  --build-arg VITE_API_URL=https://api.example.com \
+  -t temp-master switchbot-dashboard
+```
+
+The image serves the compiled frontend through FastAPI on port 8000.
+
+## API endpoints
+
+- `GET /api/meters` - Returns meter devices and their current readings
+- `GET /api/meters/{device_id}/history?time_scale=hour|day|week|month|year` - Returns readings for a time range
 - `POST /api/meters/refresh` - Triggers immediate data collection
-- `GET /api/status` - Returns backend status and configuration
+- `GET /api/status` - Returns backend status and rate-limit information
+- `GET /api/backup` - Downloads a SQLite database snapshot from the app serving the frontend
+- `GET /healthz` - Health check
 
 ## Notes
 
-- Temperature history is stored in memory and resets on backend restart
-- Backend data collection interval: 2 minutes minimum
-- Frontend refresh interval: 30 seconds
-- SwitchBot API has strict rate limits (~10000 requests/day)
+- Meter history is stored in SQLite and survives backend restarts.
+- The frontend refresh interval is 30 seconds. The backend collector runs independently.
+- SwitchBot API requests are subject to rate limits; the backend applies an exponential backoff.

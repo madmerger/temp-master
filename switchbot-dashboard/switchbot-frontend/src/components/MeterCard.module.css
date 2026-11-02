@@ -1,0 +1,100 @@
+.card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--panel-border);
+  border-radius: 4px;
+  background: var(--panel-bg);
+}
+
+.heading {
+  display: flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 15px;
+  border-bottom: 1px solid var(--panel-border);
+  background: var(--panel-heading-bg);
+}
+
+.title {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.title strong {
+  overflow-wrap: anywhere;
+}
+
+.staleBadge,
+.temperature,
+.humidity,
+.battery {
+  display: inline-block;
+  border-radius: 3px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.staleBadge {
+  padding: 4px 7px;
+  background: var(--badge-warning-bg);
+}
+
+.deviceType {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--device-tag-bg);
+  color: var(--device-tag-text);
+  font-size: 11px;
+}
+
+.body {
+  padding: 15px;
+}
+
+.stats {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.temperature,
+.humidity,
+.battery {
+  padding: 4px 8px;
+  font-size: 14px;
+}
+
+.temperature {
+  background: var(--badge-temperature-bg);
+}
+
+.humidity {
+  background: var(--badge-humidity-bg);
+}
+
+.battery {
+  background: var(--badge-battery-bg);
+}
+
+.chart {
+  position: relative;
+  height: 200px;
+}
+
+.lastUpdated {
+  margin: 8px 0 0;
+  color: var(--muted-text);
+  font-size: 12px;
+}
+
+.staleText {
+  margin: 0;
+  color: var(--stale-title);
+}
