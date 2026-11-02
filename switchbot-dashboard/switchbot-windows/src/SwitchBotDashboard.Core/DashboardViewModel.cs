@@ -312,6 +312,10 @@ public sealed partial class DashboardViewModel : ObservableObject
                 {
                     meters[index].SetHistory(response.History, timeScale);
                 }
+                else if (errors[index] is not null)
+                {
+                    meters[index].SetHistory([], timeScale);
+                }
             }
 
             var firstError = errors.FirstOrDefault(error => error is not null);

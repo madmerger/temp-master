@@ -231,6 +231,68 @@ public sealed class DashboardViewModelTests
     }
 
     [Fact]
+    public async Task FailedTimeScaleChangeClearsOnlyTheFailedMetersHistory()
+    {
+        var now = MockDashboardApi.ScenarioNow;
+        var api = new TrackingApi
+        {
+            MetersResponse = new MetersResponse
+            {
+                Meters =
+                [
+                    new Meter
+                    {
+                        DeviceId = "failing-meter",
+                        DeviceName = "Failing meter",
+                        DeviceType = "Meter",
+                        LastUpdated = now,
+                    },
+                    new Meter
+                    {
+                        DeviceId = "successful-meter",
+                        DeviceName = "Successful meter",
+                        DeviceType = "Meter",
+                        LastUpdated = now,
+                    },
+                ],
+            },
+            HistoryFactory = (deviceId, timeScale, _) =>
+                timeScale == TimeScale.Week && deviceId == "failing-meter"
+                    ? Task.FromException<HistoryResponse>(new InvalidOperationException("history unavailable"))
+                    : Task.FromResult(new HistoryResponse
+                    {
+                        DeviceId = deviceId,
+                        TimeScale = timeScale.ToApiValue(),
+                        History =
+                        [
+                            new MeterReading
+                            {
+                                Timestamp = now.AddHours(-1),
+                                Temperature = timeScale == TimeScale.Day ? 21 : 42,
+                            },
+                        ],
+                    }),
+        };
+        var viewModel = new DashboardViewModel(api, new FakeTimeProvider(now));
+
+        await viewModel.LoadAsync();
+        Assert.Equal(21, Assert.Single(
+            viewModel.ActiveMeters.Single(meter => meter.DeviceId == "failing-meter").Points).Temperature);
+        Assert.Equal(21, Assert.Single(
+            viewModel.ActiveMeters.Single(meter => meter.DeviceId == "successful-meter").Points).Temperature);
+
+        viewModel.SelectedTimeScale = TimeScale.Week;
+        await EventuallyAsync(() =>
+            viewModel.ErrorMessage?.StartsWith("Failed to fetch history:", StringComparison.Ordinal) == true
+            && viewModel.ActiveMeters.Single(meter => meter.DeviceId == "failing-meter").Points.Count == 0
+            && viewModel.ActiveMeters.Single(meter => meter.DeviceId == "successful-meter").Points
+                .SingleOrDefault()?.Temperature == 42);
+
+        Assert.Equal(ConnectionState.Connected, viewModel.ConnectionState);
+        Assert.StartsWith("Failed to fetch history:", viewModel.ErrorMessage);
+    }
+
+    [Fact]
     public async Task RefreshWaitsForInFlightLoadAndPerformsFollowUpReload()
     {
         var firstMetersRequestStarted = new TaskCompletionSource<bool>(
