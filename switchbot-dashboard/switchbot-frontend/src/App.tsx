@@ -46,13 +46,17 @@ export default function App() {
 
   const handleRefresh = async () => {
     setRefreshing(true)
+    let refreshError: string | null = null
     try {
       try {
         await triggerRefresh()
       } catch (requestError) {
-        setError(`Failed to refresh: ${errorMessage(requestError)}`)
+        refreshError = `Failed to refresh: ${errorMessage(requestError)}`
       }
       await reload()
+      if (refreshError) {
+        setError(refreshError)
+      }
     } finally {
       setRefreshing(false)
     }
