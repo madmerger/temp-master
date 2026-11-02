@@ -2,6 +2,11 @@
 
 Temp Master monitors temperature, humidity, and battery readings from SwitchBot Meter devices.
 
+- Temperature history charts per meter, with hour/day/week/month/year time ranges
+- Light/dark theme, connection status, and warnings for meters not updated for 7+ days
+- Rate-limit protection with exponential backoff. GET endpoints serve cached data and never call the
+  SwitchBot API directly.
+
 ## Setup
 
 ### Backend
@@ -13,16 +18,27 @@ cp .env.example .env
 poetry run fastapi dev app/main.py
 ```
 
-The backend reads SwitchBot credentials from `.env`. Its cached data collection interval is
-`DATA_COLLECTION_INTERVAL = 3600` seconds.
+The backend reads `SWITCHBOT_TOKEN` and `SWITCHBOT_SECRET` from `.env`. To get them in the SwitchBot app:
+
+1. Go to Profile > Preferences > About.
+2. Tap App Version 10 times to enable Developer Options.
+3. Go to Developer Options > Get Token.
+
+The backend collects data every `DATA_COLLECTION_INTERVAL = 3600` seconds. The SwitchBot API has strict rate
+limits (about 10,000 requests per day).
 
 ### Web
 
 ```bash
 cd switchbot-dashboard/switchbot-frontend
 npm ci
+cp .env.example .env
 npm run dev
 ```
+
+`VITE_API_URL` in `.env` sets the API base URL. If it is unset, `npm run dev` calls the same origin, and Vite
+proxies `/api` to `VITE_DEV_PROXY_TARGET` (default `http://localhost:8000`). Production builds default to
+`https://snakeroom.fly.dev`.
 
 Open <http://localhost:5173>. The web client polls the backend every 30 seconds.
 
