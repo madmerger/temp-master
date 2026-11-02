@@ -13,7 +13,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Line } from 'react-chartjs-2'
 import { fetchHistory } from '../api'
 import type { Reading, TimeScale } from '../types'
-import { formatTimestamp } from '../utils/format'
+import { formatTemperatureTick, formatTimestamp } from '../utils/format'
 import { CHART_THEME } from '../theme/chartTheme'
 import { useTheme } from '../theme/useTheme'
 
@@ -98,7 +98,7 @@ export function TemperatureChart({
           ticks: {
             font: { size: 10 },
             color: palette.tick,
-            callback: (value) => `${value}°`,
+            callback: (value) => formatTemperatureTick(value),
           },
         },
       },
