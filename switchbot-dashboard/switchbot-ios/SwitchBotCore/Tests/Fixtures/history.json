@@ -1,0 +1,14 @@
+{
+  "device_id": "C76B0046301A",
+  "time_scale": "hour",
+  "history": [
+    {
+      "timestamp": "2026-02-09T02:13:39.882908+00:00",
+      "temperature": 24.1,
+      "humidity": 85,
+      "battery": 100,
+      "extra_field": "ignored"
+    }
+  ],
+  "device": null
+}
