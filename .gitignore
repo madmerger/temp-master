@@ -3,3 +3,7 @@ __pycache__/
 *.pyc
 .venv/
 *.db
+switchbot-dashboard/switchbot-windows/**/bin/
+switchbot-dashboard/switchbot-windows/**/obj/
+switchbot-dashboard/switchbot-windows/TestResults/
+switchbot-dashboard/switchbot-windows/.vs/

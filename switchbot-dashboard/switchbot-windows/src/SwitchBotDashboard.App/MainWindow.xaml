@@ -1,0 +1,242 @@
+<Window
+    x:Class="SwitchBotDashboard.App.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:core="using:SwitchBotDashboard.Core"
+    xmlns:converters="using:SwitchBotDashboard.App.Converters"
+    xmlns:liveCharts="using:LiveChartsCore.SkiaView.WinUI"
+    Title="Temp Master Dashboard">
+    <Grid x:Name="RootGrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.Resources>
+            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+            <converters:NonEmptyStringToBooleanConverter x:Key="NonEmptyStringToBooleanConverter" />
+            <converters:BooleanInverterConverter x:Key="BooleanInverterConverter" />
+            <converters:ChartSeriesConverter x:Key="ChartSeriesConverter" />
+            <converters:ChartAxesConverter x:Key="ChartAxesConverter" />
+            <converters:ChartYAxisConverter x:Key="ChartYAxisConverter" />
+            <converters:ConnectionStatusBackgroundConverter x:Key="ConnectionStatusBackgroundConverter" />
+            <converters:ConnectionStatusForegroundConverter x:Key="ConnectionStatusForegroundConverter" />
+        </Grid.Resources>
+        <ScrollViewer Margin="28" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="20">
+                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto">
+                    <StackPanel Spacing="6">
+                        <TextBlock
+                            FontSize="30"
+                            FontWeight="SemiBold"
+                            Text="Temp Master Dashboard" />
+                        <Border
+                            Background="{x:Bind ViewModel.ConnectionState, Mode=OneWay, Converter={StaticResource ConnectionStatusBackgroundConverter}}"
+                            CornerRadius="12"
+                            HorizontalAlignment="Left"
+                            Padding="10,5">
+                            <TextBlock
+                                x:Name="ConnectionStatus"
+                                AutomationProperties.AutomationId="ConnectionStatus"
+                                FontSize="13"
+                                Foreground="{x:Bind ViewModel.ConnectionState, Mode=OneWay, Converter={StaticResource ConnectionStatusForegroundConverter}}"
+                                Text="{x:Bind ViewModel.ConnectionText, Mode=OneWay}" />
+                        </Border>
+                    </StackPanel>
+                    <StackPanel
+                        Grid.Column="1"
+                        HorizontalAlignment="Right"
+                        Orientation="Horizontal"
+                        Spacing="10"
+                        VerticalAlignment="Center">
+                        <TextBlock
+                            x:Name="CurrentTheme"
+                            AutomationProperties.AutomationId="CurrentTheme"
+                            Text="Light"
+                            VerticalAlignment="Center" />
+                        <ToggleSwitch
+                            x:Name="ThemeToggle"
+                            AutomationProperties.AutomationId="ThemeToggle"
+                            Header="Dark mode"
+                            OffContent="Off"
+                            OnContent="On"
+                            VerticalAlignment="Center" />
+                    </StackPanel>
+                </Grid>
+
+                <InfoBar
+                    x:Name="RateLimitInfoBar"
+                    AutomationProperties.AutomationId="RateLimitInfoBar"
+                    IsOpen="{x:Bind ViewModel.RateLimitText, Mode=OneWay, Converter={StaticResource NonEmptyStringToBooleanConverter}}"
+                    Message="{x:Bind ViewModel.RateLimitText, Mode=OneWay}"
+                    Severity="Warning" />
+                <InfoBar
+                    x:Name="ErrorBar"
+                    AutomationProperties.AutomationId="ErrorBar"
+                    IsOpen="{x:Bind ViewModel.ErrorMessage, Mode=OneWay, Converter={StaticResource NonEmptyStringToBooleanConverter}}"
+                    Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                    Severity="Error" />
+
+                <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <TextBlock Text="Time range" VerticalAlignment="Center" />
+                        <ComboBox
+                            x:Name="TimeRangeSelector"
+                            AutomationProperties.AutomationId="TimeRangeSelector"
+                            MinWidth="170"
+                            SelectedIndex="1">
+                            <ComboBoxItem Content="Last Hour" Tag="Hour" />
+                            <ComboBoxItem Content="Last 24 Hours" Tag="Day" />
+                            <ComboBoxItem Content="Last 7 Days" Tag="Week" />
+                            <ComboBoxItem Content="Last 30 Days" Tag="Month" />
+                            <ComboBoxItem Content="Last Year" Tag="Year" />
+                        </ComboBox>
+                    </StackPanel>
+                    <Button
+                        x:Name="RefreshButton"
+                        AutomationProperties.AutomationId="RefreshButton"
+                        Click="OnRefreshClicked"
+                        Content="Refresh"
+                        IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BooleanInverterConverter}}" />
+                </Grid>
+
+                <TextBlock
+                    FontSize="20"
+                    FontWeight="SemiBold"
+                    Text="Active meters" />
+                <ItemsRepeater
+                    x:Name="ActiveMetersRepeater"
+                    ItemsSource="{x:Bind ViewModel.ActiveMeters, Mode=OneWay}">
+                    <ItemsRepeater.Layout>
+                        <UniformGridLayout
+                            MaximumRowsOrColumns="3"
+                            MinColumnSpacing="16"
+                            MinItemHeight="300"
+                            MinItemWidth="320"
+                            MinRowSpacing="16"
+                            Orientation="Horizontal" />
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="core:MeterCardViewModel">
+                            <Border
+                                AutomationProperties.AutomationId="{x:Bind AutomationId}"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1"
+                                CornerRadius="12"
+                                Padding="18">
+                                <StackPanel Spacing="10">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <TextBlock
+                                            AutomationProperties.AutomationId="{x:Bind NameAutomationId}"
+                                            FontSize="18"
+                                            FontWeight="SemiBold"
+                                            Text="{x:Bind DisplayName}" />
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            FontSize="12"
+                                            Opacity="0.7"
+                                            Text="{x:Bind DeviceType}" />
+                                    </Grid>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}" CornerRadius="6" Padding="8,4" Visibility="{x:Bind TemperatureText, Converter={StaticResource NullToVisibilityConverter}}">
+                                            <TextBlock Text="{x:Bind TemperatureText}" />
+                                        </Border>
+                                        <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}" CornerRadius="6" Padding="8,4" Visibility="{x:Bind HumidityText, Converter={StaticResource NullToVisibilityConverter}}">
+                                            <TextBlock Text="{x:Bind HumidityText}" />
+                                        </Border>
+                                        <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}" CornerRadius="6" Padding="8,4" Visibility="{x:Bind BatteryText, Converter={StaticResource NullToVisibilityConverter}}">
+                                            <TextBlock Text="{x:Bind BatteryText}" />
+                                        </Border>
+                                    </StackPanel>
+                                    <liveCharts:CartesianChart
+                                        Height="170"
+                                        Series="{x:Bind Points, Mode=OneWay, Converter={StaticResource ChartSeriesConverter}}"
+                                        XAxes="{x:Bind Labels, Mode=OneWay, Converter={StaticResource ChartAxesConverter}}"
+                                        YAxes="{x:Bind Labels, Mode=OneWay, Converter={StaticResource ChartYAxisConverter}}" />
+                                    <TextBlock
+                                        FontSize="12"
+                                        Opacity="0.7"
+                                        Text="{x:Bind LastUpdatedText}"
+                                        Visibility="{x:Bind LastUpdatedText, Converter={StaticResource NullToVisibilityConverter}}" />
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
+
+                <StackPanel x:Name="StaleSection" Spacing="10">
+                    <TextBlock
+                        AutomationProperties.AutomationId="StaleSection"
+                        FontSize="20"
+                        FontWeight="SemiBold"
+                        Text="Stale meters" />
+                    <TextBlock Opacity="0.7" Text="Not updated for 7+ days" />
+                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.StaleMeters, Mode=OneWay}">
+                        <ItemsRepeater.Layout>
+                            <UniformGridLayout
+                                MaximumRowsOrColumns="3"
+                                MinColumnSpacing="16"
+                                MinItemHeight="150"
+                                MinItemWidth="320"
+                                MinRowSpacing="16"
+                                Orientation="Horizontal" />
+                        </ItemsRepeater.Layout>
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="core:MeterCardViewModel">
+                                <Border
+                                    AutomationProperties.AutomationId="{x:Bind AutomationId}"
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="12"
+                                    Padding="18">
+                                    <StackPanel Spacing="8">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock
+                                                AutomationProperties.AutomationId="{x:Bind NameAutomationId}"
+                                                FontSize="17"
+                                                FontWeight="SemiBold"
+                                                Text="{x:Bind DisplayName}" />
+                                            <Border
+                                                Grid.Column="1"
+                                                Background="{ThemeResource SystemFillColorCautionBackgroundBrush}"
+                                                CornerRadius="6"
+                                                Padding="8,3">
+                                                <TextBlock FontSize="11" Text="7+ days stale" />
+                                            </Border>
+                                        </Grid>
+                                        <TextBlock FontSize="12" Opacity="0.7" Text="{x:Bind DeviceType}" />
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}" CornerRadius="6" Padding="8,4" Visibility="{x:Bind TemperatureText, Converter={StaticResource NullToVisibilityConverter}}">
+                                                <TextBlock Text="{x:Bind TemperatureText}" />
+                                            </Border>
+                                            <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}" CornerRadius="6" Padding="8,4" Visibility="{x:Bind HumidityText, Converter={StaticResource NullToVisibilityConverter}}">
+                                                <TextBlock Text="{x:Bind HumidityText}" />
+                                            </Border>
+                                            <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}" CornerRadius="6" Padding="8,4" Visibility="{x:Bind BatteryText, Converter={StaticResource NullToVisibilityConverter}}">
+                                                <TextBlock Text="{x:Bind BatteryText}" />
+                                            </Border>
+                                        </StackPanel>
+                                        <TextBlock Text="No data received" Visibility="{x:Bind HasValues, Converter={StaticResource BooleanInverterConverter}}" />
+                                        <TextBlock
+                                            FontSize="12"
+                                            Opacity="0.7"
+                                            Text="{x:Bind LastUpdatedText}"
+                                            Visibility="{x:Bind LastUpdatedText, Converter={StaticResource NullToVisibilityConverter}}" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Spacing="20">
+                    <TextBlock
+                        x:Name="StatusText"
+                        AutomationProperties.AutomationId="StatusText"
+                        Text="{x:Bind ViewModel.StatusText, Mode=OneWay}" />
+                    <TextBlock
+                        x:Name="LastRefreshText"
+                        AutomationProperties.AutomationId="LastRefreshText"
+                        Text="{x:Bind ViewModel.LastRefreshText, Mode=OneWay}" />
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window>

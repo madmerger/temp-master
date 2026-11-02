@@ -1,0 +1,36 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwitchBotDashboard.Core", "src\SwitchBotDashboard.Core\SwitchBotDashboard.Core.csproj", "{879E9B30-91CB-4B3E-A2E3-89ED7E0847C6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwitchBotDashboard.Core.Tests", "tests\SwitchBotDashboard.Core.Tests\SwitchBotDashboard.Core.Tests.csproj", "{7B3F663A-A1F3-4D39-86C6-8DD8BC8D9555}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwitchBotDashboard.App", "src\SwitchBotDashboard.App\SwitchBotDashboard.App.csproj", "{78D4123D-3F3B-49D5-877C-97EE2B94F0A5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwitchBotDashboard.UITests", "tests\SwitchBotDashboard.UITests\SwitchBotDashboard.UITests.csproj", "{174CC927-7057-47E5-BD91-4CF4F8595911}"
+EndProject
+Global
+  GlobalSection(SolutionConfigurationPlatforms) = preSolution
+    Debug|Any CPU = Debug|Any CPU
+    Release|Any CPU = Release|Any CPU
+  EndGlobalSection
+  GlobalSection(ProjectConfigurationPlatforms) = postSolution
+    {879E9B30-91CB-4B3E-A2E3-89ED7E0847C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+    {879E9B30-91CB-4B3E-A2E3-89ED7E0847C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+    {879E9B30-91CB-4B3E-A2E3-89ED7E0847C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+    {879E9B30-91CB-4B3E-A2E3-89ED7E0847C6}.Release|Any CPU.Build.0 = Release|Any CPU
+    {7B3F663A-A1F3-4D39-86C6-8DD8BC8D9555}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+    {7B3F663A-A1F3-4D39-86C6-8DD8BC8D9555}.Debug|Any CPU.Build.0 = Debug|Any CPU
+    {7B3F663A-A1F3-4D39-86C6-8DD8BC8D9555}.Release|Any CPU.ActiveCfg = Release|Any CPU
+    {7B3F663A-A1F3-4D39-86C6-8DD8BC8D9555}.Release|Any CPU.Build.0 = Release|Any CPU
+    {78D4123D-3F3B-49D5-877C-97EE2B94F0A5}.Debug|Any CPU.ActiveCfg = Debug|x64
+    {78D4123D-3F3B-49D5-877C-97EE2B94F0A5}.Debug|Any CPU.Build.0 = Debug|x64
+    {78D4123D-3F3B-49D5-877C-97EE2B94F0A5}.Release|Any CPU.ActiveCfg = Release|x64
+    {78D4123D-3F3B-49D5-877C-97EE2B94F0A5}.Release|Any CPU.Build.0 = Release|x64
+    {174CC927-7057-47E5-BD91-4CF4F8595911}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+    {174CC927-7057-47E5-BD91-4CF4F8595911}.Debug|Any CPU.Build.0 = Debug|Any CPU
+    {174CC927-7057-47E5-BD91-4CF4F8595911}.Release|Any CPU.ActiveCfg = Release|Any CPU
+    {174CC927-7057-47E5-BD91-4CF4F8595911}.Release|Any CPU.Build.0 = Release|Any CPU
+  EndGlobalSection
+EndGlobal
