@@ -24,7 +24,7 @@ const initialState: DashboardData = {
   refreshTick: 0,
 };
 
-export function useDashboardData(): DashboardData & { reload: () => Promise<void> } {
+export function useDashboardData(): DashboardData & { reload: () => Promise<boolean> } {
   const [data, setData] = useState(initialState);
 
   const reload = useCallback(async () => {
@@ -40,6 +40,7 @@ export function useDashboardData(): DashboardData & { reload: () => Promise<void
         lastRefresh: new Date(),
         refreshTick: current.refreshTick + 1,
       }));
+      return true;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       setData((current) => ({
@@ -48,6 +49,7 @@ export function useDashboardData(): DashboardData & { reload: () => Promise<void
         error: `Failed to fetch data: ${message}`,
         connected: false,
       }));
+      return false;
     }
   }, []);
 

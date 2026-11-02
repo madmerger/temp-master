@@ -30,17 +30,21 @@ function Dashboard() {
   async function handleRefresh() {
     setRefreshing(true);
     setActionError(null);
+    let failure: string | null = null;
     try {
       await triggerRefresh();
     } catch (refreshError) {
-      const message =
-        refreshError instanceof Error ? refreshError.message : String(refreshError);
-      // The reload below bumps refreshTick on success; keep the error visible past it.
-      setActionError({ message: `Failed to refresh: ${message}`, refreshTick: refreshTick + 1 });
-    } finally {
-      await reload();
-      setRefreshing(false);
+      failure = refreshError instanceof Error ? refreshError.message : String(refreshError);
     }
+    const reloaded = await reload();
+    if (failure !== null) {
+      // A successful reload bumps refreshTick; keep the error until the next successful poll.
+      setActionError({
+        message: `Failed to refresh: ${failure}`,
+        refreshTick: reloaded ? refreshTick + 1 : refreshTick,
+      });
+    }
+    setRefreshing(false);
   }
 
   async function handleBackup() {
@@ -76,11 +80,13 @@ function Dashboard() {
         <StatusBar status={status} lastRefresh={lastRefresh} />
         <RateLimitWarning status={status} />
         {loading && <p className={styles.loading}>Loading temperature data...</p>}
-        {(visibleActionError ?? error) && (
-          <div className={styles.error} role="alert">
-            <strong>Error.</strong> {visibleActionError ?? error}
-          </div>
-        )}
+        {[visibleActionError, error]
+          .filter((message): message is string => message !== null)
+          .map((message) => (
+            <div key={message} className={styles.error} role="alert">
+              <strong>Error.</strong> {message}
+            </div>
+          ))}
         <section className={styles.grid} aria-label="Active meters">
           {activeMeters.map((meter) => (
             <MeterCard
