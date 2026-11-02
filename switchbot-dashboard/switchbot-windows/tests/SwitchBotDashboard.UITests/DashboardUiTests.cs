@@ -105,6 +105,11 @@ public sealed class DashboardUiTests
         var window = GetMainWindow(app, automation);
         WaitUntil(() => Find(window, "ConnectionStatus").Name == "Connected");
 
+        var timeRangeBounds = Find(window, "TimeRangeSelector").BoundingRectangle;
+        var refreshBounds = Find(window, "RefreshButton").BoundingRectangle;
+        Assert.False(timeRangeBounds.IntersectsWith(refreshBounds));
+        Assert.True(refreshBounds.Left > timeRangeBounds.Right);
+
         Find(window, "TimeRangeSelector")
             .AsComboBox()
             .Select("Last 7 Days");
@@ -167,7 +172,47 @@ public sealed class DashboardUiTests
             ?? Path.Combine(Directory.GetCurrentDirectory(), "TestResults");
         var screenshotPath = Path.Combine(screenshotDirectory, "screenshots", $"{name}.png");
         Directory.CreateDirectory(Path.GetDirectoryName(screenshotPath)!);
-        window.CaptureToFile(screenshotPath);
+        window.SetForeground();
+        WaitUntil(() => !window.IsOffscreen && Find(window, "ConnectionStatus").Name == "Connected");
+
+        var captureTimeout = Stopwatch.StartNew();
+        do
+        {
+            window.CaptureToFile(screenshotPath);
+            using var bitmap = new Bitmap(screenshotPath);
+            if (HasVisibleContent(bitmap))
+            {
+                return;
+            }
+
+            Thread.Sleep(100);
+        }
+        while (captureTimeout.Elapsed < TimeSpan.FromSeconds(5));
+
+        throw new TimeoutException($"The window did not render before screenshot capture: {name}.");
+    }
+
+    private static bool HasVisibleContent(Bitmap bitmap)
+    {
+        var left = bitmap.Width / 10;
+        var right = bitmap.Width * 9 / 10;
+        var top = Math.Max(bitmap.Height / 10, 32);
+        var bottom = bitmap.Height * 9 / 10;
+        var horizontalStep = Math.Max(1, bitmap.Width / 32);
+        var verticalStep = Math.Max(1, bitmap.Height / 32);
+        for (var y = top; y < bottom; y += verticalStep)
+        {
+            for (var x = left; x < right; x += horizontalStep)
+            {
+                var pixel = bitmap.GetPixel(x, y);
+                if (pixel.R > 8 || pixel.G > 8 || pixel.B > 8)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private sealed class TestEnvironment : IDisposable

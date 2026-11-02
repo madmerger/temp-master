@@ -9,6 +9,7 @@
         <Grid.Resources>
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
             <converters:NonEmptyStringToBooleanConverter x:Key="NonEmptyStringToBooleanConverter" />
+            <converters:NonEmptyStringToVisibilityConverter x:Key="NonEmptyStringToVisibilityConverter" />
             <converters:BooleanInverterConverter x:Key="BooleanInverterConverter" />
             <converters:ChartSeriesConverter x:Key="ChartSeriesConverter" />
             <converters:ChartAxesConverter x:Key="ChartAxesConverter" />
@@ -18,7 +19,11 @@
         </Grid.Resources>
         <ScrollViewer Margin="28" VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="20">
-                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
                     <StackPanel Spacing="6">
                         <TextBlock
                             FontSize="30"
@@ -63,15 +68,21 @@
                     AutomationProperties.AutomationId="RateLimitInfoBar"
                     IsOpen="{Binding RateLimitText, Mode=OneWay, Converter={StaticResource NonEmptyStringToBooleanConverter}}"
                     Message="{Binding RateLimitText, Mode=OneWay}"
-                    Severity="Warning" />
+                    Severity="Warning"
+                    Visibility="{Binding RateLimitText, Mode=OneWay, Converter={StaticResource NonEmptyStringToVisibilityConverter}}" />
                 <InfoBar
                     x:Name="ErrorBar"
                     AutomationProperties.AutomationId="ErrorBar"
                     IsOpen="{Binding ErrorMessage, Mode=OneWay, Converter={StaticResource NonEmptyStringToBooleanConverter}}"
                     Message="{Binding ErrorMessage, Mode=OneWay}"
-                    Severity="Error" />
+                    Severity="Error"
+                    Visibility="{Binding ErrorMessage, Mode=OneWay, Converter={StaticResource NonEmptyStringToVisibilityConverter}}" />
 
-                <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
+                <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
                     <StackPanel Orientation="Horizontal" Spacing="10">
                         <TextBlock Text="Time range" VerticalAlignment="Center" />
                         <ComboBox
@@ -87,10 +98,12 @@
                         </ComboBox>
                     </StackPanel>
                     <Button
+                        Grid.Column="1"
                         x:Name="RefreshButton"
                         AutomationProperties.AutomationId="RefreshButton"
                         Click="OnRefreshClicked"
                         Content="Refresh"
+                        HorizontalAlignment="Right"
                         IsEnabled="{Binding IsLoading, Mode=OneWay, Converter={StaticResource BooleanInverterConverter}}" />
                 </Grid>
 
@@ -125,7 +138,11 @@
                                     CornerRadius="12"
                                     Padding="18">
                                     <StackPanel Spacing="10">
-                                        <Grid ColumnDefinitions="*,Auto">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
                                             <TextBlock
                                                 AutomationProperties.AutomationId="{Binding NameAutomationId, Mode=OneWay}"
                                                 FontSize="18"
@@ -149,6 +166,7 @@
                                             </Border>
                                         </StackPanel>
                                         <liveCharts:CartesianChart
+                                            Background="Transparent"
                                             Height="170"
                                             Series="{Binding Points, Mode=OneWay, Converter={StaticResource ChartSeriesConverter}}"
                                             XAxes="{Binding Labels, Mode=OneWay, Converter={StaticResource ChartAxesConverter}}"
@@ -200,7 +218,11 @@
                                         CornerRadius="12"
                                         Padding="18">
                                         <StackPanel Spacing="8">
-                                            <Grid ColumnDefinitions="*,Auto">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
                                                 <TextBlock
                                                     AutomationProperties.AutomationId="{Binding NameAutomationId, Mode=OneWay}"
                                                     FontSize="17"
