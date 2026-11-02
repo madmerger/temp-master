@@ -113,7 +113,9 @@
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate>
                             <ContentControl
+                                AutomationProperties.AccessibilityView="Content"
                                 AutomationProperties.AutomationId="{Binding AutomationId, Mode=OneWay}"
+                                AutomationProperties.Name="{Binding DisplayName, Mode=OneWay}"
                                 HorizontalContentAlignment="Stretch"
                                 IsTabStop="False">
                                 <Border
@@ -186,7 +188,9 @@
                         <ItemsRepeater.ItemTemplate>
                             <DataTemplate>
                                 <ContentControl
+                                    AutomationProperties.AccessibilityView="Content"
                                     AutomationProperties.AutomationId="{Binding AutomationId, Mode=OneWay}"
+                                    AutomationProperties.Name="{Binding DisplayName, Mode=OneWay}"
                                     HorizontalContentAlignment="Stretch"
                                     IsTabStop="False">
                                     <Border
