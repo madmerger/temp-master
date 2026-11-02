@@ -1,0 +1,122 @@
+:root,
+[data-theme='light'] {
+  color-scheme: light;
+  --page-bg: #f5f5f5;
+  --text: #333;
+  --muted-text: #777;
+  --panel-bg: #fff;
+  --panel-border: #ddd;
+  --panel-heading-bg: #f8f8f8;
+  --navbar-bg: #f8f8f8;
+  --navbar-border: #e7e7e7;
+  --navbar-text: #777;
+  --navbar-brand: #777;
+  --input-bg: #fff;
+  --input-border: #ccc;
+  --input-text: #555;
+  --button-default-bg: #fff;
+  --button-default-border: #ccc;
+  --button-default-text: #333;
+  --alert-info-bg: #d9edf7;
+  --alert-info-border: #bce8f1;
+  --alert-info-text: #31708f;
+  --alert-warning-bg: #fcf8e3;
+  --alert-warning-border: #faebcc;
+  --alert-warning-text: #8a6d3b;
+  --alert-danger-bg: #f2dede;
+  --alert-danger-border: #ebccd1;
+  --alert-danger-text: #a94442;
+  --stale-panel-bg: #fcf8e3;
+  --stale-panel-border: #f0ad4e;
+  --stale-title: #8a6d3b;
+  --device-tag-bg: #eee;
+  --device-tag-text: #777;
+  --badge-danger-bg: #d9534f;
+  --badge-info-bg: #5bc0de;
+  --badge-success-bg: #5cb85c;
+  --badge-warning-bg: #f0ad4e;
+  --badge-text: #fff;
+  --button-primary-bg: #337ab7;
+  --button-primary-border: #2e6da4;
+  --button-primary-text: #fff;
+  --focus-ring: #66afe9;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --page-bg: #0f172a;
+  --text: #e2e8f0;
+  --muted-text: #94a3b8;
+  --panel-bg: #1e293b;
+  --panel-border: #334155;
+  --panel-heading-bg: #172235;
+  --navbar-bg: #020617;
+  --navbar-border: #1e293b;
+  --navbar-text: #cbd5e1;
+  --navbar-brand: #e2e8f0;
+  --input-bg: #0f172a;
+  --input-border: #475569;
+  --input-text: #e2e8f0;
+  --button-default-bg: #1e293b;
+  --button-default-border: #475569;
+  --button-default-text: #e2e8f0;
+  --alert-info-bg: #0c3b57;
+  --alert-info-border: #155e75;
+  --alert-info-text: #bae6fd;
+  --alert-warning-bg: #422006;
+  --alert-warning-border: #854d0e;
+  --alert-warning-text: #fde68a;
+  --alert-danger-bg: #450a0a;
+  --alert-danger-border: #7f1d1d;
+  --alert-danger-text: #fecaca;
+  --stale-panel-bg: #292316;
+  --stale-panel-border: #854d0e;
+  --stale-title: #d6a85d;
+  --device-tag-bg: #334155;
+  --device-tag-text: #cbd5e1;
+  --badge-danger-bg: #b91c1c;
+  --badge-info-bg: #0e7490;
+  --badge-success-bg: #15803d;
+  --badge-warning-bg: #a16207;
+  --badge-text: #f8fafc;
+  --button-primary-bg: #2563eb;
+  --button-primary-border: #1d4ed8;
+  --button-primary-text: #fff;
+  --focus-ring: #60a5fa;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  padding-top: 70px;
+  background: var(--page-bg);
+  color: var(--text);
+  font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button,
+select,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
