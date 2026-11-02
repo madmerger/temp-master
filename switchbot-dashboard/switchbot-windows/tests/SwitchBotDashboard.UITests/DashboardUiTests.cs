@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using FlaUI.Core;
 using FlaUI.Core.AutomationElements;
+using FlaUI.Core.Tools;
 using FlaUI.UIA3;
 using Xunit;
 
@@ -28,7 +29,7 @@ public sealed class DashboardUiTests
         using var environment = TestEnvironment.Start();
         using var automation = new UIA3Automation();
         using var app = Application.Launch(environment.AppPath, "--mock-data");
-        var window = app.GetMainWindow(automation);
+        var window = GetMainWindow(app, automation);
 
         WaitUntil(() => Find(window, "ConnectionStatus").Name == "Connected");
         Assert.Equal("Temp Master Dashboard", window.Title);
@@ -46,13 +47,17 @@ public sealed class DashboardUiTests
             Assert.Equal(
                 expectedNames[index],
                 Find(window, $"MeterName_{ActiveDeviceIds[index]}").Name);
-            Assert.NotNull(Find(window, $"MeterCard_{ActiveDeviceIds[index]}"));
+            var automationId = $"MeterCard_{ActiveDeviceIds[index]}";
+            WaitForElement(window, automationId);
+            Assert.NotNull(Find(window, automationId));
         }
 
         Assert.NotNull(Find(window, "StaleSection"));
         foreach (var deviceId in StaleDeviceIds)
         {
-            Assert.NotNull(Find(window, $"MeterCard_{deviceId}"));
+            var automationId = $"MeterCard_{deviceId}";
+            WaitForElement(window, automationId);
+            Assert.NotNull(Find(window, automationId));
         }
 
         Assert.NotNull(window.FindFirstDescendant(element => element.ByName("No data received")));
@@ -67,7 +72,7 @@ public sealed class DashboardUiTests
         using (var automation = new UIA3Automation())
         using (var app = Application.Launch(environment.AppPath, "--mock-data"))
         {
-            var window = app.GetMainWindow(automation);
+            var window = GetMainWindow(app, automation);
             WaitUntil(() => Find(window, "ConnectionStatus").Name == "Connected");
             var originalTheme = Find(window, "CurrentTheme").Name;
             Find(window, "ThemeToggle").Click();
@@ -79,8 +84,9 @@ public sealed class DashboardUiTests
         using (var automation = new UIA3Automation())
         using (var app = Application.Launch(environment.AppPath, "--mock-data"))
         {
-            var window = app.GetMainWindow(automation);
+            var window = GetMainWindow(app, automation);
             WaitUntil(() => Find(window, "CurrentTheme").Name == changedTheme);
+            WaitUntil(() => Find(window, "ConnectionStatus").Name == "Connected");
             Assert.Equal(changedTheme, Find(window, "CurrentTheme").Name);
             SaveScreenshot(window, "theme-restored");
         }
@@ -92,10 +98,10 @@ public sealed class DashboardUiTests
         using var environment = TestEnvironment.Start();
         using var automation = new UIA3Automation();
         using var app = Application.Launch(environment.AppPath, "--mock-data");
-        var window = app.GetMainWindow(automation);
+        var window = GetMainWindow(app, automation);
         WaitUntil(() => Find(window, "ConnectionStatus").Name == "Connected");
 
-        window.FindFirstDescendant(element => element.ByAutomationId("TimeRangeSelector"))
+        Find(window, "TimeRangeSelector")
             .AsComboBox()
             .Select("Last 7 Days");
         WaitUntil(() => Find(window, "ConnectionStatus").Name == "Connected");
@@ -107,6 +113,20 @@ public sealed class DashboardUiTests
     private static AutomationElement Find(Window window, string automationId) =>
         window.FindFirstDescendant(element => element.ByAutomationId(automationId))
         ?? throw new InvalidOperationException($"Automation element '{automationId}' was not found.");
+
+    private static Window GetMainWindow(Application app, AutomationBase automation) =>
+        Retry.WhileException(
+            () => app.GetMainWindow(automation, TimeSpan.FromSeconds(1))
+                ?? throw new InvalidOperationException("The dashboard window is not available yet."),
+            TimeSpan.FromSeconds(30),
+            TimeSpan.FromMilliseconds(250),
+            true,
+            "The dashboard window was not available.")
+        .Result
+        ?? throw new TimeoutException("The dashboard window was not available.");
+
+    private static void WaitForElement(Window window, string automationId) =>
+        WaitUntil(() => window.FindFirstDescendant(element => element.ByAutomationId(automationId)) is not null);
 
     private static void WaitUntil(Func<bool> predicate)
     {

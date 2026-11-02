@@ -112,49 +112,53 @@
                     </ItemsRepeater.Layout>
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate>
-                            <Border
+                            <ContentControl
                                 AutomationProperties.AutomationId="{Binding AutomationId, Mode=OneWay}"
-                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                BorderThickness="1"
-                                CornerRadius="12"
-                                Padding="18">
-                                <StackPanel Spacing="10">
-                                    <Grid ColumnDefinitions="*,Auto">
+                                HorizontalContentAlignment="Stretch"
+                                IsTabStop="False">
+                                <Border
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="12"
+                                    Padding="18">
+                                    <StackPanel Spacing="10">
+                                        <Grid ColumnDefinitions="*,Auto">
+                                            <TextBlock
+                                                AutomationProperties.AutomationId="{Binding NameAutomationId, Mode=OneWay}"
+                                                FontSize="18"
+                                                FontWeight="SemiBold"
+                                                Text="{Binding DisplayName, Mode=OneWay}" />
+                                            <TextBlock
+                                                Grid.Column="1"
+                                                FontSize="12"
+                                                Opacity="0.7"
+                                                Text="{Binding DeviceType, Mode=OneWay}" />
+                                        </Grid>
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}" CornerRadius="6" Padding="8,4" Visibility="{Binding TemperatureText, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
+                                                <TextBlock Text="{Binding TemperatureText, Mode=OneWay}" />
+                                            </Border>
+                                            <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}" CornerRadius="6" Padding="8,4" Visibility="{Binding HumidityText, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
+                                                <TextBlock Text="{Binding HumidityText, Mode=OneWay}" />
+                                            </Border>
+                                            <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}" CornerRadius="6" Padding="8,4" Visibility="{Binding BatteryText, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
+                                                <TextBlock Text="{Binding BatteryText, Mode=OneWay}" />
+                                            </Border>
+                                        </StackPanel>
+                                        <liveCharts:CartesianChart
+                                            Height="170"
+                                            Series="{Binding Points, Mode=OneWay, Converter={StaticResource ChartSeriesConverter}}"
+                                            XAxes="{Binding Labels, Mode=OneWay, Converter={StaticResource ChartAxesConverter}}"
+                                            YAxes="{Binding Labels, Mode=OneWay, Converter={StaticResource ChartYAxisConverter}}" />
                                         <TextBlock
-                                            AutomationProperties.AutomationId="{Binding NameAutomationId, Mode=OneWay}"
-                                            FontSize="18"
-                                            FontWeight="SemiBold"
-                                            Text="{Binding DisplayName, Mode=OneWay}" />
-                                        <TextBlock
-                                            Grid.Column="1"
                                             FontSize="12"
                                             Opacity="0.7"
-                                            Text="{Binding DeviceType, Mode=OneWay}" />
-                                    </Grid>
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}" CornerRadius="6" Padding="8,4" Visibility="{Binding TemperatureText, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
-                                            <TextBlock Text="{Binding TemperatureText, Mode=OneWay}" />
-                                        </Border>
-                                        <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}" CornerRadius="6" Padding="8,4" Visibility="{Binding HumidityText, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
-                                            <TextBlock Text="{Binding HumidityText, Mode=OneWay}" />
-                                        </Border>
-                                        <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}" CornerRadius="6" Padding="8,4" Visibility="{Binding BatteryText, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
-                                            <TextBlock Text="{Binding BatteryText, Mode=OneWay}" />
-                                        </Border>
+                                            Text="{Binding LastUpdatedText, Mode=OneWay}"
+                                            Visibility="{Binding LastUpdatedText, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}" />
                                     </StackPanel>
-                                    <liveCharts:CartesianChart
-                                        Height="170"
-                                        Series="{Binding Points, Mode=OneWay, Converter={StaticResource ChartSeriesConverter}}"
-                                        XAxes="{Binding Labels, Mode=OneWay, Converter={StaticResource ChartAxesConverter}}"
-                                        YAxes="{Binding Labels, Mode=OneWay, Converter={StaticResource ChartYAxisConverter}}" />
-                                    <TextBlock
-                                        FontSize="12"
-                                        Opacity="0.7"
-                                        Text="{Binding LastUpdatedText, Mode=OneWay}"
-                                        Visibility="{Binding LastUpdatedText, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}" />
-                                </StackPanel>
-                            </Border>
+                                </Border>
+                            </ContentControl>
                         </DataTemplate>
                     </ItemsRepeater.ItemTemplate>
                 </ItemsRepeater>
@@ -181,48 +185,52 @@
                         </ItemsRepeater.Layout>
                         <ItemsRepeater.ItemTemplate>
                             <DataTemplate>
-                                <Border
+                                <ContentControl
                                     AutomationProperties.AutomationId="{Binding AutomationId, Mode=OneWay}"
-                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                    BorderThickness="1"
-                                    CornerRadius="12"
-                                    Padding="18">
-                                    <StackPanel Spacing="8">
-                                        <Grid ColumnDefinitions="*,Auto">
+                                    HorizontalContentAlignment="Stretch"
+                                    IsTabStop="False">
+                                    <Border
+                                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="12"
+                                        Padding="18">
+                                        <StackPanel Spacing="8">
+                                            <Grid ColumnDefinitions="*,Auto">
+                                                <TextBlock
+                                                    AutomationProperties.AutomationId="{Binding NameAutomationId, Mode=OneWay}"
+                                                    FontSize="17"
+                                                    FontWeight="SemiBold"
+                                                    Text="{Binding DisplayName, Mode=OneWay}" />
+                                                <Border
+                                                    Grid.Column="1"
+                                                    Background="{ThemeResource SystemFillColorCautionBackgroundBrush}"
+                                                    CornerRadius="6"
+                                                    Padding="8,3">
+                                                    <TextBlock FontSize="11" Text="7+ days stale" />
+                                                </Border>
+                                            </Grid>
+                                            <TextBlock FontSize="12" Opacity="0.7" Text="{Binding DeviceType, Mode=OneWay}" />
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}" CornerRadius="6" Padding="8,4" Visibility="{Binding TemperatureText, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
+                                                    <TextBlock Text="{Binding TemperatureText, Mode=OneWay}" />
+                                                </Border>
+                                                <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}" CornerRadius="6" Padding="8,4" Visibility="{Binding HumidityText, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
+                                                    <TextBlock Text="{Binding HumidityText, Mode=OneWay}" />
+                                                </Border>
+                                                <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}" CornerRadius="6" Padding="8,4" Visibility="{Binding BatteryText, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
+                                                    <TextBlock Text="{Binding BatteryText, Mode=OneWay}" />
+                                                </Border>
+                                            </StackPanel>
+                                            <TextBlock Text="No data received" Visibility="{Binding HasValues, Mode=OneWay, Converter={StaticResource BooleanInverterConverter}}" />
                                             <TextBlock
-                                                AutomationProperties.AutomationId="{Binding NameAutomationId, Mode=OneWay}"
-                                                FontSize="17"
-                                                FontWeight="SemiBold"
-                                                Text="{Binding DisplayName, Mode=OneWay}" />
-                                            <Border
-                                                Grid.Column="1"
-                                                Background="{ThemeResource SystemFillColorCautionBackgroundBrush}"
-                                                CornerRadius="6"
-                                                Padding="8,3">
-                                                <TextBlock FontSize="11" Text="7+ days stale" />
-                                            </Border>
-                                        </Grid>
-                                        <TextBlock FontSize="12" Opacity="0.7" Text="{Binding DeviceType, Mode=OneWay}" />
-                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}" CornerRadius="6" Padding="8,4" Visibility="{Binding TemperatureText, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
-                                                <TextBlock Text="{Binding TemperatureText, Mode=OneWay}" />
-                                            </Border>
-                                            <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}" CornerRadius="6" Padding="8,4" Visibility="{Binding HumidityText, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
-                                                <TextBlock Text="{Binding HumidityText, Mode=OneWay}" />
-                                            </Border>
-                                            <Border Background="{ThemeResource SubtleFillColorSecondaryBrush}" CornerRadius="6" Padding="8,4" Visibility="{Binding BatteryText, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}">
-                                                <TextBlock Text="{Binding BatteryText, Mode=OneWay}" />
-                                            </Border>
+                                                FontSize="12"
+                                                Opacity="0.7"
+                                                Text="{Binding LastUpdatedText, Mode=OneWay}"
+                                                Visibility="{Binding LastUpdatedText, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}" />
                                         </StackPanel>
-                                        <TextBlock Text="No data received" Visibility="{Binding HasValues, Mode=OneWay, Converter={StaticResource BooleanInverterConverter}}" />
-                                        <TextBlock
-                                            FontSize="12"
-                                            Opacity="0.7"
-                                            Text="{Binding LastUpdatedText, Mode=OneWay}"
-                                            Visibility="{Binding LastUpdatedText, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}" />
-                                    </StackPanel>
-                                </Border>
+                                    </Border>
+                                </ContentControl>
                             </DataTemplate>
                         </ItemsRepeater.ItemTemplate>
                     </ItemsRepeater>
