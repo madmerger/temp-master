@@ -4,7 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:core="using:SwitchBotDashboard.Core"
     xmlns:converters="using:SwitchBotDashboard.App.Converters"
-    xmlns:liveCharts="using:LiveChartsCore.SkiaView.WinUI"
+    xmlns:liveCharts="using:LiveChartsCore.SkiaSharpView.WinUI"
     Title="Temp Master Dashboard">
     <Grid x:Name="RootGrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.Resources>
