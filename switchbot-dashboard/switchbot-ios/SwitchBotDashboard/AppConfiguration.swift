@@ -1,6 +1,7 @@
 import Foundation
 import SwitchBotCore
 
+@MainActor
 enum AppConfiguration {
     static func makeViewModel() -> DashboardViewModel {
         let arguments = ProcessInfo.processInfo.arguments
