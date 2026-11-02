@@ -17,7 +17,6 @@ export function useDashboardData() {
   const setError = useCallback((message: string | null) => {
     setErrorMessage(message)
     if (message) {
-      setConnected(false)
       setLoading(false)
     }
   }, [])

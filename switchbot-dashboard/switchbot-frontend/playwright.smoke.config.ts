@@ -20,7 +20,7 @@ export default defineConfig({
   projects: [{ name: 'chromium', use: { browserName: 'chromium' } }],
   webServer: {
     command:
-      'VITE_API_URL="${E2E_API_URL:-https://snakeroom.fly.dev}" npm run build && npm run preview -- --port 4173 --strictPort',
+      'VITE_API_URL="${E2E_API_URL:-https://snakeroom.fly.dev}" npm run build && npm run preview -- --host 127.0.0.1 --port 4173 --strictPort',
     url: 'http://127.0.0.1:4173',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

@@ -53,10 +53,14 @@ export function formatTemperatureTick(value: number | string): string {
 
 export function formatStaleThreshold(ms: number): string {
   const dayMs = 86_400_000
+  const hourMs = 3_600_000
   if (ms % dayMs === 0) {
     return `${ms / dayMs}日`
   }
-  return `${Math.max(1, Math.round(ms / 3_600_000))}時間`
+  if (ms % hourMs === 0) {
+    return `${ms / hourMs}時間`
+  }
+  return `${Math.max(1, Math.round(ms / 60_000))}分`
 }
 
 export function isStaleMeter(

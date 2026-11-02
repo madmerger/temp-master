@@ -169,6 +169,7 @@ test('refresh errors remain visible after meters reload', async ({ api, page }) 
   await expect(page.getByRole('alert')).toContainText(
     'Failed to refresh: HTTP 500',
   )
+  await expect(page.getByTestId('connection-status')).toHaveText('Connected')
   expect(api.refreshRequests).toBe(1)
   expect(api.metersRequests).toBe(2)
 })

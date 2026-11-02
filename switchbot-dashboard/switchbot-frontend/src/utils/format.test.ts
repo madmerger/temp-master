@@ -86,8 +86,14 @@ describe('formatStaleThreshold', () => {
     expect(formatStaleThreshold(86_400_000)).toBe('1日')
   })
 
-  it('formats other thresholds in rounded hours with a one-hour minimum', () => {
+  it('formats whole hour thresholds in hours', () => {
     expect(formatStaleThreshold(36 * 3_600_000)).toBe('36時間')
-    expect(formatStaleThreshold(30 * 60_000)).toBe('1時間')
+    expect(formatStaleThreshold(3 * 3_600_000)).toBe('3時間')
+  })
+
+  it('formats other thresholds in rounded minutes with a one-minute minimum', () => {
+    expect(formatStaleThreshold(90 * 60_000)).toBe('90分')
+    expect(formatStaleThreshold(30 * 60_000)).toBe('30分')
+    expect(formatStaleThreshold(1)).toBe('1分')
   })
 })
