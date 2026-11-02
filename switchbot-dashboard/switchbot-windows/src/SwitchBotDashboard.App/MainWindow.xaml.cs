@@ -19,6 +19,7 @@ public sealed partial class MainWindow : Window
     {
         ViewModel = viewModel;
         InitializeComponent();
+        RootGrid.DataContext = ViewModel;
 
         _themeService.ThemeChanged += OnThemeChanged;
         _themeService.Apply(RootGrid, DispatcherQueue.GetForCurrentThread()!);

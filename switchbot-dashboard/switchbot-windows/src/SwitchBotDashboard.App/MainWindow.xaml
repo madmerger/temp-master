@@ -26,7 +26,7 @@
                             FontWeight="SemiBold"
                             Text="Temp Master Dashboard" />
                         <Border
-                            Background="{x:Bind ViewModel.ConnectionState, Mode=OneWay, Converter={StaticResource ConnectionStatusBackgroundConverter}}"
+                            Background="{Binding ConnectionState, Mode=OneWay, Converter={StaticResource ConnectionStatusBackgroundConverter}}"
                             CornerRadius="12"
                             HorizontalAlignment="Left"
                             Padding="10,5">
@@ -34,8 +34,8 @@
                                 x:Name="ConnectionStatus"
                                 AutomationProperties.AutomationId="ConnectionStatus"
                                 FontSize="13"
-                                Foreground="{x:Bind ViewModel.ConnectionState, Mode=OneWay, Converter={StaticResource ConnectionStatusForegroundConverter}}"
-                                Text="{x:Bind ViewModel.ConnectionText, Mode=OneWay}" />
+                                Foreground="{Binding ConnectionState, Mode=OneWay, Converter={StaticResource ConnectionStatusForegroundConverter}}"
+                                Text="{Binding ConnectionText, Mode=OneWay}" />
                         </Border>
                     </StackPanel>
                     <StackPanel
@@ -62,14 +62,14 @@
                 <InfoBar
                     x:Name="RateLimitInfoBar"
                     AutomationProperties.AutomationId="RateLimitInfoBar"
-                    IsOpen="{x:Bind ViewModel.RateLimitText, Mode=OneWay, Converter={StaticResource NonEmptyStringToBooleanConverter}}"
-                    Message="{x:Bind ViewModel.RateLimitText, Mode=OneWay}"
+                    IsOpen="{Binding RateLimitText, Mode=OneWay, Converter={StaticResource NonEmptyStringToBooleanConverter}}"
+                    Message="{Binding RateLimitText, Mode=OneWay}"
                     Severity="Warning" />
                 <InfoBar
                     x:Name="ErrorBar"
                     AutomationProperties.AutomationId="ErrorBar"
-                    IsOpen="{x:Bind ViewModel.ErrorMessage, Mode=OneWay, Converter={StaticResource NonEmptyStringToBooleanConverter}}"
-                    Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                    IsOpen="{Binding ErrorMessage, Mode=OneWay, Converter={StaticResource NonEmptyStringToBooleanConverter}}"
+                    Message="{Binding ErrorMessage, Mode=OneWay}"
                     Severity="Error" />
 
                 <Grid ColumnDefinitions="*,Auto" VerticalAlignment="Center">
@@ -92,7 +92,7 @@
                         AutomationProperties.AutomationId="RefreshButton"
                         Click="OnRefreshClicked"
                         Content="Refresh"
-                        IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BooleanInverterConverter}}" />
+                        IsEnabled="{Binding IsLoading, Mode=OneWay, Converter={StaticResource BooleanInverterConverter}}" />
                 </Grid>
 
                 <TextBlock
@@ -101,7 +101,7 @@
                     Text="Active meters" />
                 <ItemsRepeater
                     x:Name="ActiveMetersRepeater"
-                    ItemsSource="{x:Bind ViewModel.ActiveMeters, Mode=OneWay}">
+                    ItemsSource="{Binding ActiveMeters, Mode=OneWay}">
                     <ItemsRepeater.Layout>
                         <UniformGridLayout
                             MaximumRowsOrColumns="3"
@@ -163,14 +163,14 @@
                 <StackPanel
                     x:Name="StaleSection"
                     Spacing="10"
-                    Visibility="{x:Bind ViewModel.HasStaleMeters, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
+                    Visibility="{Binding HasStaleMeters, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
                     <TextBlock
                         AutomationProperties.AutomationId="StaleSection"
                         FontSize="20"
                         FontWeight="SemiBold"
                         Text="Stale meters" />
                     <TextBlock Opacity="0.7" Text="Not updated for 7+ days" />
-                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.StaleMeters, Mode=OneWay}">
+                    <ItemsRepeater ItemsSource="{Binding StaleMeters, Mode=OneWay}">
                         <ItemsRepeater.Layout>
                             <UniformGridLayout
                                 MaximumRowsOrColumns="3"
@@ -233,11 +233,11 @@
                     <TextBlock
                         x:Name="StatusText"
                         AutomationProperties.AutomationId="StatusText"
-                        Text="{x:Bind ViewModel.StatusText, Mode=OneWay}" />
+                        Text="{Binding StatusText, Mode=OneWay}" />
                     <TextBlock
                         x:Name="LastRefreshText"
                         AutomationProperties.AutomationId="LastRefreshText"
-                        Text="{x:Bind ViewModel.LastRefreshText, Mode=OneWay}" />
+                        Text="{Binding LastRefreshText, Mode=OneWay}" />
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>
