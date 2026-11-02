@@ -829,7 +829,8 @@ async def backup_database():
         raise HTTPException(status_code=404, detail="Database file not found")
     timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
     filename = f"switchbot_backup_{timestamp}.db"
-    snapshot_path = os.path.join(BACKUP_DIR, filename)
+    os.makedirs(BACKUP_DIR, exist_ok=True)
+    snapshot_path = os.path.join(BACKUP_DIR, f"{uuid.uuid4().hex}_{filename}")
     async with aiosqlite.connect(DB_PATH) as src, aiosqlite.connect(snapshot_path) as dst:
         await src.backup(dst)
     return FileResponse(path=snapshot_path, filename=filename, media_type="application/x-sqlite3",

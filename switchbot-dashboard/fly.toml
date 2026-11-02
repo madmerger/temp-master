@@ -13,6 +13,13 @@ primary_region = "nrt"
   auto_start_machines = true
   min_machines_running = 1
 
+[[http_service.checks]]
+  method = "GET"
+  path = "/healthz"
+  interval = "30s"
+  timeout = "5s"
+  grace_period = "10s"
+
 [[vm]]
   cpu_kind = "shared"
   cpus = 1
