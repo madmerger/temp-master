@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>SwitchBotDashboard.Core</RootNamespace>
+    <AssemblyName>SwitchBotDashboard.Core</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\..\display_names.json" Link="display_names.json" LogicalName="display_names.json" />
+  </ItemGroup>
+</Project>

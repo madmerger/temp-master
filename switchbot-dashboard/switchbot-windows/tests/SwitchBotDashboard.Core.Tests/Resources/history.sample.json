@@ -1,0 +1,34 @@
+{
+  "device_id": "F577B677EC96",
+  "time_scale": "hour",
+  "history": [
+    {
+      "timestamp": "2026-01-10T08:11:47.862142+00:00",
+      "temperature": 24.6,
+      "humidity": 70,
+      "battery": 100,
+      "absolute_humidity": null,
+      "dew_point": null,
+      "vpd": null
+    },
+    {
+      "timestamp": "2026-02-09T02:13:39.882908+00:00",
+      "temperature": 24.1,
+      "humidity": 85,
+      "battery": 100,
+      "absolute_humidity": null,
+      "dew_point": null,
+      "vpd": null
+    }
+  ],
+  "device": {
+    "device_id": "F577B677EC96",
+    "device_name": "夢男",
+    "device_type": "Meter",
+    "hub_device_id": "F0BD8316E7B1",
+    "current_temperature": 24.1,
+    "current_humidity": 85,
+    "battery": 100,
+    "last_updated": "2026-02-09T02:13:39.882908+00:00"
+  }
+}

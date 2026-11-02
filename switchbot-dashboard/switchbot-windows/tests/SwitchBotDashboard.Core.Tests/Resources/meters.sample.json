@@ -1,0 +1,15 @@
+{
+  "meters": [
+    {
+      "device_id": "F577B677EC96",
+      "device_name": "夢男",
+      "device_type": "Meter",
+      "hub_device_id": "F0BD8316E7B1",
+      "current_temperature": 24.1,
+      "current_humidity": 85,
+      "battery": 100,
+      "last_updated": "2026-02-09T02:13:39.882908+00:00"
+    }
+  ],
+  "last_updated": "2026-11-02T09:02:57.607628+00:00"
+}
