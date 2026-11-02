@@ -34,27 +34,13 @@
 }
 
 @media (min-width: 768px) {
-  .container {
-    width: 750px;
-  }
-
   .meterGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (min-width: 992px) {
-  .container {
-    width: 970px;
-  }
-
   .meterGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1200px) {
-  .container {
-    width: 1170px;
   }
 }

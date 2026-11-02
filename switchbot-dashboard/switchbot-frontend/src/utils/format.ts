@@ -47,6 +47,10 @@ export function formatClock(date: Date): string {
   return `${pad2(date.getHours())}:${pad2(date.getMinutes())}:${pad2(date.getSeconds())}`
 }
 
+export function formatTemperatureTick(value: number | string): string {
+  return `${Number(Number(value).toFixed(2))}°`
+}
+
 export function isStaleMeter(
   meter: Pick<Meter, 'last_updated'>,
   now = Date.now(),

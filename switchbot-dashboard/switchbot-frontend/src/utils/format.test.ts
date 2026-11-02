@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { formatTimestamp, isStaleMeter, pad2 } from './format'
+import {
+  formatTemperatureTick,
+  formatTimestamp,
+  isStaleMeter,
+  pad2,
+} from './format'
 
 describe('formatTimestamp', () => {
   const date = new Date(2024, 0, 7, 3, 4, 0)
@@ -63,5 +68,13 @@ describe('isStaleMeter', () => {
         threshold,
       ),
     ).toBe(false)
+  })
+})
+
+describe('formatTemperatureTick', () => {
+  it('rounds float artifacts and removes unnecessary decimal places', () => {
+    expect(formatTemperatureTick(31.400000000000006)).toBe('31.4°')
+    expect(formatTemperatureTick(22)).toBe('22°')
+    expect(formatTemperatureTick(22.25)).toBe('22.25°')
   })
 })
