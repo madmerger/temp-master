@@ -102,6 +102,141 @@ public sealed class DashboardViewModelTests
     }
 
     [Fact]
+    public async Task HistoryFailureDuringLoadIsReportedWithoutDisconnecting()
+    {
+        var api = new TrackingApi
+        {
+            HistoryFactory = (_, _, _) =>
+                Task.FromException<HistoryResponse>(new InvalidOperationException("history unavailable")),
+        };
+        var viewModel = new DashboardViewModel(api, new FakeTimeProvider(MockDashboardApi.ScenarioNow));
+
+        await viewModel.LoadAsync();
+
+        Assert.Equal("Failed to fetch history: history unavailable", viewModel.ErrorMessage);
+        Assert.Equal(ConnectionState.Connected, viewModel.ConnectionState);
+    }
+
+    [Fact]
+    public async Task HistoryFailureKeepsOtherMetersHistory()
+    {
+        var now = MockDashboardApi.ScenarioNow;
+        var api = new TrackingApi
+        {
+            MetersResponse = new MetersResponse
+            {
+                Meters =
+                [
+                    new Meter
+                    {
+                        DeviceId = "failing-meter",
+                        DeviceName = "Failing meter",
+                        DeviceType = "Meter",
+                        LastUpdated = now,
+                    },
+                    new Meter
+                    {
+                        DeviceId = "successful-meter",
+                        DeviceName = "Successful meter",
+                        DeviceType = "Meter",
+                        LastUpdated = now,
+                    },
+                ],
+            },
+            HistoryFactory = (deviceId, timeScale, _) => deviceId == "failing-meter"
+                ? Task.FromException<HistoryResponse>(new InvalidOperationException("history unavailable"))
+                : Task.FromResult(new HistoryResponse
+                {
+                    DeviceId = deviceId,
+                    TimeScale = timeScale.ToApiValue(),
+                    History =
+                    [
+                        new MeterReading
+                        {
+                            Timestamp = now.AddHours(-1),
+                            Temperature = 23,
+                        },
+                    ],
+                }),
+        };
+        var viewModel = new DashboardViewModel(api, new FakeTimeProvider(now));
+
+        await viewModel.LoadAsync();
+
+        var successfulMeter = Assert.Single(
+            viewModel.ActiveMeters,
+            meter => meter.DeviceId == "successful-meter");
+        Assert.Equal(23, Assert.Single(successfulMeter.Points).Temperature);
+        Assert.Equal("Failed to fetch history: history unavailable", viewModel.ErrorMessage);
+        Assert.Equal(ConnectionState.Connected, viewModel.ConnectionState);
+    }
+
+    [Fact]
+    public async Task RefreshWaitsForInFlightLoadAndPerformsFollowUpReload()
+    {
+        var firstMetersRequestStarted = new TaskCompletionSource<bool>(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+        var firstMetersResponse = new TaskCompletionSource<MetersResponse>(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+        var refreshRequested = new TaskCompletionSource<bool>(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+        var api = new TrackingApi
+        {
+            FirstMetersRequestStarted = firstMetersRequestStarted,
+            FirstMetersResponse = firstMetersResponse,
+            RefreshRequested = refreshRequested,
+        };
+        var viewModel = new DashboardViewModel(api, new FakeTimeProvider(MockDashboardApi.ScenarioNow));
+
+        var loadTask = viewModel.LoadAsync();
+        await firstMetersRequestStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        var refreshTask = viewModel.RefreshAsync();
+        await refreshRequested.Task.WaitAsync(TimeSpan.FromSeconds(5));
+
+        Assert.False(refreshTask.IsCompleted);
+        Assert.Equal(1, api.MetersRequests);
+
+        firstMetersResponse.SetResult(new MetersResponse { Meters = [] });
+        await Task.WhenAll(loadTask, refreshTask);
+
+        Assert.Equal(2, api.MetersRequests);
+    }
+
+    [Fact]
+    public async Task HasStaleMetersTracksChangesAndRaisesPropertyChanged()
+    {
+        var api = new TrackingApi
+        {
+            MetersResponse = new MetersResponse
+            {
+                Meters =
+                [
+                    new Meter
+                    {
+                        DeviceId = "stale-meter",
+                        DeviceName = "Stale meter",
+                        DeviceType = "Meter",
+                        LastUpdated = null,
+                    },
+                ],
+            },
+        };
+        var viewModel = new DashboardViewModel(api, new FakeTimeProvider(MockDashboardApi.ScenarioNow));
+        var changedProperties = new List<string?>();
+        viewModel.PropertyChanged += (_, args) => changedProperties.Add(args.PropertyName);
+
+        Assert.False(viewModel.HasStaleMeters);
+        await viewModel.LoadAsync();
+        Assert.True(viewModel.HasStaleMeters);
+
+        api.MetersResponse = new MetersResponse { Meters = [] };
+        await viewModel.LoadAsync();
+
+        Assert.False(viewModel.HasStaleMeters);
+        Assert.Equal(2, changedProperties.Count(propertyName => propertyName == nameof(viewModel.HasStaleMeters)));
+    }
+
+    [Fact]
     public async Task PollingRecoversFromApiFailureAfterThirtySeconds()
     {
         var timeProvider = new FakeTimeProvider(MockDashboardApi.ScenarioNow);
@@ -180,6 +315,7 @@ public sealed class DashboardViewModelTests
     {
         private readonly MockDashboardApi _inner = new();
         private int _failNextMetersRequest;
+        private int _metersRequests;
 
         public ConcurrentQueue<(string DeviceId, TimeScale TimeScale)> HistoryRequests { get; } = new();
 
@@ -187,13 +323,21 @@ public sealed class DashboardViewModelTests
 
         public Exception? RefreshException { get; init; }
 
+        public TaskCompletionSource<bool>? FirstMetersRequestStarted { get; init; }
+
+        public TaskCompletionSource<MetersResponse>? FirstMetersResponse { get; init; }
+
+        public TaskCompletionSource<bool>? RefreshRequested { get; init; }
+
+        public MetersResponse? MetersResponse { get; set; }
+
         public bool FailNextMetersRequest
         {
             get => Volatile.Read(ref _failNextMetersRequest) == 1;
             init => _failNextMetersRequest = value ? 1 : 0;
         }
 
-        public int MetersRequests { get; private set; }
+        public int MetersRequests => Volatile.Read(ref _metersRequests);
 
         public StatusResponse Status { get; init; } = new()
         {
@@ -202,15 +346,26 @@ public sealed class DashboardViewModelTests
             CollectionInterval = 120,
         };
 
-        public Task<MetersResponse> GetMetersAsync(CancellationToken cancellationToken = default)
+        public async Task<MetersResponse> GetMetersAsync(CancellationToken cancellationToken = default)
         {
-            MetersRequests++;
-            if (Interlocked.Exchange(ref _failNextMetersRequest, 0) == 1)
+            var requestNumber = Interlocked.Increment(ref _metersRequests);
+            if (requestNumber == 1 && FirstMetersResponse is not null)
             {
-                return Task.FromException<MetersResponse>(new InvalidOperationException("service unavailable"));
+                FirstMetersRequestStarted?.TrySetResult(true);
+                return await FirstMetersResponse.Task.WaitAsync(cancellationToken);
             }
 
-            return _inner.GetMetersAsync(cancellationToken);
+            if (Interlocked.Exchange(ref _failNextMetersRequest, 0) == 1)
+            {
+                throw new InvalidOperationException("service unavailable");
+            }
+
+            if (MetersResponse is not null)
+            {
+                return MetersResponse;
+            }
+
+            return await _inner.GetMetersAsync(cancellationToken);
         }
 
         public Task<StatusResponse> GetStatusAsync(CancellationToken cancellationToken = default) =>
@@ -230,9 +385,12 @@ public sealed class DashboardViewModelTests
             return _inner.GetHistoryAsync(deviceId, timeScale, cancellationToken);
         }
 
-        public Task<RefreshResponse> RefreshAsync(CancellationToken cancellationToken = default) =>
-            RefreshException is null
+        public Task<RefreshResponse> RefreshAsync(CancellationToken cancellationToken = default)
+        {
+            RefreshRequested?.TrySetResult(true);
+            return RefreshException is null
                 ? _inner.RefreshAsync(cancellationToken)
                 : Task.FromException<RefreshResponse>(RefreshException);
+        }
     }
 }

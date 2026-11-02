@@ -3,7 +3,7 @@
 Build and run the unpackaged WinUI 3 app on Windows 10 version 1809 or later with the .NET 8 SDK:
 
 ```powershell
-dotnet build .\src\SwitchBotDashboard.App\SwitchBotDashboard.App.csproj -c Release -p:Platform=x64
+dotnet build .\src\SwitchBotDashboard.App\SwitchBotDashboard.App.csproj -c Release -p:Platform=x64 -r win-x64
 dotnet run --project .\src\SwitchBotDashboard.App\SwitchBotDashboard.App.csproj -- --mock-data
 ```
 

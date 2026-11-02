@@ -43,6 +43,8 @@ public sealed partial class DashboardViewModel : ObservableObject
 
     public ObservableCollection<MeterCardViewModel> StaleMeters => _staleMeters;
 
+    public bool HasStaleMeters => _staleMeters.Count > 0;
+
     public TimeScale SelectedTimeScale
     {
         get => _selectedTimeScale;
@@ -50,7 +52,8 @@ public sealed partial class DashboardViewModel : ObservableObject
         {
             if (SetProperty(ref _selectedTimeScale, value) && _activeMeters.Count > 0)
             {
-                _ = FetchHistoriesAsync(_activeMeters.ToArray(), value, CancellationToken.None);
+                var generation = Interlocked.Increment(ref _historyGeneration);
+                _ = FetchSelectedHistoriesAsync(_activeMeters.ToArray(), value, generation);
             }
         }
     }
@@ -111,9 +114,16 @@ public sealed partial class DashboardViewModel : ObservableObject
     [RelayCommand]
     private Task Refresh() => RefreshAsync();
 
-    public async Task LoadAsync(CancellationToken cancellationToken = default)
+    public Task LoadAsync(CancellationToken cancellationToken = default) =>
+        LoadAsync(false, cancellationToken);
+
+    internal async Task LoadAsync(bool waitForGate, CancellationToken cancellationToken)
     {
-        if (!await _loadGate.WaitAsync(0, cancellationToken))
+        if (waitForGate)
+        {
+            await _loadGate.WaitAsync(cancellationToken);
+        }
+        else if (!await _loadGate.WaitAsync(0, cancellationToken))
         {
             return;
         }
@@ -125,6 +135,7 @@ public sealed partial class DashboardViewModel : ObservableObject
             StatusResponse? status = null;
             Exception? metersError = null;
             Exception? statusError = null;
+            string? historyError = null;
 
             try
             {
@@ -156,9 +167,11 @@ public sealed partial class DashboardViewModel : ObservableObject
             {
                 UpdateMeters(meters.Meters);
                 StatusText = FormatStatusText(meters.Meters.Count);
-                await FetchHistoriesAsync(
+                var historyGeneration = Interlocked.Increment(ref _historyGeneration);
+                historyError = await FetchHistoriesAsync(
                     _activeMeters.ToArray(),
                     SelectedTimeScale,
+                    historyGeneration,
                     cancellationToken);
             }
 
@@ -173,11 +186,13 @@ public sealed partial class DashboardViewModel : ObservableObject
             ConnectionState = metersError is null && statusError is null
                 ? global::SwitchBotDashboard.Core.ConnectionState.Connected
                 : global::SwitchBotDashboard.Core.ConnectionState.Disconnected;
-            ErrorMessage = metersError is not null
+            var metersErrorMessage = metersError is not null
                 ? $"Failed to fetch meters: {metersError.Message}"
-                : statusError is not null
-                    ? $"Failed to fetch status: {statusError.Message}"
-                    : null;
+                : null;
+            var statusErrorMessage = statusError is not null
+                ? $"Failed to fetch status: {statusError.Message}"
+                : null;
+            ErrorMessage = metersErrorMessage ?? statusErrorMessage ?? historyError;
         }
         finally
         {
@@ -202,7 +217,7 @@ public sealed partial class DashboardViewModel : ObservableObject
             refreshError = $"Failed to refresh: {exception.Message}";
         }
 
-        await LoadAsync(cancellationToken);
+        await LoadAsync(true, cancellationToken);
         if (refreshError is not null)
         {
             ErrorMessage = refreshError;
@@ -243,37 +258,59 @@ public sealed partial class DashboardViewModel : ObservableObject
 
         Replace(_activeMeters, active);
         Replace(_staleMeters, stale);
+        OnPropertyChanged(nameof(HasStaleMeters));
     }
 
-    private async Task FetchHistoriesAsync(
+    private async Task<string?> FetchHistoriesAsync(
         IReadOnlyList<MeterCardViewModel> meters,
         TimeScale timeScale,
+        long generation,
         CancellationToken cancellationToken)
     {
-        var generation = Interlocked.Increment(ref _historyGeneration);
         if (meters.Count == 0)
         {
-            return;
+            return null;
         }
 
+        var responses = new HistoryResponse?[meters.Count];
+        var errors = new string?[meters.Count];
         try
         {
-            var results = await Task.WhenAll(meters.Select(async meter =>
-                (Meter: meter, Response: await _api.GetHistoryAsync(
-                    meter.DeviceId,
-                    timeScale,
-                    cancellationToken))));
+            await Task.WhenAll(meters.Select(async (meter, index) =>
+            {
+                try
+                {
+                    responses[index] = await _api.GetHistoryAsync(
+                        meter.DeviceId,
+                        timeScale,
+                        cancellationToken);
+                }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    throw;
+                }
+                catch (Exception exception)
+                {
+                    errors[index] = exception.Message;
+                }
+            }));
 
             if (generation != Interlocked.Read(ref _historyGeneration)
                 || timeScale != SelectedTimeScale)
             {
-                return;
+                return null;
             }
 
-            foreach (var (meter, response) in results)
+            for (var index = 0; index < meters.Count; index++)
             {
-                meter.SetHistory(response.History, timeScale);
+                if (responses[index] is { } response)
+                {
+                    meters[index].SetHistory(response.History, timeScale);
+                }
             }
+
+            var firstError = errors.FirstOrDefault(error => error is not null);
+            return firstError is null ? null : $"Failed to fetch history: {firstError}";
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -281,10 +318,25 @@ public sealed partial class DashboardViewModel : ObservableObject
         }
         catch (Exception exception)
         {
-            if (generation == Interlocked.Read(ref _historyGeneration))
-            {
-                ErrorMessage = $"Failed to fetch history: {exception.Message}";
-            }
+            return generation == Interlocked.Read(ref _historyGeneration)
+                ? $"Failed to fetch history: {exception.Message}"
+                : null;
+        }
+    }
+
+    private async Task FetchSelectedHistoriesAsync(
+        IReadOnlyList<MeterCardViewModel> meters,
+        TimeScale timeScale,
+        long generation)
+    {
+        var errorMessage = await FetchHistoriesAsync(
+            meters,
+            timeScale,
+            generation,
+            CancellationToken.None);
+        if (generation == Interlocked.Read(ref _historyGeneration))
+        {
+            ErrorMessage = errorMessage;
         }
     }
 
