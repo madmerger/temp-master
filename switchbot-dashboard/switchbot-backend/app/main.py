@@ -841,7 +841,7 @@ async def backup_database():
 #   index.html              -> frontend served at "/"
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
 if STATIC_DIR.is_dir():
-    @app.get("/{full_path:path}")
+    @app.api_route("/{full_path:path}", methods=["GET", "HEAD"])
     async def serve_spa(request: Request, full_path: str):
         """Serve the frontend at root."""
         file_path = (STATIC_DIR / full_path).resolve()
