@@ -22,7 +22,7 @@ export default function MeterCard({
     key: string;
     history: HistoryPoint[];
   } | null>(null);
-  const historyKey = `${meter.device_id}:${timeScale}:${refreshTick}`;
+  const historyKey = `${meter.device_id}:${timeScale}`;
 
   useEffect(() => {
     if (isStale) {
