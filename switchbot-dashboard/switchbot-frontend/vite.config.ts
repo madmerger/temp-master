@@ -1,6 +1,7 @@
 import react from '@vitejs/plugin-react'
-import { loadEnv } from 'vite'
-import { defineConfig } from 'vitest/config'
+import { resolve } from 'node:path'
+import { loadEnv, searchForWorkspaceRoot } from 'vite'
+import { configDefaults, defineConfig } from 'vitest/config'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
@@ -12,6 +13,12 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     server: {
+      fs: {
+        allow: [
+          searchForWorkspaceRoot(process.cwd()),
+          resolve(process.cwd(), '../display_names.json'),
+        ],
+      },
       proxy: {
         '/api': {
           target: proxyTarget,
@@ -24,6 +31,7 @@ export default defineConfig(({ mode }) => {
       setupFiles: ['./src/test/setup.ts'],
       restoreMocks: true,
       clearMocks: true,
+      exclude: [...configDefaults.exclude, 'e2e/**'],
     },
   }
 })
