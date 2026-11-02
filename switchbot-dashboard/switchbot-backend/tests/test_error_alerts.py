@@ -1,6 +1,8 @@
 import json
+import re
 import sqlite3
 import time
+from concurrent.futures import ThreadPoolExecutor
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -182,4 +184,32 @@ class TestBackupEndpoint:
 
         assert response.status_code == 200
         assert response.content.startswith(b"SQLite format 3")
+        assert list(backup_dir.iterdir()) == []
+
+    def test_concurrent_backups_use_unique_snapshots(self, reset_data_store, monkeypatch, tmp_path):
+        db_path = tmp_path / "app.db"
+        with sqlite3.connect(db_path) as db:
+            db.execute("CREATE TABLE test_payload (value TEXT)")
+            db.execute("INSERT INTO test_payload VALUES ('backup payload')")
+
+        backup_dir = tmp_path / "backups"
+        monkeypatch.setattr(main_module, "DB_PATH", str(db_path))
+        monkeypatch.setattr(main_module, "BACKUP_DIR", str(backup_dir))
+
+        def download_backup():
+            with TestClient(app) as client:
+                return client.get("/api/backup")
+
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            responses = list(executor.map(lambda _: download_backup(), range(2)))
+
+        assert all(response.status_code == 200 for response in responses)
+        assert all(response.content.startswith(b"SQLite format 3") for response in responses)
+        assert all(
+            re.search(
+                r'filename="?switchbot_backup_\d{8}_\d{6}\.db"?',
+                response.headers["content-disposition"],
+            )
+            for response in responses
+        )
         assert list(backup_dir.iterdir()) == []
