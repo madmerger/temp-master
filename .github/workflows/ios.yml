@@ -1,0 +1,42 @@
+name: iOS Dashboard
+
+on:
+  pull_request:
+    paths:
+      - "switchbot-dashboard/switchbot-ios/**"
+      - "switchbot-dashboard/display_names.json"
+      - ".github/workflows/ios.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "switchbot-dashboard/switchbot-ios/**"
+      - "switchbot-dashboard/display_names.json"
+      - ".github/workflows/ios.yml"
+
+jobs:
+  core-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: "5.10"
+      - name: Run core tests
+        run: swift test --package-path switchbot-dashboard/switchbot-ios/SwitchBotCore
+
+  ios-ui-tests:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run core tests
+        run: swift test --package-path switchbot-dashboard/switchbot-ios/SwitchBotCore
+      - name: Run iOS simulator tests
+        run: bash switchbot-dashboard/switchbot-ios/scripts/run-ui-tests.sh
+      - name: Upload XCUITest result bundle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-dashboard-test-results
+          path: switchbot-dashboard/switchbot-ios/TestResults/SwitchBotDashboard.xcresult
+          if-no-files-found: ignore
