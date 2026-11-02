@@ -16,7 +16,7 @@ export interface DashboardStatus {
   meters_count: number;
   is_rate_limited: boolean;
   backoff_remaining: number;
-  last_api_call: string | null;
+  last_api_call: number;
   collection_interval: number;
 }
 

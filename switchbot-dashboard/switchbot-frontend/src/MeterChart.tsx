@@ -23,6 +23,18 @@ ChartJS.register(
   Tooltip,
 );
 
+function readChartColors() {
+  const styles = getComputedStyle(document.documentElement);
+  return {
+    line: styles.getPropertyValue('--chart-line').trim(),
+    fill: styles.getPropertyValue('--chart-fill').trim(),
+    point: styles.getPropertyValue('--chart-point').trim(),
+    hoverPoint: styles.getPropertyValue('--chart-hover-point').trim(),
+    grid: styles.getPropertyValue('--chart-grid').trim(),
+    tick: styles.getPropertyValue('--chart-tick').trim(),
+  };
+}
+
 interface MeterChartProps {
   deviceId: string;
   timeScale: TimeScale;
@@ -49,17 +61,9 @@ export function MeterChart({ deviceId, timeScale, reloadToken }: MeterChartProps
     };
   }, [deviceId, timeScale, reloadToken]);
 
-  const chartColors = (() => {
-    const styles = getComputedStyle(document.documentElement);
-    return {
-      line: styles.getPropertyValue('--chart-line').trim(),
-      fill: styles.getPropertyValue('--chart-fill').trim(),
-      point: styles.getPropertyValue('--chart-point').trim(),
-      hoverPoint: styles.getPropertyValue('--chart-hover-point').trim(),
-      grid: styles.getPropertyValue('--chart-grid').trim(),
-      tick: styles.getPropertyValue('--chart-tick').trim(),
-    };
-  })();
+  // Chart colors come from CSS variables, so the theme is an implicit dependency.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const chartColors = useMemo(() => readChartColors(), [theme]);
 
   const data = useMemo(
     () => ({
