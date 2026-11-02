@@ -31,7 +31,15 @@ export function NavBar({ connected }: NavBarProps) {
             aria-pressed={theme === 'dark'}
             onClick={toggleTheme}
           >
-            {theme === 'dark' ? '☀ Light' : '☾ Dark'}
+            {theme === 'dark' ? (
+              <>
+                ☀ <span className={styles.themeLabel}>Light</span>
+              </>
+            ) : (
+              <>
+                ☾ <span className={styles.themeLabel}>Dark</span>
+              </>
+            )}
           </button>
         </div>
       </div>

@@ -14,6 +14,7 @@
   align-items: center;
   gap: 24px;
   min-height: 50px;
+  min-width: 0;
   padding: 0 15px;
 }
 
@@ -39,6 +40,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0;
   margin-left: auto;
 }
 
@@ -76,14 +78,21 @@
 
   .brand {
     font-size: 15px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .activeLink {
-    padding: 0 8px;
+    display: none;
   }
 
   .actions {
     gap: 6px;
+  }
+
+  .themeLabel {
+    display: none;
   }
 
   .connectionBadge {
