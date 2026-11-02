@@ -3,11 +3,12 @@ import base64
 import hashlib
 import hmac
 import logging
+import math
 import os
 import time
 import uuid
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import Optional
 
@@ -16,10 +17,12 @@ import httpx
 from dotenv import load_dotenv
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator, model_validator
 from starlette.background import BackgroundTask
 
 from app.alerts import post_error_alert
@@ -38,6 +41,12 @@ DB_PATH = os.getenv("DB_PATH", "/data/app.db" if os.path.exists("/data") else "a
 SWITCHBOT_API_BASE = "https://api.switch-bot.com/v1.1"
 SWITCHBOT_TOKEN = os.getenv("SWITCHBOT_TOKEN", "")
 SWITCHBOT_SECRET = os.getenv("SWITCHBOT_SECRET", "")
+IMPORT_API_TOKEN = os.getenv("IMPORT_API_TOKEN", "")
+MAX_IMPORT_DEVICES = 100
+MAX_IMPORT_READINGS = 10000
+MAX_IMPORT_BODY_BYTES = 5 * 1024 * 1024
+IMPORT_MAX_CLOCK_SKEW_SECONDS = 300
+DEVICE_ID_PATTERN = r"^[A-Za-z0-9-]{1,64}$"
 
 DATA_COLLECTION_INTERVAL = 3600
 RATE_LIMIT_BACKOFF_BASE = 60
@@ -611,8 +620,10 @@ _background_tasks: set = set()
 async def request_middleware(request: Request, call_next):
     request_id = uuid.uuid4().hex[:12]
     start_time = time.perf_counter()
+    response = _import_body_size_error(request)
     try:
-        response = await call_next(request)
+        if response is None:
+            response = await call_next(request)
     except Exception:
         logger.exception(
             "Unhandled error request_id=%s method=%s path=%s",
@@ -639,6 +650,47 @@ async def request_middleware(request: Request, call_next):
         _background_tasks.add(task)
         task.add_done_callback(_background_tasks.discard)
     return response
+
+
+def _import_body_size_error(request: Request) -> Optional[JSONResponse]:
+    if request.method != "POST" or request.url.path != "/api/import":
+        return None
+
+    content_length = request.headers.get("content-length")
+    if content_length is None:
+        return JSONResponse(status_code=411, content={"detail": "Content-Length required"})
+    try:
+        body_size = int(content_length)
+    except ValueError:
+        return JSONResponse(status_code=400, content={"detail": "Invalid Content-Length"})
+    if body_size < 0:
+        return JSONResponse(status_code=400, content={"detail": "Invalid Content-Length"})
+    if body_size > MAX_IMPORT_BODY_BYTES:
+        return JSONResponse(status_code=413, content={"detail": "Import payload too large"})
+    return None
+
+
+def _sanitize_validation_error(value):
+    if isinstance(value, float) and not math.isfinite(value):
+        return str(value)
+    if isinstance(value, dict):
+        return {
+            key: _sanitize_validation_error(nested_value)
+            for key, nested_value in value.items()
+        }
+    if isinstance(value, (list, tuple)):
+        return [_sanitize_validation_error(nested_value) for nested_value in value]
+    return value
+
+
+@app.exception_handler(RequestValidationError)
+async def request_validation_error_handler(
+    request: Request, exc: RequestValidationError
+) -> JSONResponse:
+    return JSONResponse(
+        status_code=422,
+        content={"detail": jsonable_encoder(_sanitize_validation_error(exc.errors()))},
+    )
 
 
 @app.get("/healthz")
@@ -752,30 +804,92 @@ async def get_latency_stats_endpoint(
     return stats
 
 
+def _normalize_import_timestamp(value: datetime) -> datetime:
+    if value.tzinfo is None or value.utcoffset() is None:
+        value = value.replace(tzinfo=timezone.utc)
+    normalized = value.astimezone(timezone.utc)
+    if normalized > datetime.now(timezone.utc) + timedelta(
+        seconds=IMPORT_MAX_CLOCK_SKEW_SECONDS
+    ):
+        raise ValueError("timestamp must not be in the future")
+    return normalized
+
+
 class ImportReadingData(BaseModel):
-    timestamp: str
-    temperature: float
-    humidity: int
-    battery: Optional[int] = None
+    timestamp: datetime
+    temperature: float = Field(allow_inf_nan=False, ge=-100, le=150)
+    humidity: int = Field(ge=0, le=100)
+    battery: Optional[int] = Field(default=None, ge=0, le=100)
+
+    @field_validator("timestamp")
+    @classmethod
+    def validate_timestamp(cls, value: datetime) -> datetime:
+        return _normalize_import_timestamp(value)
 
 
 class ImportDeviceData(BaseModel):
-    device_id: str
-    device_name: str
-    device_type: str
-    hub_device_id: Optional[str] = None
-    current_temperature: Optional[float] = None
-    current_humidity: Optional[int] = None
-    battery: Optional[int] = None
-    last_updated: Optional[str] = None
-    readings: list[ImportReadingData] = []
+    device_id: str = Field(pattern=DEVICE_ID_PATTERN)
+    device_name: str = Field(min_length=1, max_length=100)
+    device_type: str = Field(min_length=1, max_length=64)
+    hub_device_id: Optional[str] = Field(default=None, pattern=DEVICE_ID_PATTERN)
+    current_temperature: Optional[float] = Field(
+        default=None, allow_inf_nan=False, ge=-100, le=150
+    )
+    current_humidity: Optional[int] = Field(default=None, ge=0, le=100)
+    battery: Optional[int] = Field(default=None, ge=0, le=100)
+    last_updated: Optional[datetime] = None
+    readings: list[ImportReadingData] = Field(
+        default_factory=list, max_length=MAX_IMPORT_READINGS
+    )
+
+    @field_validator("last_updated")
+    @classmethod
+    def validate_last_updated(cls, value: Optional[datetime]) -> Optional[datetime]:
+        if value is None:
+            return None
+        return _normalize_import_timestamp(value)
 
 
 class ImportData(BaseModel):
-    devices: list[ImportDeviceData]
+    devices: list[ImportDeviceData] = Field(max_length=MAX_IMPORT_DEVICES)
+
+    @model_validator(mode="after")
+    def validate_total_readings(self) -> "ImportData":
+        total_readings = sum(len(device.readings) for device in self.devices)
+        if total_readings > MAX_IMPORT_READINGS:
+            raise ValueError(f"at most {MAX_IMPORT_READINGS} readings are allowed")
+        return self
 
 
-@app.post("/api/import")
+async def require_import_token(
+    authorization: Optional[str] = Header(default=None),
+) -> None:
+    import_api_token = IMPORT_API_TOKEN
+    if not import_api_token:
+        raise HTTPException(status_code=503, detail="Import is disabled")
+
+    if authorization is None:
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or missing import token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    scheme, separator, token = authorization.partition(" ")
+    if (
+        not separator
+        or scheme.lower() != "bearer"
+        or not token
+        or any(character.isspace() for character in token)
+        or not hmac.compare_digest(token.encode(), import_api_token.encode())
+    ):
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or missing import token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+@app.post("/api/import", dependencies=[Depends(require_import_token)])
 async def import_data(data: ImportData):
     """Import historical data from another backend instance."""
     imported_devices = 0
@@ -791,7 +905,7 @@ async def import_data(data: ImportData):
             current_temperature=device_data.current_temperature,
             current_humidity=device_data.current_humidity,
             battery=device_data.battery,
-            last_updated=datetime.fromisoformat(device_data.last_updated.replace('Z', '+00:00')) if device_data.last_updated else None,
+            last_updated=device_data.last_updated,
         )
         
         data_store.devices[device.device_id] = device
@@ -804,7 +918,7 @@ async def import_data(data: ImportData):
         # Import readings
         for reading_data in device_data.readings:
             reading = MeterReading(
-                timestamp=datetime.fromisoformat(reading_data.timestamp.replace('Z', '+00:00')),
+                timestamp=reading_data.timestamp,
                 temperature=reading_data.temperature,
                 humidity=reading_data.humidity,
                 battery=reading_data.battery,

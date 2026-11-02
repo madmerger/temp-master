@@ -1,3 +1,5 @@
+import json
+import sqlite3
 import time
 from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock, patch
@@ -20,6 +22,12 @@ from app.main import (
 @pytest.fixture
 def client(reset_data_store) -> TestClient:
     return TestClient(app)
+
+
+@pytest.fixture
+def import_api_token(monkeypatch) -> str:
+    monkeypatch.setattr(main_module, "IMPORT_API_TOKEN", "test-import-token")
+    return "test-import-token"
 
 
 class TestHealthzEndpoint:
@@ -350,7 +358,13 @@ class TestGetStatusEndpoint:
 
 
 class TestImportDataEndpoint:
-    async def test_import_data_creates_devices(self, client, reset_data_store, temp_db_path):
+    def assert_no_imported_data(self):
+        assert data_store.devices == {}
+        assert data_store.history == {}
+
+    async def test_import_data_creates_devices(
+        self, client, reset_data_store, temp_db_path, import_api_token
+    ):
         original_db_path = main_module.DB_PATH
         main_module.DB_PATH = temp_db_path
         
@@ -372,7 +386,11 @@ class TestImportDataEndpoint:
                 ]
             }
             
-            response = client.post("/api/import", json=import_data)
+            response = client.post(
+                "/api/import",
+                json=import_data,
+                headers={"Authorization": f"Bearer {import_api_token}"},
+            )
             
             assert response.status_code == 200
             data = response.json()
@@ -385,7 +403,9 @@ class TestImportDataEndpoint:
         finally:
             main_module.DB_PATH = original_db_path
 
-    async def test_import_data_creates_readings(self, client, reset_data_store, temp_db_path):
+    async def test_import_data_creates_readings(
+        self, client, reset_data_store, temp_db_path, import_api_token
+    ):
         original_db_path = main_module.DB_PATH
         main_module.DB_PATH = temp_db_path
         
@@ -416,7 +436,11 @@ class TestImportDataEndpoint:
                 ]
             }
             
-            response = client.post("/api/import", json=import_data)
+            response = client.post(
+                "/api/import",
+                json=import_data,
+                headers={"Authorization": f"Bearer {import_api_token}"},
+            )
             
             assert response.status_code == 200
             data = response.json()
@@ -425,7 +449,9 @@ class TestImportDataEndpoint:
         finally:
             main_module.DB_PATH = original_db_path
 
-    async def test_import_data_multiple_devices(self, client, reset_data_store, temp_db_path):
+    async def test_import_data_multiple_devices(
+        self, client, reset_data_store, temp_db_path, import_api_token
+    ):
         original_db_path = main_module.DB_PATH
         main_module.DB_PATH = temp_db_path
         
@@ -449,7 +475,11 @@ class TestImportDataEndpoint:
                 ]
             }
             
-            response = client.post("/api/import", json=import_data)
+            response = client.post(
+                "/api/import",
+                json=import_data,
+                headers={"Authorization": f"Bearer {import_api_token}"},
+            )
             
             assert response.status_code == 200
             data = response.json()
@@ -460,12 +490,318 @@ class TestImportDataEndpoint:
         finally:
             main_module.DB_PATH = original_db_path
 
-    def test_import_data_empty_devices(self, client, reset_data_store):
+    def test_import_data_empty_devices(self, client, reset_data_store, import_api_token):
         import_data = {"devices": []}
         
-        response = client.post("/api/import", json=import_data)
+        response = client.post(
+            "/api/import",
+            json=import_data,
+            headers={"Authorization": f"Bearer {import_api_token}"},
+        )
         
         assert response.status_code == 200
         data = response.json()
         assert data["imported_devices"] == 0
         assert data["imported_readings"] == 0
+
+    @pytest.mark.parametrize(
+        "authorization",
+        [None, "Bearer incorrect-token", "Basic test-import-token"],
+    )
+    def test_import_rejects_missing_or_invalid_authorization(
+        self, client, reset_data_store, import_api_token, authorization
+    ):
+        headers = {} if authorization is None else {"Authorization": authorization}
+
+        response = client.post("/api/import", json={"devices": []}, headers=headers)
+
+        assert response.status_code == 401
+        assert response.headers["WWW-Authenticate"] == "Bearer"
+        self.assert_no_imported_data()
+
+    def test_import_is_disabled_without_configured_token(
+        self, client, reset_data_store, import_api_token, monkeypatch
+    ):
+        monkeypatch.setattr(main_module, "IMPORT_API_TOKEN", "")
+
+        response = client.post("/api/import", json={"devices": []})
+
+        assert response.status_code == 503
+        assert response.json()["detail"] == "Import is disabled"
+        self.assert_no_imported_data()
+
+    def test_import_authentication_precedes_validation(
+        self, client, reset_data_store, import_api_token
+    ):
+        body = (
+            '{"devices":[{"device_id":"device-001","device_name":"Meter",'
+            '"device_type":"Meter","current_temperature":Infinity}]}'
+        )
+
+        response = client.post(
+            "/api/import",
+            content=body,
+            headers={"Content-Type": "application/json"},
+        )
+
+        assert response.status_code == 401
+        self.assert_no_imported_data()
+
+    @pytest.mark.parametrize(
+        ("field", "raw_value"),
+        [
+            ("temperature", "Infinity"),
+            ("current_temperature", "Infinity"),
+            ("temperature", "NaN"),
+        ],
+    )
+    def test_import_rejects_non_finite_temperatures(
+        self, client, reset_data_store, import_api_token, field, raw_value
+    ):
+        device = {
+            "device_id": "device-001",
+            "device_name": "Meter",
+            "device_type": "Meter",
+        }
+        if field == "temperature":
+            device["readings"] = [
+                {
+                    "timestamp": "2024-01-01T12:00:00Z",
+                    "temperature": 0,
+                    "humidity": 60,
+                }
+            ]
+            target = '"temperature": 0'
+        else:
+            device["current_temperature"] = 0
+            target = '"current_temperature": 0'
+        body = json.dumps({"devices": [device]}).replace(
+            target, f'"{field}": {raw_value}', 1
+        )
+
+        response = client.post(
+            "/api/import",
+            content=body,
+            headers={
+                "Authorization": f"Bearer {import_api_token}",
+                "Content-Type": "application/json",
+            },
+        )
+        meters_response = client.get("/api/meters")
+
+        assert response.status_code == 422
+        assert meters_response.status_code == 200
+        assert "device-001" not in data_store.devices
+
+    def test_import_rejects_humidity_out_of_range(
+        self, client, reset_data_store, import_api_token
+    ):
+        response = client.post(
+            "/api/import",
+            json={
+                "devices": [
+                    {
+                        "device_id": "device-001",
+                        "device_name": "Meter",
+                        "device_type": "Meter",
+                        "current_humidity": 101,
+                    }
+                ]
+            },
+            headers={"Authorization": f"Bearer {import_api_token}"},
+        )
+
+        assert response.status_code == 422
+        self.assert_no_imported_data()
+
+    @pytest.mark.parametrize("device_id", ["../x", "a b"])
+    def test_import_rejects_invalid_device_ids(
+        self, client, reset_data_store, import_api_token, device_id
+    ):
+        response = client.post(
+            "/api/import",
+            json={
+                "devices": [
+                    {
+                        "device_id": device_id,
+                        "device_name": "Meter",
+                        "device_type": "Meter",
+                    }
+                ]
+            },
+            headers={"Authorization": f"Bearer {import_api_token}"},
+        )
+
+        assert response.status_code == 422
+        self.assert_no_imported_data()
+
+    def test_import_rejects_too_many_devices(
+        self, client, reset_data_store, import_api_token
+    ):
+        response = client.post(
+            "/api/import",
+            json={
+                "devices": [
+                    {
+                        "device_id": f"device-{index}",
+                        "device_name": "Meter",
+                        "device_type": "Meter",
+                    }
+                    for index in range(101)
+                ]
+            },
+            headers={"Authorization": f"Bearer {import_api_token}"},
+        )
+
+        assert response.status_code == 422
+        self.assert_no_imported_data()
+
+    def test_import_rejects_too_many_readings_across_devices(
+        self, client, reset_data_store, import_api_token
+    ):
+        reading = {
+            "timestamp": "2024-01-01T12:00:00Z",
+            "temperature": 25,
+            "humidity": 60,
+        }
+        response = client.post(
+            "/api/import",
+            json={
+                "devices": [
+                    {
+                        "device_id": "device-001",
+                        "device_name": "Meter 1",
+                        "device_type": "Meter",
+                        "readings": [reading] * 10000,
+                    },
+                    {
+                        "device_id": "device-002",
+                        "device_name": "Meter 2",
+                        "device_type": "Meter",
+                        "readings": [reading],
+                    },
+                ]
+            },
+            headers={"Authorization": f"Bearer {import_api_token}"},
+        )
+
+        assert response.status_code == 422
+        self.assert_no_imported_data()
+
+    @pytest.mark.parametrize("timestamp_field", ["reading", "last_updated"])
+    def test_import_rejects_future_timestamps(
+        self, client, reset_data_store, import_api_token, timestamp_field
+    ):
+        future_timestamp = (datetime.now(timezone.utc) + timedelta(days=1)).isoformat()
+        device = {
+            "device_id": "device-001",
+            "device_name": "Meter",
+            "device_type": "Meter",
+        }
+        if timestamp_field == "reading":
+            device["readings"] = [
+                {
+                    "timestamp": future_timestamp,
+                    "temperature": 25,
+                    "humidity": 60,
+                }
+            ]
+        else:
+            device["last_updated"] = future_timestamp
+
+        response = client.post(
+            "/api/import",
+            json={"devices": [device]},
+            headers={"Authorization": f"Bearer {import_api_token}"},
+        )
+
+        assert response.status_code == 422
+        self.assert_no_imported_data()
+
+    def test_import_rejects_invalid_timestamps(
+        self, client, reset_data_store, import_api_token
+    ):
+        response = client.post(
+            "/api/import",
+            json={
+                "devices": [
+                    {
+                        "device_id": "device-001",
+                        "device_name": "Meter",
+                        "device_type": "Meter",
+                        "readings": [
+                            {
+                                "timestamp": "not-a-timestamp",
+                                "temperature": 25,
+                                "humidity": 60,
+                            }
+                        ],
+                    }
+                ]
+            },
+            headers={"Authorization": f"Bearer {import_api_token}"},
+        )
+
+        assert response.status_code == 422
+        self.assert_no_imported_data()
+
+    async def test_import_normalizes_offset_timestamps_to_utc(
+        self, client, reset_data_store, temp_db_path, import_api_token
+    ):
+        original_db_path = main_module.DB_PATH
+        main_module.DB_PATH = temp_db_path
+
+        try:
+            await init_database()
+            response = client.post(
+                "/api/import",
+                json={
+                    "devices": [
+                        {
+                            "device_id": "device-001",
+                            "device_name": "Meter",
+                            "device_type": "Meter",
+                            "readings": [
+                                {
+                                    "timestamp": "2024-01-01T12:00:00+09:00",
+                                    "temperature": 25,
+                                    "humidity": 60,
+                                }
+                            ],
+                        }
+                    ]
+                },
+                headers={"Authorization": f"Bearer {import_api_token}"},
+            )
+
+            assert response.status_code == 200
+            with sqlite3.connect(temp_db_path) as db:
+                row = db.execute(
+                    "SELECT timestamp FROM readings WHERE device_id = ?",
+                    ("device-001",),
+                ).fetchone()
+            assert row[0] == "2024-01-01T03:00:00+00:00"
+        finally:
+            main_module.DB_PATH = original_db_path
+
+    def test_import_rejects_oversized_content_length(
+        self, client, reset_data_store, import_api_token, monkeypatch
+    ):
+        monkeypatch.setattr(main_module, "MAX_IMPORT_BODY_BYTES", 100)
+        response = client.post(
+            "/api/import",
+            json={
+                "devices": [
+                    {
+                        "device_id": "device-001",
+                        "device_name": "M" * 100,
+                        "device_type": "Meter",
+                    }
+                ]
+            },
+            headers={"Authorization": f"Bearer {import_api_token}"},
+        )
+
+        assert response.status_code == 413
+        assert response.json()["detail"] == "Import payload too large"
+        self.assert_no_imported_data()
