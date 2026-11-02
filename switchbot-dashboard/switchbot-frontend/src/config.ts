@@ -3,9 +3,10 @@ const staleThreshold = staleThresholdValue?.trim()
   ? Number(staleThresholdValue)
   : Number.NaN
 
-export const API_URL =
+export const API_URL = (
   import.meta.env.VITE_API_URL ??
   (import.meta.env.DEV ? '' : 'https://snakeroom.fly.dev')
+).replace(/\/+$/, '')
 export const REFRESH_INTERVAL_MS = 30_000
 export const STALE_METER_THRESHOLD_MS =
   Number.isNaN(staleThreshold)
