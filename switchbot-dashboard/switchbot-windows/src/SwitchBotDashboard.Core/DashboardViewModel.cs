@@ -34,12 +34,15 @@ public sealed partial class DashboardViewModel : ObservableObject
     private string? _rateLimitText;
     private bool _isLoading;
 
-    public DashboardViewModel(IDashboardApi api, TimeProvider timeProvider)
+    public DashboardViewModel(IDashboardApi api, TimeProvider timeProvider, bool useMockData = false)
     {
         _api = api;
         _timeProvider = timeProvider;
         _displayNameMap = new DisplayNameMap();
+        UseMockData = useMockData;
     }
+
+    public bool UseMockData { get; }
 
     public ObservableCollection<MeterCardViewModel> ActiveMeters => _activeMeters;
 

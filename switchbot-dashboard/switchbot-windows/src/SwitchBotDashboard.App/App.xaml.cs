@@ -33,7 +33,7 @@ public sealed partial class App : Application
             timeProvider = TimeProvider.System;
         }
 
-        _mainWindow = new MainWindow(new DashboardViewModel(api, timeProvider));
+        _mainWindow = new MainWindow(new DashboardViewModel(api, timeProvider, useMockData));
         _mainWindow.Activate();
     }
 

@@ -37,6 +37,7 @@ public sealed class DashboardUiTests
         WaitUntil(() => Find(window, "ConnectionStatus").Name == "Connected");
         Assert.Equal("Temp Master Dashboard", window.Title);
         Assert.Equal("Connected", Find(window, "ConnectionStatus").Name);
+        SaveScreenshot(window, "active-charts");
 
         var expectedNames = new[]
         {

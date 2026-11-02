@@ -129,6 +129,12 @@ public sealed partial class MainWindow : Window
                 continue;
             }
 
+            if (ViewModel.UseMockData)
+            {
+                chart.AnimationsSpeed = TimeSpan.Zero;
+                chart.EasingFunction = null;
+            }
+
             chart.Series = ChartSeriesConverter.Create(meter.Points, isDark);
             chart.XAxes = ChartAxesConverter.CreateXAxes(meter.Labels, isDark);
             chart.YAxes = ChartAxesConverter.CreateYAxes(isDark);
