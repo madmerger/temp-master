@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using FlaUI.Core;
 using FlaUI.Core.AutomationElements;
+using FlaUI.Core.Definitions;
 using FlaUI.Core.Tools;
 using FlaUI.UIA3;
 using Xunit;
@@ -53,6 +54,7 @@ public sealed class DashboardUiTests
         }
 
         Assert.NotNull(Find(window, "StaleSection"));
+        ScrollToBottom(window);
         foreach (var deviceId in StaleDeviceIds)
         {
             var automationId = $"MeterCard_{deviceId}";
@@ -127,6 +129,19 @@ public sealed class DashboardUiTests
 
     private static void WaitForElement(Window window, string automationId) =>
         WaitUntil(() => window.FindFirstDescendant(element => element.ByAutomationId(automationId)) is not null);
+
+    private static void ScrollToBottom(Window window)
+    {
+        var scrollBar = window.FindFirstDescendant(element => element.ByControlType(ControlType.ScrollBar))
+            ?.AsVerticalScrollBar()
+            ?? throw new InvalidOperationException("The dashboard scroll bar was not found.");
+        while (scrollBar.Value < scrollBar.MaximumValue)
+        {
+            var previousValue = scrollBar.Value;
+            scrollBar.ScrollDownLarge();
+            WaitUntil(() => scrollBar.Value > previousValue);
+        }
+    }
 
     private static void WaitUntil(Func<bool> predicate)
     {
