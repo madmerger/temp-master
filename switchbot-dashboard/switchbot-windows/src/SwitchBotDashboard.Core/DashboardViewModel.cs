@@ -16,6 +16,8 @@ public enum ConnectionState
 
 public sealed partial class DashboardViewModel : ObservableObject
 {
+    private const string HistoryErrorPrefix = "Failed to fetch history:";
+
     private readonly IDashboardApi _api;
     private readonly TimeProvider _timeProvider;
     private readonly DisplayNameMap _displayNameMap;
@@ -310,7 +312,7 @@ public sealed partial class DashboardViewModel : ObservableObject
             }
 
             var firstError = errors.FirstOrDefault(error => error is not null);
-            return firstError is null ? null : $"Failed to fetch history: {firstError}";
+            return firstError is null ? null : $"{HistoryErrorPrefix} {firstError}";
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -319,7 +321,7 @@ public sealed partial class DashboardViewModel : ObservableObject
         catch (Exception exception)
         {
             return generation == Interlocked.Read(ref _historyGeneration)
-                ? $"Failed to fetch history: {exception.Message}"
+                ? $"{HistoryErrorPrefix} {exception.Message}"
                 : null;
         }
     }
@@ -334,9 +336,18 @@ public sealed partial class DashboardViewModel : ObservableObject
             timeScale,
             generation,
             CancellationToken.None);
-        if (generation == Interlocked.Read(ref _historyGeneration))
+        if (generation != Interlocked.Read(ref _historyGeneration))
+        {
+            return;
+        }
+
+        if (errorMessage is not null)
         {
             ErrorMessage = errorMessage;
+        }
+        else if (ErrorMessage?.StartsWith(HistoryErrorPrefix, StringComparison.Ordinal) == true)
+        {
+            ErrorMessage = null;
         }
     }
 

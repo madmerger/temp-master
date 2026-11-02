@@ -102,6 +102,65 @@ public sealed class DashboardViewModelTests
     }
 
     [Fact]
+    public async Task RefreshFailureSurvivesSuccessfulHistoryAfterTimeScaleChange()
+    {
+        var api = new TrackingApi { RefreshException = new InvalidOperationException("refresh denied") };
+        var viewModel = new DashboardViewModel(api, new FakeTimeProvider(MockDashboardApi.ScenarioNow));
+        await viewModel.RefreshAsync();
+        api.HistoryFactory = (deviceId, timeScale, _) => Task.FromResult(new HistoryResponse
+        {
+            DeviceId = deviceId,
+            TimeScale = timeScale.ToApiValue(),
+            History =
+            [
+                new MeterReading
+                {
+                    Timestamp = MockDashboardApi.ScenarioNow,
+                    Temperature = 42,
+                },
+            ],
+        });
+
+        viewModel.SelectedTimeScale = TimeScale.Week;
+
+        Assert.Equal("Failed to refresh: refresh denied", viewModel.ErrorMessage);
+        Assert.Equal(42, viewModel.ActiveMeters[0].Points.Single().Temperature);
+    }
+
+    [Fact]
+    public async Task SuccessfulHistoryAfterTimeScaleChangeClearsPriorHistoryError()
+    {
+        var api = new TrackingApi
+        {
+            HistoryFactory = (_, _, _) =>
+                Task.FromException<HistoryResponse>(new InvalidOperationException("history unavailable")),
+        };
+        var viewModel = new DashboardViewModel(api, new FakeTimeProvider(MockDashboardApi.ScenarioNow));
+        await viewModel.LoadAsync();
+        viewModel.SelectedTimeScale = TimeScale.Week;
+
+        Assert.Equal("Failed to fetch history: history unavailable", viewModel.ErrorMessage);
+
+        api.HistoryFactory = (deviceId, timeScale, _) => Task.FromResult(new HistoryResponse
+        {
+            DeviceId = deviceId,
+            TimeScale = timeScale.ToApiValue(),
+            History =
+            [
+                new MeterReading
+                {
+                    Timestamp = MockDashboardApi.ScenarioNow,
+                    Temperature = 42,
+                },
+            ],
+        });
+        viewModel.SelectedTimeScale = TimeScale.Month;
+
+        Assert.Null(viewModel.ErrorMessage);
+        Assert.Equal(42, viewModel.ActiveMeters[0].Points.Single().Temperature);
+    }
+
+    [Fact]
     public async Task HistoryFailureDuringLoadIsReportedWithoutDisconnecting()
     {
         var api = new TrackingApi
