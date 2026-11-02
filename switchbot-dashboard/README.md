@@ -4,8 +4,9 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 
 ## Features
 
-- Temperature charts for all SwitchBot Meter devices using Recharts
+- Temperature charts for all SwitchBot Meter devices using Chart.js
 - Time scale switching (hour/day/month/year)
+- Light and dark themes that follow the system preference unless selected manually
 - Auto-refresh every 30 seconds (frontend) with background data collection every 2 minutes (backend)
 - Rate limiting protection with exponential backoff
 - All API calls are cached - GET endpoints never call SwitchBot API directly
@@ -41,6 +42,11 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 
 ### Frontend
 
+The frontend is a React 19 + TypeScript application built with Vite. No frontend
+`.env` file is needed. `VITE_API_URL` defaults to the current origin (the Vite
+development server proxies `/api` to `http://localhost:8000`); Docker builds
+default it to `https://snakeroom.fly.dev`.
+
 1. Navigate to the frontend directory:
    ```bash
    cd switchbot-frontend
@@ -48,12 +54,12 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 
 2. Install dependencies:
    ```bash
-   npm install
+   npm ci
    ```
 
-3. Copy `.env.example` to `.env`:
+3. Optionally override `VITE_API_URL` to use another API origin:
    ```bash
-   cp .env.example .env
+   export VITE_API_URL=https://snakeroom.fly.dev
    ```
 
 4. Start the development server:
@@ -63,12 +69,18 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 
 5. Open http://localhost:5173 in your browser
 
+The available frontend scripts are `npm run dev`, `npm run lint`,
+`npm run typecheck`, `npm test`, `npm run build`, and `npm run preview`.
+The dashboard remembers a manually selected light or dark theme; otherwise it
+follows the operating system preference.
+
 ## API Endpoints
 
 - `GET /api/meters` - Returns list of all meter devices with current temperature (from cache)
 - `GET /api/meters/{device_id}/history` - Returns temperature history with time_scale parameter
 - `POST /api/meters/refresh` - Triggers immediate data collection
 - `GET /api/status` - Returns backend status and configuration
+- `GET /api/backup` - Downloads a SQLite backup from the same origin
 
 ## Notes
 

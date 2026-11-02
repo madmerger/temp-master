@@ -1,4 +1,5 @@
 import json
+import sqlite3
 import time
 from unittest.mock import AsyncMock, patch
 
@@ -165,3 +166,20 @@ class TestBackupEndpoint:
 
         assert response.status_code == 404
         assert response.json()["detail"] == "Database file not found"
+
+    def test_backup_creates_missing_backup_directory(self, reset_data_store, monkeypatch, tmp_path):
+        db_path = tmp_path / "app.db"
+        with sqlite3.connect(db_path) as db:
+            db.execute("CREATE TABLE test_payload (value TEXT)")
+            db.execute("INSERT INTO test_payload VALUES ('backup payload')")
+
+        backup_dir = tmp_path / "backups"
+        monkeypatch.setattr(main_module, "DB_PATH", str(db_path))
+        monkeypatch.setattr(main_module, "BACKUP_DIR", str(backup_dir))
+        client = TestClient(app)
+
+        response = client.get("/api/backup")
+
+        assert response.status_code == 200
+        assert response.content.startswith(b"SQLite format 3")
+        assert list(backup_dir.iterdir()) == []
