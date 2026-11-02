@@ -17,11 +17,10 @@ on:
 jobs:
   core-tests:
     runs-on: ubuntu-latest
+    container:
+      image: swift:5.10
     steps:
       - uses: actions/checkout@v4
-      - uses: swift-actions/setup-swift@v2
-        with:
-          swift-version: "5.10"
       - name: Run core tests
         run: swift test --package-path switchbot-dashboard/switchbot-ios/SwitchBotCore
 

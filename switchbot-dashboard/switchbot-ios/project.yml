@@ -20,6 +20,7 @@ targets:
         product: SwitchBotCore
     settings:
       base:
+        GENERATE_INFOPLIST_FILE: YES
         PRODUCT_BUNDLE_IDENTIFIER: com.madmerger.tempmaster.SwitchBotDashboard
         INFOPLIST_KEY_CFBundleDisplayName: Temp Master Dashboard
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
@@ -36,6 +37,7 @@ targets:
       - target: SwitchBotDashboard
     settings:
       base:
+        GENERATE_INFOPLIST_FILE: YES
         PRODUCT_BUNDLE_IDENTIFIER: com.madmerger.tempmaster.SwitchBotDashboardUITests
         SWIFT_VERSION: "5.9"
         IPHONEOS_DEPLOYMENT_TARGET: "16.0"
