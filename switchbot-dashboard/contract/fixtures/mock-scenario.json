@@ -1,0 +1,107 @@
+{
+  "meters": {
+    "meters": [
+      {
+        "device_id": "C76B0046301A",
+        "device_name": "Bedroom Meter",
+        "device_type": "MeterPlus",
+        "hub_device_id": null,
+        "current_temperature": 20,
+        "current_humidity": 71,
+        "battery": 20,
+        "last_updated": "2026-11-02T08:58:00+00:00"
+      },
+      {
+        "device_id": "D13234351576",
+        "device_name": "アワコ",
+        "device_type": "Meter",
+        "hub_device_id": null,
+        "current_temperature": 26.8,
+        "current_humidity": 68,
+        "battery": 100,
+        "last_updated": "2026-11-02T08:58:00+00:00"
+      },
+      {
+        "device_id": "B0E9FEB9CFA6",
+        "device_name": "Livingroom Hub",
+        "device_type": "Hub 3",
+        "hub_device_id": null,
+        "current_temperature": 18.9,
+        "current_humidity": 65,
+        "battery": null,
+        "last_updated": "2026-11-02T08:58:00+00:00"
+      },
+      {
+        "device_id": "A1B2C3D4E5F6",
+        "device_name": "Garage Sensor",
+        "device_type": "Meter",
+        "hub_device_id": null,
+        "current_temperature": 15.2,
+        "current_humidity": 55,
+        "battery": 80,
+        "last_updated": "2026-11-02T08:00:00+00:00"
+      },
+      {
+        "device_id": "F577B677EC96",
+        "device_name": "夢男",
+        "device_type": "Meter",
+        "hub_device_id": null,
+        "current_temperature": 24.1,
+        "current_humidity": 85,
+        "battery": 100,
+        "last_updated": "2026-02-09T02:13:39+00:00"
+      },
+      {
+        "device_id": "000000000000",
+        "device_name": "Unknown Meter",
+        "device_type": "Meter",
+        "hub_device_id": null,
+        "current_temperature": null,
+        "current_humidity": null,
+        "battery": null,
+        "last_updated": null
+      }
+    ],
+    "last_updated": "2026-11-02T09:00:00+00:00"
+  },
+  "status": {
+    "configured": true,
+    "meters_count": 6,
+    "is_rate_limited": false,
+    "backoff_remaining": 0,
+    "last_api_call": 1793609940,
+    "collection_interval": 120
+  },
+  "history": {
+    "C76B0046301A": {
+      "day": {
+        "device_id": "C76B0046301A",
+        "time_scale": "day",
+        "device": {
+          "device_id": "C76B0046301A",
+          "device_name": "Bedroom Meter",
+          "device_type": "MeterPlus",
+          "hub_device_id": null,
+          "current_temperature": 20,
+          "current_humidity": 71,
+          "battery": 20,
+          "last_updated": "2026-11-02T08:58:00+00:00"
+        },
+        "history": [
+          {"timestamp": "2026-11-01T09:00:00+00:00", "temperature": 20.7, "humidity": 50, "battery": 20},
+          {"timestamp": "2026-11-01T11:10:54.545455+00:00", "temperature": 20.9397127693021, "humidity": 51, "battery": 20},
+          {"timestamp": "2026-11-01T13:21:49.090909+00:00", "temperature": 21.12073549240395, "humidity": 52, "battery": 20},
+          {"timestamp": "2026-11-01T15:32:43.636364+00:00", "temperature": 21.198747493302026, "humidity": 53, "battery": 20},
+          {"timestamp": "2026-11-01T17:43:38.181818+00:00", "temperature": 21.15464871341284, "humidity": 54, "battery": 20},
+          {"timestamp": "2026-11-01T19:54:32.727273+00:00", "temperature": 20.99923607205198, "humidity": 55, "battery": 20},
+          {"timestamp": "2026-11-01T22:05:27.272727+00:00", "temperature": 20.77056000402993, "humidity": 56, "battery": 20},
+          {"timestamp": "2026-11-02T00:16:21.818182+00:00", "temperature": 20.52460838615519, "humidity": 57, "battery": 20},
+          {"timestamp": "2026-11-02T02:27:16.363636+00:00", "temperature": 20.321598752346034, "humidity": 58, "battery": 20},
+          {"timestamp": "2026-11-02T04:38:10.909091+00:00", "temperature": 20.21123494116745, "humidity": 59, "battery": 20},
+          {"timestamp": "2026-11-02T06:49:05.454545+00:00", "temperature": 20.22053786266843, "humidity": 60, "battery": 20},
+          {"timestamp": "2026-11-02T09:00:00+00:00", "temperature": 20.347229837214805, "humidity": 61, "battery": 20}
+        ]
+      }
+    }
+  }
+}
