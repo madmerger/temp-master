@@ -35,7 +35,8 @@ function Dashboard() {
     } catch (refreshError) {
       const message =
         refreshError instanceof Error ? refreshError.message : String(refreshError);
-      setActionError({ message: `Failed to refresh: ${message}`, refreshTick });
+      // The reload below bumps refreshTick on success; keep the error visible past it.
+      setActionError({ message: `Failed to refresh: ${message}`, refreshTick: refreshTick + 1 });
     } finally {
       await reload();
       setRefreshing(false);
