@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using FlaUI.Core;
 using FlaUI.Core.AutomationElements;
-using FlaUI.Core.Capturing;
 using FlaUI.UIA3;
 using Xunit;
 
@@ -129,8 +128,7 @@ public sealed class DashboardUiTests
             ?? Path.Combine(Directory.GetCurrentDirectory(), "TestResults");
         var screenshotPath = Path.Combine(screenshotDirectory, "screenshots", $"{name}.png");
         Directory.CreateDirectory(Path.GetDirectoryName(screenshotPath)!);
-        using var screenshot = window.Capture();
-        screenshot.ToFile(screenshotPath);
+        window.CaptureToFile(screenshotPath);
     }
 
     private sealed class TestEnvironment : IDisposable
