@@ -160,6 +160,7 @@ public final class DashboardController {
             if let history = result.history {
                 state.histories[result.deviceID] = history
             } else if let error = result.error {
+                state.histories[result.deviceID] = nil
                 errors.append(error)
             }
         }

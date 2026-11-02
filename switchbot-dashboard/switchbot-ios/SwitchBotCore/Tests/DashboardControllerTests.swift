@@ -33,6 +33,24 @@ final class DashboardControllerTests: XCTestCase {
         XCTAssertNil(state.histories["active-b"])
     }
 
+    func testFailedTimeScaleChangeClearsOnlyTheFailedMeterHistory() async throws {
+        let now = try XCTUnwrap(date("2026-11-02T09:00:00Z"))
+        let api = FakeDashboardAPI(meters: meters(["active-a", "active-b"]))
+        let controller = DashboardController(api: api, now: { now })
+
+        let dayState = await controller.load(timeScale: .day)
+        XCTAssertEqual(dayState.histories["active-a"]?.first?.temperature, 21)
+        XCTAssertEqual(dayState.histories["active-b"]?.first?.temperature, 21)
+
+        await api.setHistoryFailures(["active-b"])
+        let weekState = await controller.changeTimeScale(.week)
+
+        XCTAssertEqual(weekState.connection, .connected)
+        XCTAssertTrue(weekState.errorMessage?.hasPrefix("Failed to fetch history:") == true)
+        XCTAssertEqual(weekState.histories["active-a"]?.first?.temperature, 22)
+        XCTAssertNil(weekState.histories["active-b"])
+    }
+
     func testRefreshErrorSurvivesSuccessfulTimeScaleChange() async throws {
         let now = try XCTUnwrap(date("2026-11-02T09:00:00Z"))
         let api = FakeDashboardAPI(meters: meters(["active-a"]), refreshError: "refresh unavailable")
@@ -183,7 +201,7 @@ private actor FakeDashboardAPI: DashboardAPI {
         let meter = response.meters.first { $0.deviceID == deviceID }
         let reading = MeterReading(
             timestamp: Date(timeIntervalSince1970: 0),
-            temperature: 21,
+            temperature: timeScale == .week ? 22 : 21,
             humidity: 60,
             battery: 80
         )

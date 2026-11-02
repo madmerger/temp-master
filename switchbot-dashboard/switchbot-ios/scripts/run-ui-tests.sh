@@ -22,6 +22,7 @@ if [[ -z "$DEVICE_ID" ]]; then
     exit 1
 fi
 
+rm -rf "$RESULTS/SwitchBotDashboard.xcresult"
 xcodebuild test \
     -project "$PROJECT" \
     -scheme SwitchBotDashboard \
