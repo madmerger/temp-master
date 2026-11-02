@@ -51,6 +51,14 @@ export function formatTemperatureTick(value: number | string): string {
   return `${Number(Number(value).toFixed(2))}°`
 }
 
+export function formatStaleThreshold(ms: number): string {
+  const dayMs = 86_400_000
+  if (ms % dayMs === 0) {
+    return `${ms / dayMs}日`
+  }
+  return `${Math.max(1, Math.round(ms / 3_600_000))}時間`
+}
+
 export function isStaleMeter(
   meter: Pick<Meter, 'last_updated'>,
   now = Date.now(),
