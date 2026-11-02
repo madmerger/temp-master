@@ -1,5 +1,7 @@
+import { STALE_METER_THRESHOLD_MS } from '../config'
 import { getDisplayName } from '../constants/displayNames'
 import type { Meter, TimeScale } from '../types'
+import { formatStaleThreshold } from '../utils/format'
 import { TemperatureChart } from './TemperatureChart'
 import styles from './MeterCard.module.css'
 
@@ -26,7 +28,9 @@ export function MeterCard({
         <div className={styles.title}>
           <strong>{getDisplayName(meter.device_name)}</strong>
           {isStale && (
-            <span className={styles.staleBadge}>7日以上未更新</span>
+            <span className={styles.staleBadge}>
+              {formatStaleThreshold(STALE_METER_THRESHOLD_MS)}以上未更新
+            </span>
           )}
         </div>
         <span className={styles.deviceType}>{meter.device_type}</span>

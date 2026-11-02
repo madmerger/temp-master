@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  formatStaleThreshold,
   formatTemperatureTick,
   formatTimestamp,
   isStaleMeter,
@@ -76,5 +77,17 @@ describe('formatTemperatureTick', () => {
     expect(formatTemperatureTick(31.400000000000006)).toBe('31.4°')
     expect(formatTemperatureTick(22)).toBe('22°')
     expect(formatTemperatureTick(22.25)).toBe('22.25°')
+  })
+})
+
+describe('formatStaleThreshold', () => {
+  it('formats whole day thresholds in days', () => {
+    expect(formatStaleThreshold(7 * 86_400_000)).toBe('7日')
+    expect(formatStaleThreshold(86_400_000)).toBe('1日')
+  })
+
+  it('formats other thresholds in rounded hours with a one-hour minimum', () => {
+    expect(formatStaleThreshold(36 * 3_600_000)).toBe('36時間')
+    expect(formatStaleThreshold(30 * 60_000)).toBe('1時間')
   })
 })
