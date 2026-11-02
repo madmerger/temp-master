@@ -92,6 +92,12 @@ public sealed partial class MainWindow : Window
 
     private void UpdateChartTheme()
     {
+        var count = ActiveMetersRepeater.ItemsSourceView?.Count ?? 0;
+        if (count == 0)
+        {
+            return;
+        }
+
         var isDark = _themeService.EffectiveTheme == "Dark";
         var activeMeters = ViewModel.ActiveMeters.ToHashSet();
         foreach (var oldMeter in _observedCards.Where(meter => !activeMeters.Contains(meter)).ToArray())
@@ -108,7 +114,7 @@ public sealed partial class MainWindow : Window
             }
         }
 
-        for (var index = 0; index < ActiveMetersRepeater.ItemsSourceView.Count; index++)
+        for (var index = 0; index < count; index++)
         {
             if (ActiveMetersRepeater.TryGetElement(index) is not FrameworkElement element
                 || element.DataContext is not MeterCardViewModel meter)

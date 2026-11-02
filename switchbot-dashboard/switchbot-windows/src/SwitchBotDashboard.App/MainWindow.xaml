@@ -160,7 +160,10 @@
                     </ItemsRepeater.ItemTemplate>
                 </ItemsRepeater>
 
-                <StackPanel x:Name="StaleSection" Spacing="10">
+                <StackPanel
+                    x:Name="StaleSection"
+                    Spacing="10"
+                    Visibility="{x:Bind ViewModel.HasStaleMeters, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay}">
                     <TextBlock
                         AutomationProperties.AutomationId="StaleSection"
                         FontSize="20"
