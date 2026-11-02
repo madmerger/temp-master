@@ -69,6 +69,7 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 - `GET /api/meters/{device_id}/history` - Returns temperature history with time_scale parameter
 - `POST /api/meters/refresh` - Triggers immediate data collection
 - `GET /api/status` - Returns backend status and configuration
+- `POST /api/import` - Requires `Authorization: Bearer $IMPORT_API_TOKEN` (set with `fly secrets set IMPORT_API_TOKEN=...`); disabled with `503` when unset; limited to 100 devices, 10,000 readings, and a 5 MB request body
 
 ## Notes
 
