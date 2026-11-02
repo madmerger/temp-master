@@ -6,8 +6,24 @@ function validTheme(value: string | null): value is Theme {
   return value === 'light' || value === 'dark';
 }
 
+function readStoredTheme(): string | null {
+  try {
+    return window.localStorage.getItem('theme');
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredTheme(theme: Theme): void {
+  try {
+    window.localStorage.setItem('theme', theme);
+  } catch {
+    // Storage can be blocked (e.g. privacy mode); the choice then lasts for this page only.
+  }
+}
+
 function initialTheme(): Theme {
-  const storedTheme = window.localStorage.getItem('theme');
+  const storedTheme = readStoredTheme();
   if (validTheme(storedTheme)) {
     return storedTheme;
   }
@@ -16,7 +32,7 @@ function initialTheme(): Theme {
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(initialTheme);
-  const explicitChoice = useRef(validTheme(window.localStorage.getItem('theme')));
+  const explicitChoice = useRef(validTheme(readStoredTheme()));
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -37,7 +53,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setTheme((currentTheme) => {
       const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
       explicitChoice.current = true;
-      window.localStorage.setItem('theme', nextTheme);
+      writeStoredTheme(nextTheme);
       return nextTheme;
     });
   }, []);
