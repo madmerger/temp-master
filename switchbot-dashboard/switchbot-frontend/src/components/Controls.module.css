@@ -1,0 +1,71 @@
+.panel {
+  margin-bottom: 20px;
+  padding: 14px 15px;
+  border: 1px solid var(--panel-border);
+  border-radius: 4px;
+  background: var(--panel-bg);
+  transition: background-color 180ms ease, border-color 180ms ease;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.rangeControl {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 12px;
+  font-weight: 700;
+}
+
+.rangeControl select {
+  min-height: 34px;
+  padding: 6px 10px;
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  background: var(--input-bg);
+  color: var(--input-text);
+}
+
+.primaryButton,
+.defaultButton {
+  min-height: 34px;
+  padding: 6px 12px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.primaryButton {
+  border-color: var(--button-primary-border);
+  background: var(--button-primary-bg);
+  color: var(--button-primary-text);
+}
+
+.defaultButton {
+  border-color: var(--button-default-border);
+  background: var(--button-default-bg);
+  color: var(--button-default-text);
+}
+
+.primaryButton:disabled,
+.defaultButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+@media (max-width: 600px) {
+  .controls {
+    align-items: stretch;
+  }
+
+  .rangeControl {
+    justify-content: space-between;
+    flex-basis: 100%;
+    margin: 0 0 4px;
+  }
+}

@@ -1,0 +1,29 @@
+.alert {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+
+.info {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-color: var(--alert-info-border);
+  background: var(--alert-info-bg);
+  color: var(--alert-info-text);
+}
+
+.refresh {
+  margin-left: auto;
+}
+
+@media (max-width: 500px) {
+  .info {
+    flex-direction: column;
+  }
+
+  .refresh {
+    margin-left: 0;
+  }
+}
