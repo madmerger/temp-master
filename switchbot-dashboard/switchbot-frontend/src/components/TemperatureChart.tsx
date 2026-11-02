@@ -25,32 +25,43 @@ interface TemperatureChartProps {
   refreshToken: number
 }
 
+const EMPTY_READINGS: Reading[] = []
+
 export function TemperatureChart({
   deviceId,
   timeScale,
   refreshToken,
 }: TemperatureChartProps) {
-  const [history, setHistory] = useState<Reading[]>([])
+  const key = `${deviceId}|${timeScale}`
+  const [history, setHistory] = useState<{
+    key: string
+    readings: Reading[]
+  }>({ key: '', readings: [] })
   const { theme } = useTheme()
   const palette = CHART_THEME[theme]
 
   useEffect(() => {
     const controller = new AbortController()
     void fetchHistory(deviceId, timeScale, controller.signal)
-      .then((response) => setHistory(response.history || []))
+      .then((response) =>
+        setHistory({ key, readings: response.history || [] }),
+      )
       .catch(() => {})
     return () => controller.abort()
-  }, [deviceId, timeScale, refreshToken])
+  }, [deviceId, timeScale, refreshToken, key])
+
+  const readings =
+    history.key === key ? history.readings : EMPTY_READINGS
 
   const data = useMemo<ChartData<'line'>>(
     () => ({
-      labels: history.map((reading) =>
+      labels: readings.map((reading) =>
         formatTimestamp(reading.timestamp, timeScale),
       ),
       datasets: [
         {
           label: 'Temperature (C)',
-          data: history.map((reading) => reading.temperature),
+          data: readings.map((reading) => reading.temperature),
           borderColor: '#d9534f',
           backgroundColor: 'rgba(217, 83, 79, 0.15)',
           borderWidth: 2,
@@ -64,7 +75,7 @@ export function TemperatureChart({
         },
       ],
     }),
-    [history, timeScale],
+    [readings, timeScale],
   )
 
   const options = useMemo<ChartOptions<'line'>>(
