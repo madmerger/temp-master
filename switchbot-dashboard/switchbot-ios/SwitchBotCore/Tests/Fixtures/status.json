@@ -1,0 +1,9 @@
+{
+  "configured": true,
+  "meters_count": 1,
+  "is_rate_limited": true,
+  "backoff_remaining": 42,
+  "last_api_call": 1770603219,
+  "collection_interval": 120,
+  "extra_field": "ignored"
+}
