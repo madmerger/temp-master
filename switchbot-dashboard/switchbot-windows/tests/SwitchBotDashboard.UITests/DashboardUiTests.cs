@@ -1,7 +1,9 @@
 using System.Diagnostics;
+using System.Drawing;
 using FlaUI.Core;
 using FlaUI.Core.AutomationElements;
 using FlaUI.Core.Definitions;
+using FlaUI.Core.Input;
 using FlaUI.Core.Tools;
 using FlaUI.UIA3;
 using Xunit;
@@ -135,10 +137,12 @@ public sealed class DashboardUiTests
         var scrollBar = window.FindFirstDescendant(element => element.ByControlType(ControlType.ScrollBar))
             ?.AsVerticalScrollBar()
             ?? throw new InvalidOperationException("The dashboard scroll bar was not found.");
+        var bounds = window.BoundingRectangle;
+        Mouse.MoveTo(new Point(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height / 2));
         while (scrollBar.Value < scrollBar.MaximumValue)
         {
             var previousValue = scrollBar.Value;
-            scrollBar.ScrollDownLarge();
+            Mouse.Scroll(-3);
             WaitUntil(() => scrollBar.Value > previousValue);
         }
     }
