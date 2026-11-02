@@ -61,9 +61,13 @@ test('initial load renders active meters, aliases, status, and charts', async ({
     api.historyRequests.some(({ deviceId }) => STALE_DEVICE_IDS.includes(deviceId)),
   ).toBe(false)
 
-  const screenshot = await page.screenshot({ fullPage: true })
+  const screenshotPath = testInfo.outputPath('initial-dashboard.png')
+  await page.screenshot({
+    path: screenshotPath,
+    fullPage: true,
+  })
   await testInfo.attach('initial-dashboard', {
-    body: screenshot,
+    path: screenshotPath,
     contentType: 'image/png',
   })
 })
