@@ -36,13 +36,10 @@ function Dashboard() {
     } catch (refreshError) {
       failure = refreshError instanceof Error ? refreshError.message : String(refreshError);
     }
-    const reloaded = await reload();
+    const tickAfterReload = await reload();
     if (failure !== null) {
-      // A successful reload bumps refreshTick; keep the error until the next successful poll.
-      setActionError({
-        message: `Failed to refresh: ${failure}`,
-        refreshTick: reloaded ? refreshTick + 1 : refreshTick,
-      });
+      // Visible until the next successful poll changes refreshTick.
+      setActionError({ message: `Failed to refresh: ${failure}`, refreshTick: tickAfterReload });
     }
     setRefreshing(false);
   }

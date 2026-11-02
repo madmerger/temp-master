@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { fetchMeters, fetchStatus } from '../api';
 import { REFRESH_INTERVAL_MS } from '../config';
 import type { Meter, Status } from '../types';
@@ -24,12 +24,15 @@ const initialState: DashboardData = {
   refreshTick: 0,
 };
 
-export function useDashboardData(): DashboardData & { reload: () => Promise<boolean> } {
+export function useDashboardData(): DashboardData & { reload: () => Promise<number> } {
   const [data, setData] = useState(initialState);
+  const tickRef = useRef(initialState.refreshTick);
 
   const reload = useCallback(async () => {
     try {
       const [metersResponse, status] = await Promise.all([fetchMeters(), fetchStatus()]);
+      tickRef.current += 1;
+      const refreshTick = tickRef.current;
       setData((current) => ({
         ...current,
         meters: metersResponse.meters ?? [],
@@ -38,9 +41,9 @@ export function useDashboardData(): DashboardData & { reload: () => Promise<bool
         error: null,
         connected: true,
         lastRefresh: new Date(),
-        refreshTick: current.refreshTick + 1,
+        refreshTick,
       }));
-      return true;
+      return refreshTick;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       setData((current) => ({
@@ -49,7 +52,7 @@ export function useDashboardData(): DashboardData & { reload: () => Promise<bool
         error: `Failed to fetch data: ${message}`,
         connected: false,
       }));
-      return false;
+      return tickRef.current;
     }
   }, []);
 
