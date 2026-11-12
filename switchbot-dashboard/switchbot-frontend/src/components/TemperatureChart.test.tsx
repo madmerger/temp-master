@@ -1,4 +1,4 @@
-import { cleanup, render, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { fetchHistory } from '../api'
 import { ThemeProvider } from '../theme/ThemeProvider'
@@ -76,9 +76,13 @@ describe('TemperatureChart', () => {
   })
 
   it('hides readings from another time scale when the new fetch fails', async () => {
+    let reject!: (error: unknown) => void
+    const failedFetch = new Promise<HistoryResponse>((_, rejectPromise) => {
+      reject = rejectPromise
+    })
     vi.mocked(fetchHistory)
       .mockResolvedValueOnce(historyResponse('day'))
-      .mockRejectedValueOnce(new Error('network error'))
+      .mockReturnValueOnce(failedFetch)
 
     const { rerender } = renderChart('day')
     await waitFor(() =>
@@ -97,12 +101,21 @@ describe('TemperatureChart', () => {
 
     await waitFor(() => expect(fetchHistory).toHaveBeenCalledTimes(2))
     expect(screen.getByTestId('chart-point-count')).toHaveTextContent('0')
+    await act(async () => {
+      reject(new Error('network error'))
+      await Promise.resolve()
+    })
+    expect(screen.getByTestId('chart-point-count')).toHaveTextContent('0')
   })
 
   it('keeps readings when a refresh fetch fails for the same key', async () => {
+    let reject!: (error: unknown) => void
+    const failedFetch = new Promise<HistoryResponse>((_, rejectPromise) => {
+      reject = rejectPromise
+    })
     vi.mocked(fetchHistory)
       .mockResolvedValueOnce(historyResponse('day'))
-      .mockRejectedValueOnce(new Error('network error'))
+      .mockReturnValueOnce(failedFetch)
 
     const { rerender } = renderChart('day')
     await waitFor(() =>
@@ -120,6 +133,10 @@ describe('TemperatureChart', () => {
     )
 
     await waitFor(() => expect(fetchHistory).toHaveBeenCalledTimes(2))
+    await act(async () => {
+      reject(new Error('network error'))
+      await Promise.resolve()
+    })
     expect(screen.getByTestId('chart-point-count')).toHaveTextContent('3')
   })
 })
