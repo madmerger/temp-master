@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   downloadBackup,
   fetchDashboard,
@@ -6,6 +6,15 @@ import {
   triggerRefresh,
 } from './api'
 import { API_URL } from './config'
+
+const originalCreateObjectURL = Object.getOwnPropertyDescriptor(
+  URL,
+  'createObjectURL',
+)
+const originalRevokeObjectURL = Object.getOwnPropertyDescriptor(
+  URL,
+  'revokeObjectURL',
+)
 
 function mockResponse(
   data: unknown,
@@ -32,9 +41,26 @@ function deferred<T>() {
   return { promise, resolve }
 }
 
+function restoreUrlMethod(
+  name: 'createObjectURL' | 'revokeObjectURL',
+  descriptor: PropertyDescriptor | undefined,
+) {
+  if (descriptor) {
+    Object.defineProperty(URL, name, descriptor)
+  } else {
+    Reflect.deleteProperty(URL, name)
+  }
+}
+
 describe('API client', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn())
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+    restoreUrlMethod('createObjectURL', originalCreateObjectURL)
+    restoreUrlMethod('revokeObjectURL', originalRevokeObjectURL)
   })
 
   it('starts both dashboard requests before either resolves', async () => {
@@ -121,5 +147,73 @@ describe('API client', () => {
       'Failed to download backup (HTTP 500). Request ID: req-42',
     )
     expect(fetch).toHaveBeenCalledWith('/api/backup')
+  })
+
+  it('downloads a backup with the filename from Content-Disposition', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(
+      new Response(new Blob(['db']), {
+        status: 200,
+        headers: {
+          'Content-Disposition':
+            'attachment; filename="switchbot_backup_20261102_073114.db"',
+        },
+      }),
+    )
+    const createObjectURL = vi.fn().mockReturnValue('blob:mock')
+    const revokeObjectURL = vi.fn()
+    Object.defineProperty(URL, 'createObjectURL', {
+      configurable: true,
+      value: createObjectURL,
+    })
+    Object.defineProperty(URL, 'revokeObjectURL', {
+      configurable: true,
+      value: revokeObjectURL,
+    })
+    const clickSpy = vi
+      .spyOn(HTMLAnchorElement.prototype, 'click')
+      .mockImplementation(function (this: HTMLAnchorElement) {})
+
+    await downloadBackup()
+
+    const clickedAnchor = clickSpy.mock.contexts[0] as
+      | HTMLAnchorElement
+      | undefined
+    expect(fetch).toHaveBeenCalledWith('/api/backup')
+    expect(clickedAnchor?.download).toBe(
+      'switchbot_backup_20261102_073114.db',
+    )
+    expect(clickedAnchor?.href).toBe('blob:mock')
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:mock')
+    expect(document.body.querySelector('a')).toBeNull()
+  })
+
+  it('uses the default backup filename without Content-Disposition', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(
+      new Response(new Blob(['db']), { status: 200 }),
+    )
+    const createObjectURL = vi.fn().mockReturnValue('blob:mock')
+    const revokeObjectURL = vi.fn()
+    Object.defineProperty(URL, 'createObjectURL', {
+      configurable: true,
+      value: createObjectURL,
+    })
+    Object.defineProperty(URL, 'revokeObjectURL', {
+      configurable: true,
+      value: revokeObjectURL,
+    })
+    const clickSpy = vi
+      .spyOn(HTMLAnchorElement.prototype, 'click')
+      .mockImplementation(function (this: HTMLAnchorElement) {})
+
+    await downloadBackup()
+
+    const clickedAnchor = clickSpy.mock.contexts[0] as
+      | HTMLAnchorElement
+      | undefined
+    expect(fetch).toHaveBeenCalledWith('/api/backup')
+    expect(clickedAnchor?.download).toBe('switchbot_backup.db')
+    expect(clickedAnchor?.href).toBe('blob:mock')
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:mock')
+    expect(document.body.querySelector('a')).toBeNull()
   })
 })
