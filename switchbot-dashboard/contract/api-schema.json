@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Temp Master API contract",
+  "type": "object",
+  "$defs": {
+    "Timestamp": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
+      "description": "ISO timestamp; naive values are UTC. Clients accept fractional and nonfractional values with Z or offsets."
+    },
+    "TimeScale": {
+      "type": "string",
+      "enum": ["hour", "day", "week", "month", "year"],
+      "description": "History range used by the web, Windows, and iOS clients."
+    },
+    "Meter": {
+      "type": "object",
+      "required": [
+        "device_id",
+        "device_name",
+        "device_type",
+        "hub_device_id",
+        "current_temperature",
+        "current_humidity",
+        "battery",
+        "last_updated"
+      ],
+      "properties": {
+        "device_id": {"type": "string"},
+        "device_name": {"type": "string"},
+        "device_type": {"type": "string"},
+        "hub_device_id": {"type": ["string", "null"]},
+        "current_temperature": {"type": ["number", "null"]},
+        "current_humidity": {"type": ["integer", "null"]},
+        "battery": {"type": ["integer", "null"]},
+        "last_updated": {"anyOf": [{"$ref": "#/$defs/Timestamp"}, {"type": "null"}]}
+      },
+      "additionalProperties": true,
+      "description": "Current meter data consumed by all three dashboard clients."
+    },
+    "MeterReading": {
+      "type": "object",
+      "required": ["timestamp", "temperature", "humidity", "battery"],
+      "properties": {
+        "timestamp": {"$ref": "#/$defs/Timestamp"},
+        "temperature": {"type": "number"},
+        "humidity": {"type": "integer"},
+        "battery": {"type": ["integer", "null"]}
+      },
+      "additionalProperties": true,
+      "description": "Historical reading rendered by the web, Windows, and iOS charts."
+    },
+    "MetersResponse": {
+      "type": "object",
+      "required": ["meters", "last_updated"],
+      "properties": {
+        "meters": {"type": "array", "items": {"$ref": "#/$defs/Meter"}},
+        "last_updated": {"anyOf": [{"$ref": "#/$defs/Timestamp"}, {"type": "null"}]}
+      },
+      "additionalProperties": true,
+      "description": "Meter collection response used during dashboard load and refresh."
+    },
+    "StatusResponse": {
+      "type": "object",
+      "required": [
+        "configured",
+        "meters_count",
+        "is_rate_limited",
+        "backoff_remaining",
+        "last_api_call",
+        "collection_interval"
+      ],
+      "properties": {
+        "configured": {"type": "boolean"},
+        "meters_count": {"type": "integer", "minimum": 0},
+        "is_rate_limited": {"type": "boolean"},
+        "backoff_remaining": {"type": "integer", "minimum": 0},
+        "last_api_call": {"type": "number"},
+        "collection_interval": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": true,
+      "description": "Backend status displayed by the web, Windows, and iOS clients."
+    },
+    "HistoryResponse": {
+      "type": "object",
+      "required": ["device_id", "time_scale", "history", "device"],
+      "properties": {
+        "device_id": {"type": "string"},
+        "time_scale": {"$ref": "#/$defs/TimeScale"},
+        "history": {"type": "array", "items": {"$ref": "#/$defs/MeterReading"}},
+        "device": {"anyOf": [{"$ref": "#/$defs/Meter"}, {"type": "null"}]}
+      },
+      "additionalProperties": true,
+      "description": "Range-specific history response rendered in each active meter card."
+    },
+    "RefreshResponse": {
+      "type": "object",
+      "required": ["status", "message", "meters_count"],
+      "properties": {
+        "status": {"type": "string"},
+        "message": {"type": "string"},
+        "meters_count": {"type": "integer"}
+      },
+      "additionalProperties": true,
+      "description": "Refresh acknowledgement used by the web, Windows, and iOS clients."
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "required": ["detail"],
+      "properties": {
+        "detail": {"anyOf": [{"type": "string"}, {"type": "array"}]}
+      },
+      "additionalProperties": true,
+      "description": "FastAPI error body consumed by all clients for request failures."
+    }
+  }
+}
