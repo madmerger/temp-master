@@ -3,7 +3,7 @@ import os
 import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import AsyncMock, patch
 
 import httpx
 import pytest
@@ -127,6 +127,25 @@ async def test_history_validates_for_every_time_scale(client, schema, reset_data
         assert body["time_scale"] == scale.value
         assert len(body["history"]) >= 1
         validate(schema, "HistoryResponse", body)
+
+
+def test_refresh_success_validates(client, schema, reset_data_store):
+    with patch.object(main_module, "SWITCHBOT_TOKEN", "test-token"), \
+         patch.object(main_module, "SWITCHBOT_SECRET", "test-secret"), \
+         patch("app.main.collect_data", new_callable=AsyncMock) as mock_collect:
+        data_store.devices["refresh-device"] = MeterDevice(
+            device_id="refresh-device",
+            device_name="Refresh Meter",
+            device_type="Meter",
+        )
+
+        response = client.post("/api/meters/refresh")
+
+        assert response.status_code == 200
+        body = response.json()
+        validate(schema, "RefreshResponse", body)
+        assert body["meters_count"] == 1
+        mock_collect.assert_called_once()
 
 
 def test_error_responses_validate(client, schema, reset_data_store):
