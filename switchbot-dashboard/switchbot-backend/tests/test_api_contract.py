@@ -79,11 +79,16 @@ def seed_devices(now):
 def test_meters_responses_validate_for_populated_and_empty_store(client, schema):
     now = datetime.now(timezone.utc)
     seed_devices(now)
-    validate(schema, "MetersResponse", client.get("/api/meters").json())
+    populated = client.get("/api/meters").json()
+    assert len(populated["meters"]) == 3
+    assert {meter["device_id"] for meter in populated["meters"]} == {"full", "hub", "empty"}
+    validate(schema, "MetersResponse", populated)
 
     data_store.devices = {}
     data_store.history = {}
-    validate(schema, "MetersResponse", client.get("/api/meters").json())
+    empty = client.get("/api/meters").json()
+    assert empty["meters"] == []
+    validate(schema, "MetersResponse", empty)
 
 
 def test_status_validates_configured_and_rate_limited_states(client, schema):
@@ -118,8 +123,10 @@ async def test_history_validates_for_every_time_scale(client, schema, reset_data
     for scale in TimeScale:
         response = client.get(f"/api/meters/{device.device_id}/history?time_scale={scale.value}")
         assert response.status_code == 200
-        assert response.json()["time_scale"] == scale.value
-        validate(schema, "HistoryResponse", response.json())
+        body = response.json()
+        assert body["time_scale"] == scale.value
+        assert len(body["history"]) >= 1
+        validate(schema, "HistoryResponse", body)
 
 
 def test_error_responses_validate(client, schema, reset_data_store):
