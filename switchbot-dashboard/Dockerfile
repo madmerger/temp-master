@@ -1,4 +1,4 @@
-FROM node:20 AS frontend
+FROM node:22-slim AS frontend
 WORKDIR /frontend
 COPY switchbot-frontend/package*.json ./
 RUN npm ci

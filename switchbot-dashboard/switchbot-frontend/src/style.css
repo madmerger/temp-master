@@ -1,6 +1,13 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @layer base {
- body { @apply m-0 bg-slate-50 text-slate-800 antialiased; }
- button, select { @apply rounded-md border border-slate-300 bg-white px-4 py-2 text-sm; }
- button { @apply cursor-pointer hover:bg-slate-100 disabled:cursor-wait disabled:opacity-50; }
+  body {
+    @apply m-0 bg-slate-50 text-slate-800 antialiased;
+  }
+  button,
+  select {
+    @apply rounded-md border border-slate-300 bg-white px-4 py-2 text-sm;
+  }
+  button {
+    @apply cursor-pointer hover:bg-slate-100 disabled:cursor-wait disabled:opacity-50;
+  }
 }
