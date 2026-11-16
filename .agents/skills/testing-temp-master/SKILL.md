@@ -35,10 +35,10 @@ echo "SWITCHBOT_SECRET=${SWITCHBOT_SECRET}" >> .env
 
 ### 3. Symlink frontend static files
 
-The Dockerfile copies `switchbot-frontend/` to `switchbot-backend/static/`, but locally this directory doesn't exist. You must create a symlink:
+The Dockerfile copies `switchbot-frontend/dist/` to `switchbot-backend/static/`, but locally this directory doesn't exist. You must create a symlink:
 
 ```bash
-ln -s $(pwd)/switchbot-dashboard/switchbot-frontend switchbot-dashboard/switchbot-backend/static
+ln -s ../switchbot-frontend/dist switchbot-dashboard/switchbot-backend/static
 ```
 
 **Important:** The static directory check in `main.py` happens at module import time (`STATIC_DIR = Path(__file__).resolve().parent.parent / "static"`). If you create the symlink after starting the server, you must restart the server.
@@ -57,21 +57,34 @@ The frontend is served at `http://localhost:8000/` and the API docs at `http://l
 ### Branding Verification
 - Page title (`<title>` tag): should say "Temp Master Dashboard"
 - Navbar brand: should say "Temp Master Dashboard"
-- Footer: should say "Temp Master Dashboard v1.0 - Built with jQuery + Bootstrap 3"
+- Footer: should say "Temp Master Dashboard v1.0 - Built with React + Vite + TypeScript"
 - Verify no "Snake" or "SnakeRoom" text exists anywhere: `document.body.innerHTML.includes('Snake')` should be `false`
 
 ### API Connectivity
 - `GET /api/status` returns `configured: true` and `meters_count` > 0
 - `GET /api/meters` returns live meter data with temperature, humidity, battery
-- Connection status badge shows "Connected" (green, class `label-success`)
+- Connection status badge shows "Connected" (green)
 
 ### UI Functionality
-- View toggle: Default (equal 3-col grid) vs Shelf (featured meter + 3-col grid)
+- Responsive grid: 3 columns on desktop, 2 on tablet, 1 on mobile; stale meters have no chart
 - Time Range selector: Last Hour / Last 24 Hours / Last 7 Days / Last 30 Days / Last Year
 - Charts: Canvas elements rendered with Chart.js line charts
 - Refresh Data button triggers data reload
 
+## Frontend development and build
+
+```bash
+cd switchbot-dashboard/switchbot-frontend
+npm ci
+npm run dev # localhost:5173, /api proxied to localhost:8000
+npm run build # produces dist/ for the static symlink and Docker
+```
+
+For local smoke tests without credentials, POST `/api/import` with a `devices` array. Each device needs `device_id`, `device_name`, `device_type`, and can include `last_updated`, current values, and `readings` (timestamp, temperature, humidity, battery). Use recent timestamps for active charts. Imported data uses the real local SQLite database.
+
 ## Running Backend Tests
+
+Remove any untracked `switchbot-backend/static` symlink before pytest: it causes two backend 500-path tests to fail. Never commit that symlink.
 
 ```bash
 cd switchbot-dashboard/switchbot-backend
@@ -83,6 +96,6 @@ Expected: 97 tests pass.
 ## Architecture Notes
 
 - Backend: FastAPI + aiosqlite (SQLite persistence at `/data/app.db` or local `app.db`)
-- Frontend: jQuery + Bootstrap 3 (single `index.html` file)
+- Frontend: React 18 + TypeScript + Tailwind CSS 4 + Vite + Chart.js 4
 - Deployment: Fly.io (see `fly.toml`)
 - Background data collection runs with 120s interval, with rate limiting and exponential backoff

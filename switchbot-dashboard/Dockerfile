@@ -1,3 +1,11 @@
+FROM node:20 AS frontend
+WORKDIR /frontend
+COPY switchbot-frontend/package*.json ./
+RUN npm ci
+COPY switchbot-frontend/ ./
+ARG VITE_API_URL=https://snakeroom.fly.dev
+RUN npm run build
+
 # Build and run backend (serves frontend static files)
 FROM python:3.12-slim
 WORKDIR /app
@@ -15,7 +23,7 @@ RUN poetry config virtualenvs.create true && \
 COPY switchbot-backend/app/ ./app/
 
 # Copy frontend to root: served at /
-COPY switchbot-frontend/ ./static/
+COPY --from=frontend /frontend/dist/ ./static/
 
 EXPOSE 8000
 
