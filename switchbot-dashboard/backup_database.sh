@@ -60,6 +60,12 @@ if [[ -z "${ADMIN_API_TOKEN:-}" ]]; then
     exit 1
 fi
 
+if [[ ! "$BACKEND_URL" =~ ^https://[^/?\#[:space:]]+(/[^[:space:]]*)?$ ]] &&
+   [[ ! "$BACKEND_URL" =~ ^http://(localhost|127\.0\.0\.1|\[::1\])(:[0-9]+)?(/[^[:space:]]*)?$ ]]; then
+    echo "Error: SWITCHBOT_BACKEND_URL must use HTTPS (HTTP is allowed only for localhost, 127.0.0.1, or [::1])." >&2
+    exit 1
+fi
+
 mkdir -p "$BACKUP_DIR" || exit 1
 
 backup_database() {

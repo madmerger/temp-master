@@ -35,6 +35,7 @@ Backupは外部API設定に関係なく、画面配信元の同一オリジン `
 
 `backup_database.sh` も `ADMIN_API_TOKEN` が必須です。未設定・認証失敗・HTTPエラー・通信失敗時は終了コード1になり、失敗したダウンロードは残しません。
 ループモード（`--loop`）では各失敗を表示して次の試行を継続します。
+接続先はHTTPS必須です。ローカル検証に限り `http://localhost`、`http://127.0.0.1`、`http://[::1]`（ポート指定可）を許可します。Bearerヘッダーはcurlの引数ではなく標準入力へ渡します。
 
 ```bash
 ADMIN_API_TOKEN=test SWITCHBOT_BACKEND_URL=http://localhost:8000 \
