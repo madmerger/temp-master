@@ -637,6 +637,8 @@ def security_headers(path: str) -> dict[str, str]:
         scripts += " https://cdn.jsdelivr.net 'unsafe-inline'"
         styles += " https://cdn.jsdelivr.net https://fonts.googleapis.com"
         images += " https://fastapi.tiangolo.com"
+    if path == "/redoc":
+        images += " https://cdn.redoc.ly"
     connect = "'self' " + " ".join(
         origin.strip() for origin in os.getenv("CSP_CONNECT_SRC", "").split(",") if origin.strip()
     )
@@ -648,7 +650,8 @@ def security_headers(path: str) -> dict[str, str]:
             f"default-src 'self'; script-src {scripts}; style-src {styles}; "
             f"img-src {images}; connect-src {connect.strip()}; "
             "frame-ancestors 'none'; object-src 'none'; base-uri 'self'"
-            + ("; worker-src 'self' blob:" if path == "/redoc" else "")
+            + ("; worker-src 'self' blob:; font-src 'self' https://fonts.gstatic.com"
+               if path == "/redoc" else "")
         ),
     }
 

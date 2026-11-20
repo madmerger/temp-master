@@ -103,8 +103,12 @@ def test_docs_csp(path):
     assert "https://cdn.jsdelivr.net 'unsafe-inline'" in response.headers["content-security-policy"]
     if path == "/redoc":
         assert "worker-src 'self' blob:" in response.headers["content-security-policy"]
+        assert "font-src 'self' https://fonts.gstatic.com" in response.headers["content-security-policy"]
+        assert "https://cdn.redoc.ly" in response.headers["content-security-policy"]
     else:
         assert "worker-src" not in response.headers["content-security-policy"]
+        assert "fonts.gstatic.com" not in response.headers["content-security-policy"]
+        assert "cdn.redoc.ly" not in response.headers["content-security-policy"]
 
 
 def test_csp_connect(monkeypatch):
