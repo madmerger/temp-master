@@ -67,7 +67,7 @@ A fullstack web dashboard to monitor temperature readings from SwitchBot Meter d
 
 - `GET /api/meters` - Returns list of all meter devices with current temperature (from cache)
 - `GET /api/meters/{device_id}/history` - Returns temperature history with time_scale parameter
-- `POST /api/meters/refresh` - Triggers immediate data collection
+- `POST /api/meters/refresh` - Triggers immediate data collection (requires `Authorization: Bearer $ADMIN_API_TOKEN`; one run at a time, 60s cooldown, 429 + `Retry-After` otherwise)
 - `GET /api/status` - Returns backend status and configuration
 
 ## Notes
