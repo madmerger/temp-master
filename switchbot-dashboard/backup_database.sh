@@ -12,6 +12,7 @@
 # Configuration:
 #   Set SWITCHBOT_BACKEND_URL environment variable or edit the default below
 #   Set BACKUP_DIR environment variable to change the backup directory
+#   ADMIN_API_TOKEN に管理APIのBearerトークンを指定する
 
 BACKEND_URL="${SWITCHBOT_BACKEND_URL:-https://temp-master.fly.dev}"
 BACKUP_DIR="${BACKUP_DIR:-$HOME/switchbot_backups}"
@@ -43,6 +44,7 @@ while [[ $# -gt 0 ]]; do
             echo "Environment variables:"
             echo "  SWITCHBOT_BACKEND_URL  Backend URL (default: https://temp-master.fly.dev)"
             echo "  BACKUP_DIR             Backup directory (default: ~/switchbot_backups)"
+            echo "  ADMIN_API_TOKEN        Required Bearer token for the admin API"
             exit 0
             ;;
         *)
@@ -53,7 +55,12 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-mkdir -p "$BACKUP_DIR"
+if [[ -z "${ADMIN_API_TOKEN:-}" ]]; then
+    echo "Error: ADMIN_API_TOKEN must be set." >&2
+    exit 1
+fi
+
+mkdir -p "$BACKUP_DIR" || exit 1
 
 backup_database() {
     local timestamp=$(date +%Y%m%d_%H%M%S)
@@ -61,9 +68,14 @@ backup_database() {
     
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting backup..."
     
-    local http_code=$(curl -s -w "%{http_code}" -o "$backup_file" "$BACKEND_URL/api/backup")
+    local http_code
+    if ! http_code=$(curl -sS -w "%{http_code}" -H "Authorization: Bearer $ADMIN_API_TOKEN" -o "$backup_file" "$BACKEND_URL/api/backup"); then
+        echo "[$(date '+%Y-%m-%d %H:%M:%S')] Backup failed: request error" >&2
+        rm -f "$backup_file"
+        return 1
+    fi
     
-    if [ "$http_code" -eq 200 ]; then
+    if [ "$http_code" = 200 ]; then
         local file_size=$(ls -lh "$backup_file" | awk '{print $5}')
         echo "[$(date '+%Y-%m-%d %H:%M:%S')] Backup successful: $backup_file ($file_size)"
         

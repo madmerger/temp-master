@@ -30,6 +30,18 @@ http://localhost:5173 を開きます。Viteは `/api` を `http://localhost:800
 `VITE_API_URL` は既定で空（同一オリジン）。別APIを指定する場合はバックエンドのCORS／CSPも許可します。
 管理トークンはビルド変数に含めません。画面のパスワード入力で指定し、React state（メモリ）のみで保持します。ブラウザストレージには保存せず、再読み込み時は再入力が必要です。
 
+### バックアップスクリプト
+
+`backup_database.sh` も `ADMIN_API_TOKEN` が必須です。未設定・認証失敗・HTTPエラー・通信失敗時は終了コード1になり、失敗したダウンロードは残しません。
+ループモード（`--loop`）では各失敗を表示して次の試行を継続します。
+
+```bash
+ADMIN_API_TOKEN=test SWITCHBOT_BACKEND_URL=http://localhost:8000 \
+  BACKUP_DIR="$HOME/switchbot_backups" bash switchbot-dashboard/backup_database.sh
+```
+
+本番トークンはシェル履歴に直接記述せず、秘密情報管理から環境変数へ設定してください。
+
 ## テストデータ登録
 
 起動中の開発バックエンドへ、正常2台と10日前のstale1台を登録します。本番DBには実行しないでください。
