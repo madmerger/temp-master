@@ -48,6 +48,15 @@ it('Refresh成功でBearerを送り再取得する', async () => {
   expect(sessionStorage.getItem('admin-api-token')).toBeNull()
   expect(localStorage.getItem('admin-api-token')).toBeNull()
 })
+it('外部API指定時もRefreshはAPIベースを使用する', async () => {
+  vi.stubEnv('VITE_API_URL', 'https://api.example.com/')
+  const fetch = vi.fn().mockResolvedValue(response())
+  vi.stubGlobal('fetch', fetch)
+  setup()
+  await userEvent.type(screen.getByLabelText('管理トークン'), 'test')
+  await userEvent.click(screen.getByRole('button', { name: 'Refresh Data' }))
+  await waitFor(() => expect(fetch).toHaveBeenCalledWith('https://api.example.com/api/meters/refresh', { method: 'POST', headers: { Authorization: 'Bearer test' } }))
+})
 it('Refresh失敗は制御したpromiseのsettle後も再取得で消さない', async () => {
   let reject!: (reason: Error) => void
   const pending = new Promise<Response>((_, fail) => { reject = fail })
@@ -64,7 +73,8 @@ it('Refresh失敗は制御したpromiseのsettle後も再取得で消さない',
   expect(screen.getByText('更新に失敗しました: 更新テスト失敗')).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Refresh Data' })).toBeEnabled()
 })
-it('Backup成功でBlobとファイル名を利用しBearerを送る', async () => {
+it.each(['', 'https://api.example.com/'])('APIベース%sでもBackupは同一オリジンでBlobとファイル名を利用しBearerを送る', async base => {
+  vi.stubEnv('VITE_API_URL', base)
   const blob = new Blob(['SQLite snapshot'])
   const fetch = vi.fn().mockResolvedValue({ ok: true, blob: async () => blob, headers: new Headers({ 'Content-Disposition': 'attachment; filename="snapshot.db"' }) })
   vi.stubGlobal('fetch', fetch)
@@ -84,6 +94,7 @@ it('Backup成功でBlobとファイル名を利用しBearerを送る', async () 
   expect(fetch).toHaveBeenCalledWith('/api/backup', { headers: { Authorization: 'Bearer test' } })
 })
 it.each([401, 503])('Backup失敗 %s の説明を表示する', async status => {
+  vi.stubEnv('VITE_API_URL', 'https://api.example.com')
   vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response(status)))
   setup()
   await userEvent.click(screen.getByRole('button', { name: 'Download Backup' }))

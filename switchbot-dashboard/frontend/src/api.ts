@@ -1,7 +1,7 @@
 import { apiUrl } from './config'
 
-export async function request(path: string, init?: RequestInit) {
-  const response = await fetch(apiUrl(path), init)
+async function requestUrl(url: string, init?: RequestInit) {
+  const response = await fetch(url, init)
   if (!response.ok) {
     if (response.status === 401) throw new Error('管理トークンが無効です')
     if (response.status === 503) throw new Error('管理APIが未設定です。管理者にお問い合わせください')
@@ -9,11 +9,14 @@ export async function request(path: string, init?: RequestInit) {
   }
   return response
 }
+export async function request(path: string, init?: RequestInit) {
+  return requestUrl(apiUrl(path), init)
+}
 export async function getJson<T>(path: string): Promise<T> {
   return (await request(path)).json()
 }
 export async function downloadBackup(token: string) {
-  const response = await request('/api/backup', { headers: { Authorization: `Bearer ${token}` } })
+  const response = await requestUrl('/api/backup', { headers: { Authorization: `Bearer ${token}` } })
   const blob = await response.blob()
   const disposition = response.headers.get('Content-Disposition') ?? ''
   const encoded = disposition.match(/filename\*=UTF-8''([^;]+)/i)?.[1]

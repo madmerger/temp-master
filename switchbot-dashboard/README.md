@@ -29,6 +29,7 @@ npm run dev
 http://localhost:5173 を開きます。Viteは `/api` を `http://localhost:8000` へプロキシします。
 `VITE_API_URL` は既定で空（同一オリジン）。別APIを指定する場合はバックエンドのCORS／CSPも許可します。
 管理トークンはビルド変数に含めません。画面のパスワード入力で指定し、React state（メモリ）のみで保持します。ブラウザストレージには保存せず、再読み込み時は再入力が必要です。
+Backupは外部API設定に関係なく、画面配信元の同一オリジン `/api/backup` からDBを取得します。Refreshやメーター取得は `VITE_API_URL` に従います。
 
 ### バックアップスクリプト
 
