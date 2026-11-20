@@ -4,6 +4,7 @@ import hashlib
 import hmac
 import logging
 import os
+import secrets
 import time
 import uuid
 from contextlib import asynccontextmanager
@@ -16,7 +17,8 @@ import httpx
 from dotenv import load_dotenv
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
@@ -441,11 +443,11 @@ async def call_switchbot_api(endpoint: str, device_id: Optional[str] = None) -> 
                     status_code=response.status_code,
                     success=False,
                     device_id=device_id,
-                    error_message=f"SwitchBot API error: {response.text}",
+                    error_message=f"SwitchBot API error: HTTP {response.status_code}",
                 )
                 raise HTTPException(
                     status_code=response.status_code,
-                    detail=f"SwitchBot API error: {response.text}",
+                    detail=f"SwitchBot API error: HTTP {response.status_code}",
                 )
             
             await save_latency_log(
@@ -467,9 +469,9 @@ async def call_switchbot_api(endpoint: str, device_id: Optional[str] = None) -> 
                 status_code=500,
                 success=False,
                 device_id=device_id,
-                error_message=f"Request error: {str(e)}",
+                error_message="SwitchBot request failed",
             )
-            raise HTTPException(status_code=500, detail=f"Request error: {str(e)}")
+            raise HTTPException(status_code=500, detail="SwitchBot request failed")
 
 
 async def fetch_devices() -> list[MeterDevice]:
@@ -596,13 +598,62 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+def configure_cors(application: FastAPI):
+    origins = [origin.strip() for origin in os.getenv("CORS_ALLOW_ORIGINS", "").split(",")
+               if origin.strip() and origin.strip() != "*"]
+    if origins:
+        application.add_middleware(
+            CORSMiddleware,
+            allow_origins=origins,
+            allow_credentials=False,
+            allow_methods=["GET", "POST"],
+            allow_headers=["Authorization", "Content-Type"],
+        )
+
+
+configure_cors(app)
+
+bearer_scheme = HTTPBearer(auto_error=False)
+
+
+async def require_admin_token(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme),
+):
+    expected = os.getenv("ADMIN_API_TOKEN", "")
+    if not expected:
+        raise HTTPException(status_code=503, detail="Admin API token not configured")
+    if credentials is None or not secrets.compare_digest(
+        credentials.credentials.encode("utf-8"), expected.encode("utf-8")
+    ):
+        raise HTTPException(status_code=401, detail="Invalid admin credentials",
+                            headers={"WWW-Authenticate": "Bearer"})
+
+
+def security_headers(path: str) -> dict[str, str]:
+    scripts = "'self'"
+    styles = "'self' 'unsafe-inline'"
+    images = "'self' data:"
+    if path in {"/docs", "/docs/oauth2-redirect", "/redoc"}:
+        scripts += " https://cdn.jsdelivr.net 'unsafe-inline'"
+        styles += " https://cdn.jsdelivr.net https://fonts.googleapis.com"
+        images += " https://fastapi.tiangolo.com"
+    if path == "/redoc":
+        images += " https://cdn.redoc.ly"
+    connect = "'self' " + " ".join(
+        origin.strip() for origin in os.getenv("CSP_CONNECT_SRC", "").split(",") if origin.strip()
+    )
+    return {
+        "X-Content-Type-Options": "nosniff",
+        "X-Frame-Options": "DENY",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "Content-Security-Policy": (
+            f"default-src 'self'; script-src {scripts}; style-src {styles}; "
+            f"img-src {images}; connect-src {connect.strip()}; "
+            "frame-ancestors 'none'; object-src 'none'; base-uri 'self'"
+            + ("; worker-src 'self' blob:; font-src 'self' https://fonts.gstatic.com"
+               if path == "/redoc" else "")
+        ),
+    }
 
 _background_tasks: set = set()
 
@@ -614,7 +665,7 @@ async def request_middleware(request: Request, call_next):
     try:
         response = await call_next(request)
     except Exception:
-        logger.exception(
+        logger.error(
             "Unhandled error request_id=%s method=%s path=%s",
             request_id,
             request.method,
@@ -626,6 +677,7 @@ async def request_middleware(request: Request, call_next):
         )
     latency_ms = (time.perf_counter() - start_time) * 1000
     response.headers["X-Request-ID"] = request_id
+    response.headers.update(security_headers(request.url.path))
     if response.status_code >= 500 and request.url.path.startswith("/api/"):
         task = asyncio.create_task(
             post_error_alert(
@@ -687,7 +739,7 @@ async def get_meter_history(device_id: str, time_scale: TimeScale = TimeScale.HO
     }
 
 
-@app.post("/api/meters/refresh")
+@app.post("/api/meters/refresh", dependencies=[Depends(require_admin_token)])
 async def refresh_meters():
     if not SWITCHBOT_TOKEN or not SWITCHBOT_SECRET:
         raise HTTPException(status_code=500, detail="SwitchBot credentials not configured")
@@ -775,7 +827,7 @@ class ImportData(BaseModel):
     devices: list[ImportDeviceData]
 
 
-@app.post("/api/import")
+@app.post("/api/import", dependencies=[Depends(require_admin_token)])
 async def import_data(data: ImportData):
     """Import historical data from another backend instance."""
     imported_devices = 0
@@ -822,7 +874,7 @@ async def import_data(data: ImportData):
 BACKUP_DIR = os.getenv("BACKUP_DIR", os.path.join(os.path.dirname(os.path.abspath(DB_PATH)), "backups"))
 
 
-@app.get("/api/backup")
+@app.get("/api/backup", dependencies=[Depends(require_admin_token)])
 async def backup_database():
     """Download a consistent snapshot of the SQLite database."""
     if not os.path.exists(DB_PATH):
@@ -836,17 +888,20 @@ async def backup_database():
                         background=BackgroundTask(os.remove, snapshot_path))
 
 
-# Serve frontend static files if the static directory exists.
-# Layout under static/:
-#   index.html              -> frontend served at "/"
-STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
-if STATIC_DIR.is_dir():
-    @app.get("/{full_path:path}")
+def register_spa_routes(application: FastAPI, static_dir: Path):
+    static_dir = Path(static_dir).resolve()
+    if not static_dir.is_dir():
+        return
+
+    @application.get("/{full_path:path}", include_in_schema=False)
     async def serve_spa(request: Request, full_path: str):
-        """Serve the frontend at root."""
-        file_path = (STATIC_DIR / full_path).resolve()
-        if not file_path.is_relative_to(STATIC_DIR.resolve()):
-            return FileResponse(STATIC_DIR / "index.html")
+        file_path = (static_dir / full_path).resolve()
+        if not file_path.is_relative_to(static_dir):
+            raise HTTPException(status_code=404, detail="Not found")
         if full_path and file_path.is_file():
             return FileResponse(file_path)
-        return FileResponse(STATIC_DIR / "index.html")
+        return FileResponse(static_dir / "index.html")
+
+
+STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
+register_spa_routes(app, STATIC_DIR)

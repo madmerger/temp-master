@@ -154,12 +154,13 @@ class TestPostErrorAlert:
 
 
 class TestBackupEndpoint:
-    def test_backup_404_when_db_missing(self, reset_data_store):
+    def test_backup_404_when_db_missing(self, reset_data_store, monkeypatch):
+        monkeypatch.setenv("ADMIN_API_TOKEN", "test-admin-token")
         original = main_module.DB_PATH
         main_module.DB_PATH = "/nonexistent/path/missing.db"
         try:
             client = TestClient(app)
-            response = client.get("/api/backup")
+            response = client.get("/api/backup", headers={"Authorization": "Bearer test-admin-token"})
         finally:
             main_module.DB_PATH = original
 
