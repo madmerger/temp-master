@@ -69,12 +69,8 @@ export function StatusBar({ status, connected, updated }: { status?: Status; con
   </>
 }
 
-function readToken() {
-  try { return sessionStorage.getItem('admin-api-token') ?? '' } catch { return '' }
-}
-
 export function Controls({ scale, setScale }: { scale: TimeScale; setScale: (scale: TimeScale) => void }) {
-  const [token, setToken] = useState(readToken)
+  const [token, setToken] = useState('')
   const client = useQueryClient()
   const refresh = useMutation({
     mutationFn: () => request('/api/meters/refresh', { method: 'POST', headers: { Authorization: `Bearer ${token}` } }),
@@ -89,10 +85,7 @@ export function Controls({ scale, setScale }: { scale: TimeScale; setScale: (sca
       </select>
     </label>
     <label>管理トークン
-      <input type="password" value={token} autoComplete="off" placeholder="管理操作に必要です" onChange={event => {
-        setToken(event.target.value)
-        try { sessionStorage.setItem('admin-api-token', event.target.value) } catch { /* 保存不可でも入力値を使用 */ }
-      }} />
+      <input type="password" value={token} autoComplete="off" placeholder="管理操作に必要です" onChange={event => setToken(event.target.value)} />
     </label>
     <div className="actions">
       <button disabled={refresh.isPending} onClick={() => refresh.mutate()}>{refresh.isPending ? 'Refreshing...' : 'Refresh Data'}</button>

@@ -37,6 +37,7 @@ http://localhost:5173 を開く。`/api` はViteからlocalhost:8000へプロキ
 - staleの見出し「未更新のメーター」、説明「1週間以上更新されていないデバイス」、バッジ「7日以上未更新」、説明「履歴データの取得対象外」。
 - last_updatedなしは「値がありません（データ未受信）」。
 - 管理トークンへtestを入力。Download BackupでSQLiteファイルを保存。`BACKUP_DIR` は起動前にmkdirする。
+- 管理トークンはメモリのみで保持し、sessionStorage/localStorageに保存しない。画面再読み込みで入力が空になることを確認する。
 - Refresh Data実行中はRefreshing...かつ無効。成功後に再取得。成功検証には実機認証情報が必要。
 - 誤トークン401、サーバートークン未設定503。操作エラーは通常のポーリング成功で消えないこと。
 - meters／status／historyは30秒間隔のポーリング。
