@@ -42,10 +42,10 @@ fly secrets set -a <アプリ名> CSP_CONNECT_SRC='https://api.example.com'
 DB_PATHの既定は/data/app.db、BACKUP_DIRは/data/backups。バックアップ先は起動前に作成する。
 この作業でFlyへのデプロイ・secrets更新・本番ボリューム変更は行っていない。
 
-### フェーズ3のローカル検証制限
+### フェーズ3のDocker検証
 
 CIワークフローはactionlint 1.7.7で検査し、エラーなし。
-Dockerデーモンは利用可能だが、以下のbuildはベースイメージ取得で失敗した。
+初回は以下のbuildがベースイメージ取得で失敗した。
 
 ```text
 $ docker build -t temp-master-test switchbot-dashboard
@@ -54,9 +54,67 @@ python:3.12-slim: failed to resolve source metadata
 ```
 
 代替の公開ECRからのpython／node取得も `Error response from daemon: error from registry: Data limit exceeded` で失敗。
-ローカルに既存イメージがないため、コンテナ起動・コンテナ内id・名前付き/dataへのimport／backup・コンテナ配信HTML／アセット／ヘッダーは未検証。
-先行フェーズのホスト上のAPI／React検証は、コンテナ検証の代替証拠としては扱わない。
-レジストリ制限がない環境でDocker buildジョブとREADMEの実行手順を確認してからデプロイすること。
+その後、Googleミラーからpython:3.12-slim／node:22-slimを取得し、元のFROM名へtagして再試行した。
+Dockerfileは変更せず、次のbuildが成功。Poetry 1.8.5で45依存の新規インストールも成功した。
+
+```bash
+docker pull mirror.gcr.io/library/python:3.12-slim
+docker tag mirror.gcr.io/library/python:3.12-slim python:3.12-slim
+docker pull mirror.gcr.io/library/node:22-slim
+docker tag mirror.gcr.io/library/node:22-slim node:22-slim
+docker build --pull=false -t temp-master-test switchbot-dashboard
+```
+
+管理トークンtest、名前付きボリュームを/dataへマウントし、同一イメージで次の2条件を検証した。
+
+|条件|/dataと/data/backups|結果|
+|---|---|---|
+|準備済み|10001:10001、0755|起動成功、import／backup成功|
+|未準備|0:0、0755|lifespanのinit_databaseでDB作成失敗、終了コード3、HTTP接続不可|
+
+準備済みコンテナの実測値:
+
+```text
+uid=10001(app) gid=10001(app) groups=10001(app)
+10001:10001 755 /data
+10001:10001 755 /data/backups
+GET / HTTP/1.1 200 OK
+/assets/index-C7v4Mg-6.js 200
+/assets/index-BcG71skU.css 200
+GET /api/status HTTP/1.1 200 OK
+POST /api/import: {"status":"ok","imported_devices":1,"imported_readings":1}
+GET /api/backup HTTP/1.1 200 OK
+content-type: application/x-sqlite3
+content-disposition: attachment; filename="switchbot_backup_20261120_055658.db"
+content-length: 36864
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+content-security-policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; object-src 'none'; base-uri 'self'
+integrity_check: ok
+devices: [('container-meter',)]
+readings: [(23.5, 50)]
+10001:10001 644 /data/app.db
+```
+
+HTMLはReactのroot要素と同一オリジンのJS/CSSを返し、HTMLにも上記セキュリティヘッダーが付くことを確認。
+ダウンロードしたDBをSQLiteで開き、importした行とintegrity_checkを検証した。送信後の/data/backupsに一時スナップショットは残っていない。
+
+root所有のままのコンテナの実測値:
+
+```text
+status=exited exit=3 user=10001:10001
+File "/app/app/main.py", line 581, in lifespan
+    await init_database()
+File "/app/app/main.py", line 105, in init_database
+    async with aiosqlite.connect(DB_PATH) as db:
+sqlite3.OperationalError: unable to open database file
+ERROR:    Application startup failed. Exiting.
+curl: (7) Failed to connect to localhost port 8081
+root-owned status: 000
+```
+
+書き込み失敗はAPI呼び出し時ではなく起動時に発生する。Fly本番ボリュームへの反映自体は未実施であり、事前所有権準備は引き続き必須。
 
 ## 修正前の記録
 
