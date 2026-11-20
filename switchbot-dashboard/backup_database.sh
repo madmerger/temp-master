@@ -69,7 +69,7 @@ backup_database() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] Starting backup..."
     
     local http_code
-    if ! http_code=$(curl -sS -w "%{http_code}" -H "Authorization: Bearer $ADMIN_API_TOKEN" -o "$backup_file" "$BACKEND_URL/api/backup"); then
+    if ! http_code=$(printf 'Authorization: Bearer %s\n' "$ADMIN_API_TOKEN" | curl -sS -w "%{http_code}" -H @- -o "$backup_file" "$BACKEND_URL/api/backup"); then
         echo "[$(date '+%Y-%m-%d %H:%M:%S')] Backup failed: request error" >&2
         rm -f "$backup_file"
         return 1
