@@ -115,15 +115,10 @@ async def post_error_alert(
         if response.status_code == 200 and response.json().get("ok") is True:
             _last_alert_at[key] = time.time()
             return True
-        slack_error = ""
-        try:
-            slack_error = response.json().get("error", "")
-        except Exception:
-            pass
         logger.warning(
-            "Slack alert failed: status=%s error=%s", response.status_code, slack_error
+            "Slack alert failed: status=%s", response.status_code
         )
         return False
-    except Exception as e:
-        logger.warning("Slack alert failed: %s", e)
+    except Exception:
+        logger.warning("Slack alert request failed")
         return False

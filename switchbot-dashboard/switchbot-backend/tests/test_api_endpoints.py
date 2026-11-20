@@ -18,8 +18,9 @@ from app.main import (
 
 
 @pytest.fixture
-def client(reset_data_store) -> TestClient:
-    return TestClient(app)
+def client(reset_data_store, monkeypatch) -> TestClient:
+    monkeypatch.setenv("ADMIN_API_TOKEN", "test-admin-token")
+    return TestClient(app, headers={"Authorization": "Bearer test-admin-token"})
 
 
 class TestHealthzEndpoint:
