@@ -20,9 +20,34 @@ class TestCollectData:
              patch.object(main_module, "SWITCHBOT_SECRET", ""):
             
             initial_devices = len(data_store.devices)
-            await collect_data()
+            result = await collect_data()
             
+            assert result is False
             assert len(data_store.devices) == initial_devices
+
+    async def test_collect_data_skips_when_already_collecting(self, reset_data_store):
+        data_store.is_collecting = True
+
+        with patch.object(main_module, "SWITCHBOT_TOKEN", "test-token"), \
+             patch.object(main_module, "SWITCHBOT_SECRET", "test-secret"), \
+             patch("app.main.fetch_devices", new_callable=AsyncMock) as mock_fetch_devices:
+            result = await collect_data()
+
+            assert result is False
+            mock_fetch_devices.assert_not_awaited()
+
+    async def test_collect_data_resets_lock_after_http_exception(self, reset_data_store):
+        with patch.object(main_module, "SWITCHBOT_TOKEN", "test-token"), \
+             patch.object(main_module, "SWITCHBOT_SECRET", "test-secret"), \
+             patch(
+                 "app.main.fetch_devices",
+                 new_callable=AsyncMock,
+                 side_effect=HTTPException(status_code=500, detail="upstream failed"),
+             ):
+            result = await collect_data()
+
+            assert result is True
+            assert data_store.is_collecting is False
 
     async def test_collect_data_updates_datastore(self, reset_data_store, temp_db_path):
         original_db_path = main_module.DB_PATH

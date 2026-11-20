@@ -51,6 +51,7 @@ async def reset_data_store(tmp_path) -> AsyncGenerator[DataStore, None]:
     original_backoff_until = data_store.backoff_until
     original_consecutive_errors = data_store.consecutive_errors
     original_is_collecting = data_store.is_collecting
+    original_last_collection_started = data_store.last_collection_started
     original_db_initialized = data_store.db_initialized
     original_db_path = main_module.DB_PATH
     
@@ -60,6 +61,7 @@ async def reset_data_store(tmp_path) -> AsyncGenerator[DataStore, None]:
     data_store.backoff_until = 0
     data_store.consecutive_errors = 0
     data_store.is_collecting = False
+    data_store.last_collection_started = 0
     data_store.db_initialized = False
     
     main_module.DB_PATH = str(tmp_path / "test.db")
@@ -73,6 +75,7 @@ async def reset_data_store(tmp_path) -> AsyncGenerator[DataStore, None]:
     data_store.backoff_until = original_backoff_until
     data_store.consecutive_errors = original_consecutive_errors
     data_store.is_collecting = original_is_collecting
+    data_store.last_collection_started = original_last_collection_started
     data_store.db_initialized = original_db_initialized
     main_module.DB_PATH = original_db_path
 

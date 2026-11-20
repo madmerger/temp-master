@@ -317,19 +317,6 @@
       });
     }
 
-    function triggerRefresh(callback) {
-      $.ajax({
-        url: API_URL + '/api/meters/refresh',
-        type: 'POST',
-        success: function(data) {
-          if (callback) callback(null, data);
-        },
-        error: function(xhr, status, err) {
-          if (callback) callback(err || status, null);
-        }
-      });
-    }
-
     // ============================================================
     // Top-level data load (nested callbacks, no Promise.all)
     // ============================================================
@@ -654,13 +641,8 @@
       $('#btn-refresh').click(function() {
         var $btn = $(this);
         $btn.prop('disabled', true).text('Refreshing...');
-        triggerRefresh(function(err) {
-          if (err) {
-            showError('Failed to refresh: ' + err);
-          }
-          fetchData();
-          $btn.prop('disabled', false).text('Refresh Data');
-        });
+        fetchData();
+        $btn.prop('disabled', false).text('Refresh Data');
       });
 
       $('#btn-backup').click(function() {

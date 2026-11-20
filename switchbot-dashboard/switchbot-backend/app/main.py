@@ -3,6 +3,7 @@ import base64
 import hashlib
 import hmac
 import logging
+import math
 import os
 import time
 import uuid
@@ -16,7 +17,7 @@ import httpx
 from dotenv import load_dotenv
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
@@ -38,10 +39,12 @@ DB_PATH = os.getenv("DB_PATH", "/data/app.db" if os.path.exists("/data") else "a
 SWITCHBOT_API_BASE = "https://api.switch-bot.com/v1.1"
 SWITCHBOT_TOKEN = os.getenv("SWITCHBOT_TOKEN", "")
 SWITCHBOT_SECRET = os.getenv("SWITCHBOT_SECRET", "")
+ADMIN_API_TOKEN = os.getenv("ADMIN_API_TOKEN", "")
 
 DATA_COLLECTION_INTERVAL = 3600
 RATE_LIMIT_BACKOFF_BASE = 60
 MAX_BACKOFF = 600
+REFRESH_COOLDOWN_SECONDS = 60
 
 METER_DEVICE_TYPES = ["Meter", "MeterPlus", "WoIOSensor", "Meter Plus (JP)", "Meter Pro", "Meter Pro CO2", "Hub 2"]
 
@@ -91,11 +94,34 @@ class DataStore:
         self.backoff_until: float = 0
         self.consecutive_errors: int = 0
         self.is_collecting: bool = False
+        self.last_collection_started: float = 0
         self.collection_task: Optional[asyncio.Task] = None
         self.db_initialized: bool = False
 
 
 data_store = DataStore()
+
+
+def require_admin_token(authorization: Optional[str] = Header(default=None)):
+    if not ADMIN_API_TOKEN:
+        logger.warning("ADMIN_API_TOKEN is not configured")
+        raise HTTPException(
+            status_code=401,
+            detail="Unauthorized",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    scheme, separator, token = (authorization or "").partition(" ")
+    if (
+        not separator
+        or scheme.lower() != "bearer"
+        or not hmac.compare_digest(token.encode("utf-8"), ADMIN_API_TOKEN.encode("utf-8"))
+    ):
+        raise HTTPException(
+            status_code=401,
+            detail="Unauthorized",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 
 async def init_database():
@@ -510,13 +536,10 @@ async def fetch_device_status(device_id: str) -> dict:
     return response.get("body", {})
 
 
-async def collect_data():
-    if not SWITCHBOT_TOKEN or not SWITCHBOT_SECRET:
-        return
-    
+async def _run_collection():
     try:
         devices = await fetch_devices()
-        
+
         for device in devices:
             if device.device_id not in data_store.devices:
                 data_store.devices[device.device_id] = device
@@ -524,23 +547,23 @@ async def collect_data():
             else:
                 data_store.devices[device.device_id].device_name = device.device_name
                 data_store.devices[device.device_id].device_type = device.device_type
-        
+
         for device_id in list(data_store.devices.keys()):
             try:
                 status = await fetch_device_status(device_id)
-                
+
                 temperature = status.get("temperature")
                 humidity = status.get("humidity")
                 battery = status.get("battery")
-                
+
                 if temperature is not None:
                     now = datetime.now(timezone.utc)
-                    
+
                     data_store.devices[device_id].current_temperature = temperature
                     data_store.devices[device_id].current_humidity = humidity
                     data_store.devices[device_id].battery = battery
                     data_store.devices[device_id].last_updated = now
-                    
+
                     reading = MeterReading(
                         timestamp=now,
                         temperature=temperature,
@@ -548,23 +571,41 @@ async def collect_data():
                         battery=battery,
                     )
                     data_store.history[device_id].append(reading)
-                    
+
                     # Save to database for persistence
                     await save_device_to_db(data_store.devices[device_id])
                     await save_reading_to_db(device_id, reading)
-                    
+
                     max_readings = 365 * 24 * 30
                     if len(data_store.history[device_id]) > max_readings:
                         data_store.history[device_id] = data_store.history[device_id][-max_readings:]
-                        
+
             except HTTPException as e:
                 if e.status_code == 429:
                     break
-                    
+
     except HTTPException:
         pass
     except Exception:
         pass
+
+
+async def collect_data():
+    if not SWITCHBOT_TOKEN or not SWITCHBOT_SECRET:
+        return False
+
+    if data_store.is_collecting:
+        logger.info("Data collection is already in progress")
+        return False
+
+    data_store.is_collecting = True
+    data_store.last_collection_started = time.time()
+
+    try:
+        await _run_collection()
+        return True
+    finally:
+        data_store.is_collecting = False
 
 
 async def background_collector():
@@ -687,12 +728,41 @@ async def get_meter_history(device_id: str, time_scale: TimeScale = TimeScale.HO
     }
 
 
-@app.post("/api/meters/refresh")
+@app.post("/api/meters/refresh", dependencies=[Depends(require_admin_token)])
 async def refresh_meters():
     if not SWITCHBOT_TOKEN or not SWITCHBOT_SECRET:
         raise HTTPException(status_code=500, detail="SwitchBot credentials not configured")
     
-    await collect_data()
+    if data_store.is_collecting:
+        raise HTTPException(
+            status_code=429,
+            detail="Data collection already in progress",
+            headers={"Retry-After": "1"},
+        )
+
+    now = time.time()
+    if now < data_store.backoff_until:
+        retry_after = max(1, math.ceil(data_store.backoff_until - now))
+        raise HTTPException(
+            status_code=429,
+            detail="SwitchBot API rate limit backoff is active",
+            headers={"Retry-After": str(retry_after)},
+        )
+
+    cooldown_remaining = REFRESH_COOLDOWN_SECONDS - (now - data_store.last_collection_started)
+    if cooldown_remaining > 0:
+        raise HTTPException(
+            status_code=429,
+            detail="Refresh cooldown is active",
+            headers={"Retry-After": str(max(1, math.ceil(cooldown_remaining)))},
+        )
+
+    if not await collect_data():
+        raise HTTPException(
+            status_code=429,
+            detail="Data collection already in progress",
+            headers={"Retry-After": "1"},
+        )
     
     return {
         "status": "ok",
