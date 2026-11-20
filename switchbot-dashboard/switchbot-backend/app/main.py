@@ -648,6 +648,7 @@ def security_headers(path: str) -> dict[str, str]:
             f"default-src 'self'; script-src {scripts}; style-src {styles}; "
             f"img-src {images}; connect-src {connect.strip()}; "
             "frame-ancestors 'none'; object-src 'none'; base-uri 'self'"
+            + ("; worker-src 'self' blob:" if path == "/redoc" else "")
         ),
     }
 

@@ -101,6 +101,10 @@ def test_docs_csp(path):
     response = TestClient(main.app).get(path)
     assert response.status_code == 200
     assert "https://cdn.jsdelivr.net 'unsafe-inline'" in response.headers["content-security-policy"]
+    if path == "/redoc":
+        assert "worker-src 'self' blob:" in response.headers["content-security-policy"]
+    else:
+        assert "worker-src" not in response.headers["content-security-policy"]
 
 
 def test_csp_connect(monkeypatch):
