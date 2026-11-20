@@ -1,5 +1,63 @@
 # セキュリティ監査（フェーズ1）
 
+## Fly運用・デプロイ準備（フェーズ3）
+
+コンテナはUID/GID 10001:10001で実行し、常駐rootプロセスや起動時の自動権限昇格は採用しない。
+Flyボリュームはroot所有でマウントされ、Dockerfile内のchownを隠すため、デプロイ前に管理者による一度の所有権準備が必要。
+事前にDBをバックアップし、旧マシンまたは当該ボリュームをマウントした保守用マシンのrootシェルで実行する。
+
+```bash
+fly ssh console -a <アプリ名> -u root
+# 接続先の/dataが当該アプリ専用ボリュームであることを確認してから実行
+mkdir -p /data/backups
+chown -R 10001:10001 /data
+```
+
+複数ボリュームでは各ボリュームで準備する。新規Flyボリュームも同様。未準備ならSQLiteへの書き込みが失敗し起動できない。
+この方法はrootエントリポイントを増やさず、権限変更を明示的な保守操作に限定するため採用した。777に変更しないこと。
+新規Docker名前付きボリュームはイメージ内の/data所有権とbackupsディレクトリを引き継ぐが、既存root所有ボリュームは同じ準備が必要。
+
+管理トークンは十分に長いランダム値を安全に生成し、シェル履歴・ログに残さずFly secretsへ設定する。以下は書式例（値はプレースホルダー）。
+
+```bash
+fly secrets set -a <アプリ名> ADMIN_API_TOKEN='<安全に生成した管理トークン>'
+```
+
+トークンはVITE変数やフロントエンドへ埋め込まない。画面の管理トークン入力から、管理API呼び出し時のみBearerとして送る。
+同一オリジン配信ではCORS_ALLOW_ORIGINSとCSP_CONNECT_SRCは未設定でよい。
+別オリジンのUIからAPIへアクセスさせる場合、API側の許可元を明示する。
+
+```bash
+fly secrets set -a <アプリ名> CORS_ALLOW_ORIGINS='https://dashboard.example.com,https://admin.example.com'
+```
+
+CSP_CONNECT_SRCは、そのコンテナから配信するページが接続する追加のAPIオリジン用。CORSの許可元とは方向が逆なので混同しない。
+外部APIをビルド時VITE_API_URLに指定した場合は、そのAPIオリジンをconnect-srcへ追加し、相手API側のCORSも別途設定する。
+
+```bash
+fly secrets set -a <アプリ名> CSP_CONNECT_SRC='https://api.example.com'
+```
+
+値はカンマ区切りの信頼できるオリジンのみとし、ワイルドカードや任意のCSPディレクティブを入れない。allow_credentialsは常にFalse。
+DB_PATHの既定は/data/app.db、BACKUP_DIRは/data/backups。バックアップ先は起動前に作成する。
+この作業でFlyへのデプロイ・secrets更新・本番ボリューム変更は行っていない。
+
+### フェーズ3のローカル検証制限
+
+CIワークフローはactionlint 1.7.7で検査し、エラーなし。
+Dockerデーモンは利用可能だが、以下のbuildはベースイメージ取得で失敗した。
+
+```text
+$ docker build -t temp-master-test switchbot-dashboard
+python:3.12-slim: failed to resolve source metadata
+429 Too Many Requests
+```
+
+代替の公開ECRからのpython／node取得も `Error response from daemon: error from registry: Data limit exceeded` で失敗。
+ローカルに既存イメージがないため、コンテナ起動・コンテナ内id・名前付き/dataへのimport／backup・コンテナ配信HTML／アセット／ヘッダーは未検証。
+先行フェーズのホスト上のAPI／React検証は、コンテナ検証の代替証拠としては扱わない。
+レジストリ制限がない環境でDocker buildジョブとREADMEの実行手順を確認してからデプロイすること。
+
 ## 修正前の記録
 
 対象: `switchbot-backend/app/main.py`、`app/alerts.py`、`pyproject.toml`、`poetry.lock`。
