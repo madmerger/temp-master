@@ -1,7 +1,9 @@
+import asyncio
 import time
 from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock, patch
 
+import httpx
 import pytest
 from fastapi.testclient import TestClient
 
@@ -268,18 +270,57 @@ class TestGetMeterHistoryEndpoint:
 
 
 class TestRefreshMetersEndpoint:
-    def test_refresh_meters_no_credentials(self, client):
-        with patch.object(main_module, "SWITCHBOT_TOKEN", ""), \
-             patch.object(main_module, "SWITCHBOT_SECRET", ""):
+    @pytest.mark.parametrize(
+        ("admin_token", "authorization"),
+        [
+            ("test-admin-token", None),
+            ("test-admin-token", "Bearer wrong-token"),
+            ("", "Bearer test-admin-token"),
+        ],
+    )
+    def test_refresh_meters_unauthorized(self, client, admin_token, authorization):
+        headers = {"Authorization": authorization} if authorization else {}
+        with patch.object(main_module, "ADMIN_API_TOKEN", admin_token), \
+             patch.object(main_module, "SWITCHBOT_TOKEN", "test-token"), \
+             patch.object(main_module, "SWITCHBOT_SECRET", "test-secret"), \
+             patch("app.main.collect_data", new_callable=AsyncMock) as mock_collect:
+            response = client.post("/api/meters/refresh", headers=headers)
+
+            assert response.status_code == 401
+            assert response.headers["www-authenticate"] == "Bearer"
+            mock_collect.assert_not_awaited()
+
+    def test_refresh_meters_unauthorized_without_switchbot_credentials(self, client):
+        with patch.object(main_module, "ADMIN_API_TOKEN", "test-admin-token"), \
+             patch.object(main_module, "SWITCHBOT_TOKEN", ""), \
+             patch.object(main_module, "SWITCHBOT_SECRET", ""), \
+             patch("app.main.collect_data", new_callable=AsyncMock) as mock_collect:
             response = client.post("/api/meters/refresh")
+
+            assert response.status_code == 401
+            assert response.headers["www-authenticate"] == "Bearer"
+            mock_collect.assert_not_awaited()
+
+    def test_refresh_meters_no_credentials(self, client):
+        with patch.object(main_module, "ADMIN_API_TOKEN", "test-admin-token"), \
+             patch.object(main_module, "SWITCHBOT_TOKEN", ""), \
+             patch.object(main_module, "SWITCHBOT_SECRET", ""), \
+             patch("app.main.collect_data", new_callable=AsyncMock) as mock_collect:
+            response = client.post(
+                "/api/meters/refresh",
+                headers={"Authorization": "Bearer test-admin-token"},
+            )
             
             assert response.status_code == 500
             assert "credentials not configured" in response.json()["detail"].lower()
+            mock_collect.assert_not_awaited()
 
     def test_refresh_meters_success(self, client, reset_data_store):
-        with patch.object(main_module, "SWITCHBOT_TOKEN", "test-token"), \
+        with patch.object(main_module, "ADMIN_API_TOKEN", "test-admin-token"), \
+             patch.object(main_module, "SWITCHBOT_TOKEN", "test-token"), \
              patch.object(main_module, "SWITCHBOT_SECRET", "test-secret"), \
              patch("app.main.collect_data", new_callable=AsyncMock) as mock_collect:
+            mock_collect.return_value = True
             
             data_store.devices["device-001"] = MeterDevice(
                 device_id="device-001",
@@ -287,13 +328,115 @@ class TestRefreshMetersEndpoint:
                 device_type="Meter",
             )
             
-            response = client.post("/api/meters/refresh")
+            response = client.post(
+                "/api/meters/refresh",
+                headers={"Authorization": "Bearer test-admin-token"},
+            )
             
             assert response.status_code == 200
             data = response.json()
             assert data["status"] == "ok"
             assert data["meters_count"] == 1
             mock_collect.assert_called_once()
+
+    async def test_refresh_meters_parallel_requests_collect_once(self, reset_data_store):
+        async def call_switchbot_api(endpoint, device_id=None):
+            await asyncio.sleep(0.05)
+            if endpoint == "/devices":
+                return {
+                    "statusCode": 100,
+                    "body": {
+                        "deviceList": [
+                            {
+                                "deviceId": "device-001",
+                                "deviceName": "Test Meter",
+                                "deviceType": "Meter",
+                            }
+                        ]
+                    },
+                }
+            return {
+                "statusCode": 100,
+                "body": {"temperature": 23.5, "humidity": 55, "battery": 90},
+            }
+
+        with patch.object(main_module, "ADMIN_API_TOKEN", "test-admin-token"), \
+             patch.object(main_module, "SWITCHBOT_TOKEN", "test-token"), \
+             patch.object(main_module, "SWITCHBOT_SECRET", "test-secret"), \
+             patch("app.main.call_switchbot_api", new_callable=AsyncMock, side_effect=call_switchbot_api) as mock_api:
+            transport = httpx.ASGITransport(app=app)
+            async with httpx.AsyncClient(transport=transport, base_url="http://test") as async_client:
+                responses = await asyncio.gather(*[
+                    async_client.post(
+                        "/api/meters/refresh",
+                        headers={"Authorization": "Bearer test-admin-token"},
+                    )
+                    for _ in range(20)
+                ])
+
+            statuses = [response.status_code for response in responses]
+            assert statuses.count(200) == 1
+            assert statuses.count(429) == 19
+            assert all(response.headers.get("retry-after") for response in responses if response.status_code == 429)
+            assert sum(call.args[0] == "/devices" for call in mock_api.await_args_list) == 1
+
+    async def test_refresh_meters_cooldown(self, reset_data_store):
+        async def call_switchbot_api(endpoint, device_id=None):
+            if endpoint == "/devices":
+                return {
+                    "statusCode": 100,
+                    "body": {
+                        "deviceList": [
+                            {
+                                "deviceId": "device-001",
+                                "deviceName": "Test Meter",
+                                "deviceType": "Meter",
+                            }
+                        ]
+                    },
+                }
+            return {
+                "statusCode": 100,
+                "body": {"temperature": 23.5, "humidity": 55, "battery": 90},
+            }
+
+        with patch.object(main_module, "ADMIN_API_TOKEN", "test-admin-token"), \
+             patch.object(main_module, "SWITCHBOT_TOKEN", "test-token"), \
+             patch.object(main_module, "SWITCHBOT_SECRET", "test-secret"), \
+             patch("app.main.call_switchbot_api", new_callable=AsyncMock, side_effect=call_switchbot_api):
+            transport = httpx.ASGITransport(app=app)
+            async with httpx.AsyncClient(transport=transport, base_url="http://test") as async_client:
+                headers = {"Authorization": "Bearer test-admin-token"}
+                first_response = await async_client.post("/api/meters/refresh", headers=headers)
+                second_response = await async_client.post("/api/meters/refresh", headers=headers)
+
+                assert first_response.status_code == 200
+                assert second_response.status_code == 429
+                assert 1 <= int(second_response.headers["retry-after"]) <= 60
+
+                data_store.last_collection_started = (
+                    time.time() - main_module.REFRESH_COOLDOWN_SECONDS - 1
+                )
+                third_response = await async_client.post("/api/meters/refresh", headers=headers)
+                assert third_response.status_code == 200
+
+    async def test_refresh_meters_backoff(self, reset_data_store):
+        data_store.backoff_until = time.time() + 30
+
+        with patch.object(main_module, "ADMIN_API_TOKEN", "test-admin-token"), \
+             patch.object(main_module, "SWITCHBOT_TOKEN", "test-token"), \
+             patch.object(main_module, "SWITCHBOT_SECRET", "test-secret"), \
+             patch("app.main.call_switchbot_api", new_callable=AsyncMock) as mock_api:
+            transport = httpx.ASGITransport(app=app)
+            async with httpx.AsyncClient(transport=transport, base_url="http://test") as async_client:
+                response = await async_client.post(
+                    "/api/meters/refresh",
+                    headers={"Authorization": "Bearer test-admin-token"},
+                )
+
+            assert response.status_code == 429
+            assert 1 <= int(response.headers["retry-after"]) <= 30
+            mock_api.assert_not_awaited()
 
 
 class TestGetStatusEndpoint:
