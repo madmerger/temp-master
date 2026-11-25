@@ -55,7 +55,11 @@ function HistoryChart({ meter, colors }: { meter: Meter; colors: Palette }) {
   if (result.isError && !result.data) {
     return <Text style={{ color: colors.error }}>Failed to load history</Text>
   }
-  if (!result.data.length) return <Text style={{ color: colors.muted }}>No readings in this range</Text>
+  if (!result.data.length) {
+    return result.isRefetchError
+      ? <Text accessibilityRole="alert" style={{ color: colors.error }}>Failed to refresh history</Text>
+      : <Text style={{ color: colors.muted }}>No readings in this range</Text>
+  }
 
   const first = result.data[0]
   const last = result.data[result.data.length - 1]
@@ -76,6 +80,11 @@ function HistoryChart({ meter, colors }: { meter: Meter; colors: Palette }) {
       style={styles.chart}
     >
       <Text style={[styles.caption, { color: colors.muted }]}>Last 24 hours · °C</Text>
+      {result.isRefetchError && (
+        <Text accessibilityRole="alert" style={[styles.caption, { color: colors.error }]}>
+          Failed to refresh history. Showing previously loaded readings.
+        </Text>
+      )}
       {plotWidth > 2 * plotInset && (
         <>
           <LineChart
