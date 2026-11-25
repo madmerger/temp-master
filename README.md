@@ -29,9 +29,9 @@ pnpm dev
 | 環境変数 | 用途 |
 | --- | --- |
 | `VITE_API_URL` | メーター、履歴、手動更新、接続状態の取得先。未指定時は `https://snakeroom.fly.dev`。空文字列で同一オリジンの `/api` を使用 |
-| `API_PROXY_TARGET` | Vite の開発・プレビューサーバーが同一オリジンの `/api` を転送する先。未指定時は `http://127.0.0.1:8000` |
+| `API_PROXY_TARGET` | Vite の開発・プレビューでローカル接続からのダッシュボード API リクエストを転送する先。指定した場合に有効 |
 
-バックアップは画面配信元の `/api/backup` からダウンロードします。開発時は FastAPI を起動すると Vite のプロキシ経由で利用できます。`VITE_API_URL= pnpm dev` を実行すると、メーター関連のリクエストも同じプロキシを使います。
+バックアップは画面配信元の `/api/backup` からダウンロードします。ローカルの FastAPI を起動し、`API_PROXY_TARGET=http://127.0.0.1:8000 VITE_API_URL= pnpm dev` を実行すると、ローカルのブラウザーからメーターデータとバックアップを取得できます。
 
 ### iOS
 

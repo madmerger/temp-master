@@ -14,7 +14,7 @@ corepack pnpm install --frozen-lockfile
 corepack pnpm dev
 ```
 
-Open http://localhost:5173. The Web app uses the production readings API by default. For isolated tests, start the local backend with a test database as described in [the backend setup](../../../switchbot-dashboard/README.md), then run `VITE_API_URL= corepack pnpm dev` to send readings and backups through Vite's local API proxy. Use test data with a recent meter, a meter at least seven days old, and a meter with no data. For manual refresh, use SwitchBot test credentials or a mocked collection source that supplies a newer reading. Confirm that the meter's last-updated timestamp advances in addition to checking the POST and subsequent reads.
+Open http://localhost:5173. The Web app uses the production readings API by default. For isolated tests, start the local backend with a test database as described in [the backend setup](../../../switchbot-dashboard/README.md), then run `API_PROXY_TARGET=http://127.0.0.1:8000 VITE_API_URL= corepack pnpm dev` to send readings and backups through Vite's local API proxy. Use test data with a recent meter, a meter at least seven days old, and a meter with no data. For manual refresh, use SwitchBot test credentials or a mocked collection source that supplies a newer reading. Confirm that the meter's last-updated timestamp advances in addition to checking the POST and subsequent reads.
 
 To verify the packaged app, build from the repository root with `docker build -f switchbot-dashboard/Dockerfile -t temp-master .`. FastAPI serves the built Web app at `/` inside the container.
 
