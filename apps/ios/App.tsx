@@ -53,11 +53,16 @@ function HistoryChart({ meter, colors }: { meter: Meter; colors: Palette }) {
   if (result.isError) return <Text style={{ color: colors.error }}>Failed to load history</Text>
   if (!result.data.length) return <Text style={{ color: colors.muted }}>No readings in this range</Text>
 
-  const lastIndex = result.data.length - 1
-  const data = result.data.map(({ timestamp, temperature }, index) => ({
+  const first = result.data[0]
+  const last = result.data[result.data.length - 1]
+  const data = result.data.map(({ timestamp, temperature }) => ({
     value: temperature,
-    label: index === 0 || index === lastIndex ? formatTimestamp(timestamp, 'day') : undefined,
+    x: Date.parse(timestamp),
   }))
+  const timeSpan = Math.max(Date.parse(last.timestamp) - Date.parse(first.timestamp), 1)
+  const yAxisWidth = 42
+  const plotWidth = width - yAxisWidth
+  const plotInset = 12
 
   return (
     <View
@@ -66,24 +71,34 @@ function HistoryChart({ meter, colors }: { meter: Meter; colors: Palette }) {
       style={styles.chart}
     >
       <Text style={[styles.caption, { color: colors.muted }]}>Last 24 hours · °C</Text>
-      {width > 52 && (
-        <LineChart
-          data={data}
-          height={120}
-          width={width - 42}
-          initialSpacing={14}
-          endSpacing={18}
-          adjustToWidth
-          disableScroll
-          hideDataPoints={data.length > 1}
-          color={colors.line}
-          dataPointsColor={colors.line}
-          rulesColor={colors.border}
-          xAxisColor={colors.border}
-          yAxisColor={colors.border}
-          xAxisLabelTextStyle={{ color: colors.muted, fontSize: 10 }}
-          yAxisTextStyle={{ color: colors.muted, fontSize: 10 }}
-        />
+      {plotWidth > 2 * plotInset && (
+        <>
+          <LineChart
+            data={data}
+            height={120}
+            width={plotWidth}
+            yAxisLabelWidth={yAxisWidth}
+            initialSpacing={plotInset}
+            endSpacing={plotInset}
+            spacing={1}
+            xOffset={data[0].x}
+            xScale={(plotWidth - 2 * plotInset) / timeSpan}
+            disableScroll
+            hideDataPoints={data.length > 1}
+            color={colors.line}
+            dataPointsColor={colors.line}
+            rulesColor={colors.border}
+            xAxisColor={colors.border}
+            yAxisColor={colors.border}
+            yAxisTextStyle={{ color: colors.muted, fontSize: 10 }}
+          />
+          <View style={[styles.chartTimes, { paddingLeft: yAxisWidth, paddingRight: plotInset }]}>
+            <Text style={[styles.caption, { color: colors.muted }]}>{formatTimestamp(first.timestamp, 'day')}</Text>
+            {last.timestamp !== first.timestamp && (
+              <Text style={[styles.caption, { color: colors.muted }]}>{formatTimestamp(last.timestamp, 'day')}</Text>
+            )}
+          </View>
+        </>
       )}
     </View>
   )
@@ -205,4 +220,5 @@ const styles = StyleSheet.create({
   temperature: { fontSize: 27, fontWeight: '700', fontVariant: ['tabular-nums'] },
   caption: { fontSize: 12 },
   chart: { marginHorizontal: 16, marginBottom: 16, gap: 8 },
+  chartTimes: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', gap: 6 },
 })
