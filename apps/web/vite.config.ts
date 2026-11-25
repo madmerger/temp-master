@@ -1,5 +1,6 @@
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
+import { fileURLToPath } from 'node:url'
 import { defineConfig, loadEnv, type ProxyOptions } from 'vite'
 
 const loopbackAddresses = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1'])
@@ -22,7 +23,14 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react(), tailwindcss()],
-    server: { proxy },
+    server: {
+      proxy,
+      fs: {
+        allow: ['./', '../../packages/shared/', '../../node_modules/'].map((path) =>
+          fileURLToPath(new URL(path, import.meta.url)),
+        ),
+      },
+    },
     preview: { proxy },
   }
 })
