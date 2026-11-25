@@ -51,7 +51,9 @@ function HistoryChart({ meter, colors }: { meter: Meter; colors: Palette }) {
     select: (response) => response.history,
   })
   if (result.isPending) return <ActivityIndicator accessibilityLabel="Loading history" color={colors.accent} />
-  if (result.isError) return <Text style={{ color: colors.error }}>Failed to load history</Text>
+  if (result.isError && !result.data) {
+    return <Text style={{ color: colors.error }}>Failed to load history</Text>
+  }
   if (!result.data.length) return <Text style={{ color: colors.muted }}>No readings in this range</Text>
 
   const first = result.data[0]
