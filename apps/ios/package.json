@@ -1,0 +1,27 @@
+{
+  "name": "@temp-master/ios",
+  "version": "0.0.0",
+  "private": true,
+  "main": "index.ts",
+  "scripts": {
+    "start": "expo start",
+    "ios": "expo start --ios",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.108.4",
+    "@temp-master/shared": "workspace:*",
+    "expo": "~58.0.26",
+    "expo-linear-gradient": "~58.0.4",
+    "expo-system-ui": "~58.0.7",
+    "react": "19.3.0",
+    "react-native": "0.88.1",
+    "react-native-gifted-charts": "^1.4.83",
+    "react-native-safe-area-context": "~5.11.1",
+    "react-native-svg": "15.16.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "typescript": "~6.0.3"
+  }
+}

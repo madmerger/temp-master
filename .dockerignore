@@ -1,0 +1,9 @@
+.git
+**/node_modules
+**/dist
+**/.expo
+**/.venv
+**/__pycache__
+**/.env*
+**/*.db
+apps/ios

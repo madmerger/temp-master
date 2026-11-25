@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "name": "Temp Master",
+    "slug": "temp-master-ios",
+    "version": "1.0.0",
+    "platforms": ["ios"],
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "bundleIdentifier": "com.temp-master.dashboard",
+      "supportsTablet": true
+    }
+  }
+}

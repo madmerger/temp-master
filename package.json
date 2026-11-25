@@ -1,0 +1,15 @@
+{
+  "name": "temp-master",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.34.9",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "dev": "pnpm --filter @temp-master/web dev",
+    "build": "pnpm --filter @temp-master/web build",
+    "lint": "pnpm --filter @temp-master/web lint",
+    "test": "node --test packages/shared/test/*.test.mjs",
+    "typecheck": "pnpm -r typecheck",
+    "ios": "pnpm --filter @temp-master/ios start"
+  }
+}
