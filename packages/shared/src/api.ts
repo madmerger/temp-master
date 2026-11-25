@@ -71,8 +71,12 @@ export function createApiClient(baseUrl = DEFAULT_API_URL, backupBaseUrl = baseU
     },
     async getBackup(signal?: AbortSignal) {
       const response = await request(`${backup}/api/backup`, { signal })
+      const blob = await response.blob()
+      if (await blob.slice(0, 16).text() !== 'SQLite format 3\0') {
+        throw new Error('The server did not return a SQLite backup')
+      }
       return {
-        blob: await response.blob(),
+        blob,
         filename: backupFilename(response.headers.get('Content-Disposition') ?? ''),
       }
     },
