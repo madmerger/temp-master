@@ -1,8 +1,9 @@
 import { createApiClient, formatTimestamp, getDisplayName, isStaleMeter, type Meter } from '@temp-master/shared'
-import { QueryClient, QueryClientProvider, useMutation, useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
+import { focusManager, QueryClient, QueryClientProvider, useMutation, useQuery } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
 import {
   ActivityIndicator,
+  AppState,
   FlatList,
   Pressable,
   RefreshControl,
@@ -200,6 +201,14 @@ function Dashboard() {
 }
 
 export default function App() {
+  useEffect(() => {
+    if (AppState.currentState) focusManager.setFocused(AppState.currentState === 'active')
+    const subscription = AppState.addEventListener('change', (state) => {
+      focusManager.setFocused(state === 'active')
+    })
+    return () => subscription.remove()
+  }, [])
+
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
