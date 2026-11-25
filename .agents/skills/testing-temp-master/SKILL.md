@@ -5,84 +5,35 @@ description: Test the Temp Master SwitchBot dashboard locally. Use when verifyin
 
 # Testing Temp Master Dashboard
 
-## Prerequisites
+## Start the Web app
 
-- Python 3.12+
-- Poetry (dependency management)
-- SwitchBot API credentials
-
-## Devin Secrets Needed
-
-- `SWITCHBOT_TOKEN` - SwitchBot API token
-- `SWITCHBOT_SECRET` - SwitchBot API secret
-
-## Local Development Setup
-
-### 1. Install dependencies
+From the repository root, use Node.js 24 and the workspace's pnpm version:
 
 ```bash
-cd switchbot-dashboard/switchbot-backend
-poetry install --no-interaction
+corepack pnpm install --frozen-lockfile
+corepack pnpm dev
 ```
 
-### 2. Create .env file
+Open http://localhost:5173. The Web app uses the production readings API by default. For isolated tests, start the local backend with a test database as described in [the backend setup](../../../switchbot-dashboard/README.md), then run `API_PROXY_TARGET=http://127.0.0.1:8000 VITE_API_URL= corepack pnpm dev` to send readings and backups through Vite's local API proxy. Use test data with a recent meter, a meter at least seven days old, and a meter with no data. For manual refresh, use SwitchBot test credentials or a mocked collection source that supplies a newer reading. Confirm that the meter's last-updated timestamp advances in addition to checking the POST and subsequent reads.
+
+To verify the packaged app, build from the repository root with `docker build -f switchbot-dashboard/Dockerfile -t temp-master .`. FastAPI serves the built Web app at `/` inside the container.
+
+## Web checks
+
+- The page and navbar display “Temp Master Dashboard.” Meter names use the shared aliases.
+- Active meters show temperature charts. Stale meters appear in the Japanese warning section and make no history requests.
+- The connection indicator and rate-limit banner follow the status API. History updates when the time range changes, and the dashboard polls every 30 seconds.
+- Light, Dark, and System control the chart and page colors. The selection survives a reload.
+- Refresh triggers a POST followed by reads. The SQLite backup downloads with the filename from `Content-Disposition`.
+
+## Shell checks
+
+From the repository root:
 
 ```bash
-cd switchbot-dashboard/switchbot-backend
-echo "SWITCHBOT_TOKEN=${SWITCHBOT_TOKEN}" > .env
-echo "SWITCHBOT_SECRET=${SWITCHBOT_SECRET}" >> .env
+corepack pnpm lint
+corepack pnpm typecheck
+corepack pnpm test
+corepack pnpm build
+(cd switchbot-dashboard/switchbot-backend && poetry run pytest)
 ```
-
-### 3. Symlink frontend static files
-
-The Dockerfile copies `switchbot-frontend/` to `switchbot-backend/static/`, but locally this directory doesn't exist. You must create a symlink:
-
-```bash
-ln -s $(pwd)/switchbot-dashboard/switchbot-frontend switchbot-dashboard/switchbot-backend/static
-```
-
-**Important:** The static directory check in `main.py` happens at module import time (`STATIC_DIR = Path(__file__).resolve().parent.parent / "static"`). If you create the symlink after starting the server, you must restart the server.
-
-### 4. Start the server
-
-```bash
-cd switchbot-dashboard/switchbot-backend
-poetry run fastapi run app/main.py --host 0.0.0.0 --port 8000
-```
-
-The frontend is served at `http://localhost:8000/` and the API docs at `http://localhost:8000/docs`.
-
-## Key Test Points
-
-### Branding Verification
-- Page title (`<title>` tag): should say "Temp Master Dashboard"
-- Navbar brand: should say "Temp Master Dashboard"
-- Footer: should say "Temp Master Dashboard v1.0 - Built with jQuery + Bootstrap 3"
-- Verify no "Snake" or "SnakeRoom" text exists anywhere: `document.body.innerHTML.includes('Snake')` should be `false`
-
-### API Connectivity
-- `GET /api/status` returns `configured: true` and `meters_count` > 0
-- `GET /api/meters` returns live meter data with temperature, humidity, battery
-- Connection status badge shows "Connected" (green, class `label-success`)
-
-### UI Functionality
-- View toggle: Default (equal 3-col grid) vs Shelf (featured meter + 3-col grid)
-- Time Range selector: Last Hour / Last 24 Hours / Last 7 Days / Last 30 Days / Last Year
-- Charts: Canvas elements rendered with Chart.js line charts
-- Refresh Data button triggers data reload
-
-## Running Backend Tests
-
-```bash
-cd switchbot-dashboard/switchbot-backend
-poetry run pytest -v
-```
-
-Expected: 97 tests pass.
-
-## Architecture Notes
-
-- Backend: FastAPI + aiosqlite (SQLite persistence at `/data/app.db` or local `app.db`)
-- Frontend: jQuery + Bootstrap 3 (single `index.html` file)
-- Deployment: Fly.io (see `fly.toml`)
-- Background data collection runs with 120s interval, with rate limiting and exponential backoff

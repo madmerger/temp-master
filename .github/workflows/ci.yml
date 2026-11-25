@@ -7,6 +7,37 @@ on:
     branches: [main]
 
 jobs:
+  web:
+    name: Web Lint, Typecheck and Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint Web
+        run: pnpm lint
+
+      - name: Typecheck workspace
+        run: pnpm typecheck
+
+      - name: Test shared module
+        run: pnpm test
+
+      - name: Build Web
+        run: pnpm build
+
   backend:
     name: Backend Tests
     runs-on: ubuntu-latest

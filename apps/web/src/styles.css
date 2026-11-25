@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --font-sans: Inter, "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-ready: var(--ready);
+  --color-danger: var(--danger);
+  --color-danger-surface: var(--danger-surface);
+  --color-warning: var(--warning);
+  --color-warning-surface: var(--warning-surface);
+  --color-warning-line: var(--warning-line);
+}
+
+:root {
+  color-scheme: light;
+  --canvas: #f4f7fb;
+  --surface: #ffffff;
+  --line: #dce4ee;
+  --ink: #152238;
+  --muted: #515f73;
+  --primary: #235ed3;
+  --primary-hover: #1d4fad;
+  --ready: #07724f;
+  --danger: #af3239;
+  --danger-surface: #fff0f0;
+  --warning: #815416;
+  --warning-surface: #fff8e8;
+  --warning-line: #ebd4a3;
+  --chart-grid: #e0e7f0;
+  --chart-line: #d9534f;
+  --chart-fill: rgb(217 83 79 / 15%);
+}
+
+:root.dark {
+  color-scheme: dark;
+  --canvas: #0e1727;
+  --surface: #162235;
+  --line: #2d3b51;
+  --ink: #eef3fb;
+  --muted: #a8b8ce;
+  --primary: #80aaff;
+  --primary-hover: #9bbbff;
+  --ready: #62d9aa;
+  --danger: #ffa0a4;
+  --danger-surface: #392636;
+  --warning: #ffd289;
+  --warning-surface: #302819;
+  --warning-line: #614e2c;
+  --chart-grid: #34445b;
+  --chart-line: #ff8a85;
+  --chart-fill: rgb(255 138 133 / 16%);
+}
+
+@layer base {
+  body {
+    @apply min-h-screen bg-canvas font-sans text-ink antialiased;
+  }
+
+  :is(button, select, a):focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary;
+  }
+}
+
+@layer utilities {
+  .dark .bg-primary.text-white {
+    color: var(--canvas);
+  }
+  .recharts-tooltip-label {
+    color: var(--ink);
+  }
+}
