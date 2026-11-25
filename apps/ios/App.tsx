@@ -42,6 +42,7 @@ const dark: typeof light = {
 }
 
 type Palette = typeof light
+const renderEmptyLabel = () => null
 
 function HistoryChart({ meter, colors }: { meter: Meter; colors: Palette }) {
   const [width, setWidth] = useState(0)
@@ -61,6 +62,7 @@ function HistoryChart({ meter, colors }: { meter: Meter; colors: Palette }) {
   const data = result.data.map(({ timestamp, temperature }) => ({
     value: temperature,
     x: Date.parse(timestamp),
+    labelComponent: renderEmptyLabel,
   }))
   const timeSpan = Math.max(Date.parse(last.timestamp) - Date.parse(first.timestamp), 1)
   const yAxisWidth = 42
